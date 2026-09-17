@@ -27,24 +27,24 @@ class RemunerationRequest extends FormRequest
             'medecin_id' => 'required|exists:medecins,id',
 
             // L'agent gestionnaire qui valide la paie
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
 
             // Type de rémunération
-            'type_remuneration' => 'required|string|max:50',
+            'type_remuneration' => 'nullable|string|max:50',
 
             // Période
             'periode_debut' => 'required|date',
             'periode_fin' => 'required|date|after_or_equal:periode_debut',
 
-            // Montants et pourcentages
+            // Montants et pourcentages (calculés automatiquement si non fournis)
             'salaire_fixe' => 'nullable|numeric|min:0',
             'pourcentage' => 'nullable|numeric|min:0|max:100',
-            'montant_base' => 'required|numeric|min:0',
-            'montant_medecin' => 'required|numeric|min:0',
-            'montant_clinique' => 'required|numeric|min:0',
+            'montant_base' => 'nullable|numeric|min:0',
+            'montant_medecin' => 'nullable|numeric|min:0',
+            'montant_clinique' => 'nullable|numeric|min:0',
 
             // Statut et date de paiement
-            'statut' => 'required|string|max:50',
+            'statut' => 'nullable|string|max:50',
             'date_paiement' => 'nullable|date',
 
             // Notes

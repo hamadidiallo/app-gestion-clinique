@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             AssuranceSeeder::class,
             ModePaiementSeeder::class,
             CategorieDepenseSeeder::class,
+            ActeSeeder::class,
         ]);
     }
 }

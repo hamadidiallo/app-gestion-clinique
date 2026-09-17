@@ -1,6 +1,7 @@
 <?php
 
 // Importation des contrôleurs existants
+use App\Http\Controllers\ActeController;
 use App\Http\Controllers\AssuranceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CaisseController;
@@ -25,7 +26,6 @@ use App\Http\Controllers\ReglePartageController;
 use App\Http\Controllers\RemunerationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\TarifController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketDetailController;
 use App\Http\Controllers\UserController;
@@ -161,15 +161,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/services/{service}', 'destroy')->name('services.destroy');
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux tarifs
-    Route::controller(TarifController::class)->group(function () {
-        Route::get('/tarif/index', 'index')->name('tarifs.index');
-        Route::get('/create/tarif', 'create')->name('tarif.create');
-        Route::post('/create/tarif', 'store')->name('tarifs.store');
-        Route::get('/tarifs/{tarif}', 'show')->name('tarifs.show');
-        Route::get('/tarifs/{tarif}/edit', 'edit')->name('tarifs.edit');
-        Route::put('/tarifs/{tarif}', 'update')->name('tarifs.update');
-        Route::delete('/tarifs/{tarif}', 'destroy')->name('tarifs.destroy');
+    // Groupe de routes web gérant toutes les opérations liées au catalogue des actes médicaux
+    Route::controller(ActeController::class)->group(function () {
+        Route::get('/actes', 'index')->name('actes.index');
+        Route::get('/actes/create', 'create')->name('actes.create');
+        Route::post('/actes', 'store')->name('actes.store');
+        Route::get('/actes/search', 'search')->name('actes.search');
+        Route::get('/actes/{acte}', 'show')->name('actes.show');
+        Route::get('/actes/{acte}/edit', 'edit')->name('actes.edit');
+        Route::put('/actes/{acte}', 'update')->name('actes.update');
+        Route::delete('/actes/{acte}', 'destroy')->name('actes.destroy');
     });
 
     // Groupe de routes web gérant toutes les opérations CRUD liées aux prestations
@@ -278,9 +279,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/remuneration/index', 'index')->name('remunerations.index');
         Route::get('/create/remuneration', 'create')->name('remunerations.create');
         Route::post('/create/remuneration', 'store')->name('remunerations.store');
+        Route::get('/remuneration/preview', 'previewCalcul')->name('remunerations.preview');
         Route::get('/remunerations/{remuneration}', 'show')->name('remunerations.show');
         Route::get('/remunerations/{remuneration}/edit', 'edit')->name('remunerations.edit');
         Route::put('/remunerations/{remuneration}', 'update')->name('remunerations.update');
+        Route::post('/remunerations/{remuneration}/payer', 'validerPaiement')->name('remunerations.payer');
         Route::delete('/remunerations/{remuneration}', 'destroy')->name('remunerations.destroy');
     });
 

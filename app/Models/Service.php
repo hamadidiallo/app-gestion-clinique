@@ -18,12 +18,6 @@ class Service extends Model
         'statut' => 'boolean',
     ];
 
-    // Relation Service->tarif
-    public function tarifs(): HasMany
-    {
-        return $this->hasMany(Tarif::class);
-    }
-
     // LA RELATION SERVICE ---> PRESTATION
     public function prestations(): HasMany
     {
@@ -31,8 +25,14 @@ class Service extends Model
     }
 
     // LA RELATION SERVICE ---> REGLEPARTAGE
-    public function reglesPartage()
+    public function reglesPartage(): HasMany
     {
         return $this->hasMany(ReglePartage::class);
+    }
+
+    // Relation Service -> Actes
+    public function actes(): HasMany
+    {
+        return $this->hasMany(Acte::class);
     }
 }

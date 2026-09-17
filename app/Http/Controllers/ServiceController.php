@@ -13,8 +13,8 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        // Récupère les services avec le nombre de tarifs associés, triés du plus récent au plus ancien
-        $services = Service::withCount('tarifs')->latest()->get();
+        // Récupère les services avec le nombre d'actes associés, triés du plus récent au plus ancien
+        $services = Service::withCount('actes')->latest()->get();
 
         // Retourne la vue d'index des services en lui transmettant la liste
         return view('services.index', compact('services'));
@@ -94,8 +94,8 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
-        // Charge la relation avec tous les tarifs rattachés à ce service
-        $service->load('tarifs');
+        // Charge la relation avec les actes rattachés à ce service
+        $service->load('actes');
 
         // Retourne la vue de détails du service
         return view('services.show', compact('service'));
@@ -136,10 +136,10 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        // Vérifie si le service possède des tarifs associés avant de supprimer
-        if ($service->tarifs()->exists()) {
-            // Redirige avec un message d'erreur si des tarifs sont encore rattachés à ce service
-            return to_route('services.index')->with('alert', 'Impossible de supprimer ce service car des tarifs y sont rattachés.');
+        // Vérifie si le service possède des actes associés avant de supprimer
+        if ($service->actes()->exists()) {
+            // Redirige avec un message d'erreur si des actes sont encore rattachés à ce service
+            return to_route('services.index')->with('alert', 'Impossible de supprimer ce service car des actes y sont rattachés.');
         }
 
         // Supprime l'enregistrement du service de la base de données

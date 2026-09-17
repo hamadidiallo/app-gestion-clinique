@@ -12,7 +12,7 @@ class Prestation extends Model
         'patient_id',
         'service_id',
         'medecin_id',
-        'tarif_id',
+        'acte_id',
         'type',
         'montant',
         'taux_couverture',
@@ -58,10 +58,10 @@ class Prestation extends Model
         return $this->belongsTo(Medecin::class);
     }
 
-    // RELATION BIDIRECTIONNELLE MEDECIN ---> TARIF
-    public function tarif(): BelongsTo
+    // RELATION PRESTATION ---> ACTE MEDICAL
+    public function acte(): BelongsTo
     {
-        return $this->belongsTo(Tarif::class);
+        return $this->belongsTo(Acte::class);
     }
 
     // RELATION PRESTATION ----> TICKETDETAILS

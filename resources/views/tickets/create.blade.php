@@ -51,6 +51,10 @@
                     $initCarte = isset($selectedPatient) && $selectedPatient->cartesAssurance ? $selectedPatient->cartesAssurance->where('statut', true)->first() : null;
                     $initAssuranceId = $selectedPatient->assurance_id ?? ($initCarte ? $initCarte->assurance_id : '');
                     $initTaux = $selectedPatient->taux_couverture ?? ($initCarte ? (float)$initCarte->taux_couverture : 0);
+
+                    $initActeDesignation = isset($selectedActe) ? $selectedActe->nom : 'Consultation Médicale Générale';
+                    $initActePrix = isset($selectedActe) ? (int)$selectedActe->tarif_normal : 5000;
+                    $initServiceId = isset($selectedActe) ? $selectedActe->service_id : old('service_id');
                 @endphp
                 <div class="col-lg-5 position-relative">
                     <label for="patient_search_input" class="form-label fw-bold text-dark d-flex align-items-center gap-1">
@@ -107,7 +111,7 @@
                     <select name="service_id" id="service_id" class="form-select fw-semibold @error('service_id') is-invalid @enderror">
                         <option value="">-- Sélectionner un Service --</option>
                         @foreach($services as $service)
-                            <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
+                            <option value="{{ $service->id }}" {{ old('service_id', $initServiceId) == $service->id ? 'selected' : '' }}>
                                 {{ $service->nom }}
                             </option>
                         @endforeach
@@ -172,16 +176,16 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="items[0][designation]" class="form-control form-control-sm item-designation fw-semibold" value="Consultation Médicale Générale" placeholder="Nom de l'acte..." required>
+                                    <input type="text" name="items[0][designation]" list="actes_datalist" class="form-control form-control-sm item-designation fw-semibold" value="{{ $initActeDesignation }}" placeholder="Rechercher un acte dans le catalogue..." required autocomplete="off">
                                 </td>
                                 <td>
                                     <input type="number" step="1" min="1" name="items[0][quantite]" class="form-control form-control-sm text-center item-quantite font-mono fw-bold" value="1" required>
                                 </td>
                                 <td>
-                                    <input type="number" step="100" min="0" name="items[0][prix_unitaire]" class="form-control form-control-sm text-end item-pu font-mono fw-bold" value="5000" placeholder="0" required>
+                                    <input type="number" step="100" min="0" name="items[0][prix_unitaire]" class="form-control form-control-sm text-end item-pu font-mono fw-bold" value="{{ $initActePrix }}" placeholder="0" required>
                                 </td>
                                 <td class="text-end font-mono fw-bold text-dark item-total-display">
-                                    5 000 FCFA
+                                    {{ number_format($initActePrix, 0, ',', ' ') }} FCFA
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-remove-row" title="Supprimer">
@@ -192,6 +196,15 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Datalist pour autocomplétion intelligente des actes du catalogue --}}
+                <datalist id="actes_datalist">
+                    @foreach($actes as $a)
+                        <option value="{{ $a->nom }}" data-prix="{{ (int)$a->tarif_normal }}" data-prix-amo="{{ (int)($a->tarif_amo ?? $a->tarif_normal) }}" data-code="{{ $a->code }}">
+                            [{{ $a->code }}] {{ $a->nom }} ({{ number_format($a->tarif_normal, 0, ',', ' ') }} FCFA)
+                        </option>
+                    @endforeach
+                </datalist>
 
                 {{-- Raccourcis d'ajout rapide --}}
                 <div class="card-footer bg-light p-3 d-flex flex-wrap align-items-center gap-2 border-top">
@@ -410,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
             </td>
             <td>
-                <input type="text" name="items[${rowIndex}][designation]" class="form-control form-control-sm item-designation fw-semibold" value="${designation}" placeholder="Nom de l'acte ou produit..." required>
+                <input type="text" name="items[${rowIndex}][designation]" list="actes_datalist" class="form-control form-control-sm item-designation fw-semibold" value="${designation}" placeholder="Nom de l'acte ou produit..." required autocomplete="off">
             </td>
             <td>
                 <input type="number" step="1" min="1" name="items[${rowIndex}][quantite]" class="form-control form-control-sm text-center item-quantite fw-bold" value="${qte}" required>
@@ -442,6 +455,28 @@ document.addEventListener('DOMContentLoaded', function() {
         inputs.forEach(input => {
             input.addEventListener('input', recalculerTotaux);
         });
+
+        const inputDesignation = row.querySelector('.item-designation');
+        const inputPu = row.querySelector('.item-pu');
+
+        if (inputDesignation && inputPu) {
+            inputDesignation.addEventListener('input', function() {
+                const val = this.value.trim();
+                const option = document.querySelector(`#actes_datalist option[value="${CSS.escape(val)}"]`);
+                if (option && option.dataset.prix) {
+                    inputPu.value = option.dataset.prix;
+                    recalculerTotaux();
+                }
+            });
+            inputDesignation.addEventListener('change', function() {
+                const val = this.value.trim();
+                const option = document.querySelector(`#actes_datalist option[value="${CSS.escape(val)}"]`);
+                if (option && option.dataset.prix) {
+                    inputPu.value = option.dataset.prix;
+                    recalculerTotaux();
+                }
+            });
+        }
 
         const btnRemove = row.querySelector('.btn-remove-row');
         btnRemove.addEventListener('click', function() {

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PrestationRequest;
+use App\Models\Acte;
 use App\Models\Medecin;
 use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\Service;
-use App\Models\Tarif;
 use App\Services\PrestationService;
 use App\Services\TicketService;
 use App\Traits\HasPeriodFilter;
@@ -34,7 +34,7 @@ class PrestationController extends Controller
 
         $filter = $this->getPeriodDates($period, $customStart, $customEnd);
 
-        $query = Prestation::with(['patient', 'service', 'medecin', 'tarif'])->latest('date_prestation');
+        $query = Prestation::with(['patient', 'service', 'medecin', 'acte'])->latest('date_prestation');
 
         $this->applyDateFilter($query, $filter['start'], $filter['end'], 'date_prestation');
 
@@ -42,7 +42,15 @@ class PrestationController extends Controller
         $currentPeriod = $filter['period'];
         $periodLabel = $filter['label'];
 
-        return view('prestations.index', compact('prestations', 'currentPeriod', 'periodLabel'));
+        $stats = [
+            'total_montant' => (float) $prestations->where('statut', true)->sum('montant'),
+            'total_part_medecin' => (float) $prestations->where('statut', true)->sum('part_medecin'),
+            'total_part_clinique' => (float) $prestations->where('statut', true)->sum('part_clinique'),
+            'nb_soins' => $prestations->count(),
+            'nb_patients' => $prestations->pluck('patient_id')->unique()->count(),
+        ];
+
+        return view('prestations.index', compact('prestations', 'currentPeriod', 'periodLabel', 'stats'));
     }
 
     /**
@@ -53,7 +61,7 @@ class PrestationController extends Controller
         $medecins = Medecin::where('statut', true)->get();
         $patients = Patient::orderBy('nom')->get();
         $services = Service::where('statut', true)->orderBy('nom')->get();
-        $tarifs = Tarif::with('service')->where('statut', true)->get();
+        $actes = Acte::with('service')->where('statut', true)->get();
 
         $statuts = [
             '1' => 'Effectuée / Active',
@@ -63,7 +71,7 @@ class PrestationController extends Controller
         $selectedPatient = old('patient_id') ? Patient::find(old('patient_id')) : null;
         $selectedService = old('service_id') ? Service::find(old('service_id')) : null;
 
-        return view('prestations.create', compact('medecins', 'patients', 'services', 'tarifs', 'statuts', 'selectedPatient', 'selectedService'));
+        return view('prestations.create', compact('medecins', 'patients', 'services', 'actes', 'statuts', 'selectedPatient', 'selectedService'));
     }
 
     /**
@@ -132,7 +140,7 @@ class PrestationController extends Controller
      */
     public function show(Prestation $prestation)
     {
-        $prestation->load(['patient', 'service', 'medecin', 'tarif', 'ticketDetails.ticket']);
+        $prestation->load(['patient', 'service', 'medecin', 'acte', 'ticketDetails.ticket']);
 
         return view('prestations.show', compact('prestation'));
     }
@@ -142,12 +150,12 @@ class PrestationController extends Controller
      */
     public function edit(Prestation $prestation)
     {
-        $prestation->load(['patient', 'service', 'medecin', 'tarif']);
+        $prestation->load(['patient', 'service', 'medecin', 'acte']);
 
         $medecins = Medecin::get();
         $patients = Patient::orderBy('nom')->get();
         $services = Service::orderBy('nom')->get();
-        $tarifs = Tarif::with('service')->get();
+        $actes = Acte::with('service')->get();
 
         $statuts = [
             '1' => 'Effectuée / Active',
@@ -160,7 +168,7 @@ class PrestationController extends Controller
         $serviceId = old('service_id', $prestation->service_id);
         $selectedService = $serviceId ? Service::find($serviceId) : null;
 
-        return view('prestations.edit', compact('prestation', 'medecins', 'patients', 'services', 'tarifs', 'statuts', 'selectedPatient', 'selectedService'));
+        return view('prestations.edit', compact('prestation', 'medecins', 'patients', 'services', 'actes', 'statuts', 'selectedPatient', 'selectedService'));
     }
 
     /**

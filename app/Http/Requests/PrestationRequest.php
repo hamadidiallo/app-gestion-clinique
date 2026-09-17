@@ -30,8 +30,8 @@ class PrestationRequest extends FormRequest
             // L'identifiant du service médical est obligatoire et doit exister dans la table services
             'service_id' => 'required|exists:services,id',
 
-            // L'identifiant du tarif (automatiquement recherché si omis)
-            'tarif_id' => 'nullable|exists:tarifs,id',
+            // L'identifiant de l'acte médical (automatiquement recherché si omis)
+            'acte_id' => 'nullable|exists:actes,id',
 
             // L'identifiant du médecin est optionnel mais doit exister dans la table medecins s'il est renseigné
             'medecin_id' => 'nullable|exists:medecins,id',
@@ -67,9 +67,8 @@ class PrestationRequest extends FormRequest
             'service_id.required' => 'Le choix d\'un service médical est obligatoire.',
             'service_id.exists' => 'Le service sélectionné n\'existe pas dans la base de données.',
 
-            // Messages de validation pour le tarif
-            'tarif_id.required' => 'Le choix d\'un tarif applicable est obligatoire.',
-            'tarif_id.exists' => 'Le tarif sélectionné n\'existe pas dans la base de données.',
+            // Messages de validation pour l'acte
+            'acte_id.exists' => 'L\'acte sélectionné n\'existe pas dans la base de données.',
 
             // Messages de validation pour le médecin
             'medecin_id.exists' => 'Le médecin sélectionné n\'existe pas dans la base de données.',

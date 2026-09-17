@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Acte;
 use App\Models\CarteAssurance;
 use App\Models\Medecin;
 use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\ReglePartage;
 use App\Models\Service;
-use App\Models\Tarif;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -19,26 +19,15 @@ class PrestationService
     ) {}
 
     /**
-     * Recherche le tarif actif pour un service à une date donnée.
-     *
-     * @param  Carbon|string|null  $datePrestation
+     * Recherche l'acte actif pour un service donné ou par identifiant d'acte.
      */
-    public function trouverTarifActif(int $serviceId, $datePrestation = null): ?Tarif
+    public function trouverActeActif(int $serviceId, ?int $acteId = null): ?Acte
     {
-        $date = $datePrestation ? Carbon::parse($datePrestation) : Carbon::now();
+        if ($acteId) {
+            return Acte::find($acteId);
+        }
 
-        return Tarif::where('service_id', $serviceId)
-            ->where('statut', true)
-            ->where(function ($query) use ($date) {
-                $query->whereNull('date_debut')
-                    ->orWhere('date_debut', '<=', $date);
-            })
-            ->where(function ($query) use ($date) {
-                $query->whereNull('date_fin')
-                    ->orWhere('date_fin', '>=', $date);
-            })
-            ->latest()
-            ->first() ?? Tarif::where('service_id', $serviceId)->where('statut', true)->first();
+        return Acte::where('service_id', $serviceId)->where('statut', true)->first();
     }
 
     /**
@@ -69,7 +58,7 @@ class PrestationService
      * @param  Carbon|string|null  $datePrestation
      * @return array{pourcentage_medecin: float, pourcentage_clinique: float}
      */
-    public function ObtenirPourcentagesPartage(int $serviceId, ?Medecin $medecin = null, $datePrestation = null): array
+    public function ObtenirPourcentagesPartage(int $serviceId, ?Medecin $medecin = null, $datePrestation = null, ?Acte $acte = null): array
     {
         $date = $datePrestation ? Carbon::parse($datePrestation) : Carbon::now();
 
@@ -91,6 +80,8 @@ class PrestationService
             $pourcentageMedecin = (float) $regle->pourcentage_medecin;
         } elseif ($medecin && $medecin->pourcentage && $medecin->pourcentage > 0) {
             $pourcentageMedecin = (float) $medecin->pourcentage;
+        } elseif ($acte && $acte->part_medecin_pourcentage !== null) {
+            $pourcentageMedecin = (float) $acte->part_medecin_pourcentage;
         } else {
             $pourcentageMedecin = 50.0; // Par défaut 50 / 50
         }
@@ -115,9 +106,9 @@ class PrestationService
         $medecin = $medecinId ? Medecin::find($medecinId) : null;
         $date = $datePrestation ? Carbon::parse($datePrestation) : Carbon::now();
 
-        // 1. Recherche du tarif actif
-        $tarif = $this->trouverTarifActif($serviceId, $date);
-        $montantBrut = $tarif ? (float) $tarif->tarif_normal : 0.0;
+        // 1. Recherche de l'acte actif
+        $acte = $this->trouverActeActif($serviceId);
+        $montantBrut = $acte ? (float) $acte->tarif_normal : 0.0;
 
         // 2. Recherche couverture assurance
         $tauxCouverture = 0.0;
@@ -142,7 +133,7 @@ class PrestationService
         $montantPatient = max(0.0, round($montantBrut - $montantAssurance, 2));
 
         // 3. Règle de partage médecin / clinique
-        $partage = $this->obtenirPourcentagesPartage($serviceId, $medecin, $date);
+        $partage = $this->obtenirPourcentagesPartage($serviceId, $medecin, $date, $acte);
         $pourcentageMedecin = $partage['pourcentage_medecin'];
         $pourcentageClinique = $partage['pourcentage_clinique'];
 
@@ -153,7 +144,7 @@ class PrestationService
             'patient' => $patient,
             'service' => $service,
             'medecin' => $medecin,
-            'tarif' => $tarif,
+            'acte' => $acte,
             'assurance_id' => $assuranceId,
             'montant' => $montantBrut,
             'taux_couverture' => $tauxCouverture,
@@ -182,16 +173,12 @@ class PrestationService
 
             $calculs = $this->calculerPrestationAutomatique($patientId, $serviceId, $medecinId, $datePrestation);
 
-            if (! $calculs['tarif']) {
-                throw new \InvalidArgumentException("Aucun tarif actif n'est configuré pour le service sélectionné.");
-            }
-
             $prestation = Prestation::create([
                 'patient_id' => $patientId,
                 'service_id' => $serviceId,
                 'medecin_id' => $medecinId,
-                'tarif_id' => $calculs['tarif']->id,
-                'type' => $donnees['type'] ?? $calculs['service']->nom,
+                'acte_id' => $calculs['acte']?->id,
+                'type' => $donnees['type'] ?? ($calculs['acte'] ? $calculs['acte']->nom : $calculs['service']->nom),
                 'montant' => $calculs['montant'],
                 'taux_couverture' => $calculs['taux_couverture'],
                 'montant_assurance' => $calculs['montant_assurance'],

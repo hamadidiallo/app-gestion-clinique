@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Acte;
 use App\Models\Assurance;
 use App\Models\Caisse;
 use App\Models\CarteAssurance;
@@ -17,7 +18,6 @@ use App\Models\Recette;
 use App\Models\ReglePartage;
 use App\Models\Role;
 use App\Models\Service;
-use App\Models\Tarif;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\DepenseService;
@@ -59,10 +59,10 @@ class AutomatisationFluxFinancierTest extends TestCase
     public function test_prestation_calculs_partage_medecin_clinique(): void
     {
         $serviceGen = Service::create(['code' => 'CG', 'nom' => 'Consultation Générale', 'statut' => true]);
-        $tarifGen = Tarif::create(['service_id' => $serviceGen->id, 'tarif_normal' => 3000, 'statut' => true]);
+        $acteGen = Acte::create(['service_id' => $serviceGen->id, 'code' => 'CG-01', 'nom' => 'Consultation Générale', 'tarif_normal' => 3000, 'statut' => true]);
 
         $serviceSpec = Service::create(['code' => 'CS', 'nom' => 'Consultation Spécialisée', 'statut' => true]);
-        $tarifSpec = Tarif::create(['service_id' => $serviceSpec->id, 'tarif_normal' => 10000, 'statut' => true]);
+        $acteSpec = Acte::create(['service_id' => $serviceSpec->id, 'code' => 'CS-01', 'nom' => 'Consultation Spécialisée', 'tarif_normal' => 10000, 'statut' => true]);
 
         $patient = Patient::create(['nom' => 'Diop', 'prenom' => 'Awa', 'sexe' => 'F', 'statut' => 'non_assure']);
         $medecin = Medecin::create(['nom' => 'Sow', 'prenom' => 'Dr', 'type_remuneration' => 'pourcentage', 'pourcentage' => 50, 'statut' => true]);
@@ -104,7 +104,7 @@ class AutomatisationFluxFinancierTest extends TestCase
         ]);
 
         $service = Service::create(['code' => 'RAD', 'nom' => 'Radiographie', 'statut' => true]);
-        Tarif::create(['service_id' => $service->id, 'tarif_normal' => 10000, 'statut' => true]);
+        Acte::create(['service_id' => $service->id, 'code' => 'RAD-01', 'nom' => 'Radiographie', 'tarif_normal' => 10000, 'statut' => true]);
 
         $prestationService = app(PrestationService::class);
         $prestation = $prestationService->creerPrestationAutomatique([
@@ -128,7 +128,7 @@ class AutomatisationFluxFinancierTest extends TestCase
         // 2. Prestation & Ticket de 10 000 FCFA
         $patient = Patient::create(['nom' => 'Kane', 'prenom' => 'Oumar', 'sexe' => 'M', 'statut' => 'non_assure']);
         $service = Service::create(['code' => 'ECO', 'nom' => 'Échographie', 'statut' => true]);
-        Tarif::create(['service_id' => $service->id, 'tarif_normal' => 10000, 'statut' => true]);
+        Acte::create(['service_id' => $service->id, 'code' => 'ECO-01', 'nom' => 'Échographie', 'tarif_normal' => 10000, 'statut' => true]);
 
         $prestation = app(PrestationService::class)->creerPrestationAutomatique([
             'patient_id' => $patient->id,
@@ -192,7 +192,7 @@ class AutomatisationFluxFinancierTest extends TestCase
 
         $patient = Patient::create(['nom' => 'Sy', 'prenom' => 'Fatou', 'sexe' => 'F', 'statut' => 'non_assure']);
         $service = Service::create(['code' => 'LAB', 'nom' => 'Analyse Sang', 'statut' => true]);
-        Tarif::create(['service_id' => $service->id, 'tarif_normal' => 5000, 'statut' => true]);
+        Acte::create(['service_id' => $service->id, 'code' => 'LAB-01', 'nom' => 'Analyse Sang', 'tarif_normal' => 5000, 'statut' => true]);
 
         $prestation = app(PrestationService::class)->creerPrestationAutomatique([
             'patient_id' => $patient->id,
@@ -274,7 +274,7 @@ class AutomatisationFluxFinancierTest extends TestCase
         ]);
 
         $service = Service::create(['code' => 'CONS', 'nom' => 'Consultation', 'statut' => true]);
-        $tarif = Tarif::create(['service_id' => $service->id, 'tarif_normal' => 10000, 'statut' => true]);
+        $acte = Acte::create(['service_id' => $service->id, 'code' => 'CONS-01', 'nom' => 'Consultation', 'tarif_normal' => 10000, 'statut' => true]);
         $medecin = Medecin::create(['nom' => 'Diallo', 'prenom' => 'Dr', 'type_remuneration' => 'pourcentage', 'pourcentage' => 50, 'statut' => true]);
 
         $prestation = app(PrestationService::class)->creerPrestationAutomatique([
@@ -289,7 +289,7 @@ class AutomatisationFluxFinancierTest extends TestCase
         $this->assertEquals(5000, $prestation->part_medecin);
 
         // Modification ultérieure du tarif à 15 000 FCFA
-        $tarif->update(['tarif_normal' => 15000]);
+        $acte->update(['tarif_normal' => 15000]);
 
         // Modification ultérieure du taux assurance à 80%
         $carte->update(['taux_couverture' => 80]);
@@ -333,7 +333,7 @@ class AutomatisationFluxFinancierTest extends TestCase
 
         $patient = Patient::create(['nom' => 'Gaye', 'prenom' => 'Ibrahima', 'sexe' => 'M', 'statut' => 'non_assure']);
         $service = Service::create(['code' => 'SURG', 'nom' => 'Chirurgie', 'statut' => true]);
-        Tarif::create(['service_id' => $service->id, 'tarif_normal' => 100000, 'statut' => true]);
+        Acte::create(['service_id' => $service->id, 'code' => 'SURG-01', 'nom' => 'Chirurgie', 'tarif_normal' => 100000, 'statut' => true]);
 
         ReglePartage::create([
             'service_id' => $service->id,

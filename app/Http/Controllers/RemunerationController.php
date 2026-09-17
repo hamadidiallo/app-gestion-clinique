@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RemunerationRequest;
 use App\Models\Medecin;
+use App\Models\Prestation;
 use App\Models\Remuneration;
 use App\Models\User;
 use App\Services\RemunerationService;
 use App\Traits\HasPeriodFilter;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RemunerationController extends Controller
 {
@@ -36,7 +40,17 @@ class RemunerationController extends Controller
         $currentPeriod = $filter['period'];
         $periodLabel = $filter['label'];
 
-        return view('remunerations.index', compact('remunerations', 'currentPeriod', 'periodLabel'));
+        // Synthèse KPI
+        $stats = [
+            'total_medecin' => (float) $remunerations->sum('montant_medecin'),
+            'total_clinique' => (float) $remunerations->sum('montant_clinique'),
+            'total_base' => (float) $remunerations->sum('montant_base'),
+            'total_paye' => (float) $remunerations->whereIn('statut', ['payee', 'paye'])->sum('montant_medecin'),
+            'total_attente' => (float) $remunerations->whereNotIn('statut', ['payee', 'paye', 'annulee'])->sum('montant_medecin'),
+            'nb_medecins' => Medecin::where('statut', true)->count(),
+        ];
+
+        return view('remunerations.index', compact('remunerations', 'currentPeriod', 'periodLabel', 'stats'));
     }
 
     /**
@@ -57,6 +71,50 @@ class RemunerationController extends Controller
     }
 
     /**
+     * Endpoint AJAX pour prévisualiser les calculs de rétrocession avant validation.
+     */
+    public function previewCalcul(Request $request): JsonResponse
+    {
+        $request->validate([
+            'medecin_id' => 'required|exists:medecins,id',
+            'periode_debut' => 'required|date',
+            'periode_fin' => 'required|date|after_or_equal:periode_debut',
+        ]);
+
+        $medecin = Medecin::findOrFail($request->medecin_id);
+        $debut = Carbon::parse($request->periode_debut)->startOfDay();
+        $fin = Carbon::parse($request->periode_fin)->endOfDay();
+
+        $type = $medecin->type_remuneration ?? 'pourcentage';
+        $salaireFixe = (float) ($medecin->salaire_fixe ?? 0);
+        $pourcentage = (float) ($medecin->pourcentage ?? 50);
+
+        $prestations = Prestation::with(['acte', 'patient', 'service'])
+            ->where('medecin_id', $medecin->id)
+            ->where('statut', true)
+            ->whereBetween('date_prestation', [$debut, $fin])
+            ->get();
+
+        $nbActes = $prestations->count();
+        $montantBase = (float) $prestations->sum('montant');
+        $montantMedecin = $type === 'salaire_fixe' ? $salaireFixe : (float) $prestations->sum('part_medecin');
+        $montantClinique = $type === 'salaire_fixe' ? 0.0 : (float) $prestations->sum('part_clinique');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'type_remuneration' => $type,
+                'salaire_fixe' => $salaireFixe,
+                'pourcentage' => $pourcentage,
+                'nb_prestations' => $nbActes,
+                'montant_base' => $montantBase,
+                'montant_medecin' => $montantMedecin,
+                'montant_clinique' => $montantClinique,
+            ],
+        ]);
+    }
+
+    /**
      * Génère la rémunération mensuelle via le service métier.
      */
     public function store(RemunerationRequest $request)
@@ -71,20 +129,44 @@ class RemunerationController extends Controller
                 userId: ! empty($validated['user_id']) ? (int) $validated['user_id'] : null
             );
 
-            return to_route('remunerations.show', $remuneration)->with('alert', 'Rémunération calculée automatiquement avec succès ('.$remuneration->montant_medecin.' FBU).');
+            return to_route('remunerations.show', $remuneration)->with('alert', 'Rémunération calculée automatiquement avec succès ('.number_format($remuneration->montant_medecin, 0, ',', ' ').' FCFA).');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['medecin_id' => $e->getMessage()]);
         }
     }
 
     /**
-     * Détails d'une rémunération médicale.
+     * Détails d'une rémunération médicale avec la liste des actes réalisés.
      */
     public function show(Remuneration $remuneration)
     {
         $remuneration->load(['medecin', 'user']);
 
-        return view('remunerations.show', compact('remuneration'));
+        $debut = $remuneration->periode_debut ? Carbon::parse($remuneration->periode_debut)->startOfDay() : now()->startOfMonth();
+        $fin = $remuneration->periode_fin ? Carbon::parse($remuneration->periode_fin)->endOfDay() : now()->endOfMonth();
+
+        $prestations = Prestation::with(['patient', 'acte', 'service'])
+            ->where('medecin_id', $remuneration->medecin_id)
+            ->where('statut', true)
+            ->whereBetween('date_prestation', [$debut, $fin])
+            ->latest('date_prestation')
+            ->get();
+
+        return view('remunerations.show', compact('remuneration', 'prestations'));
+    }
+
+    /**
+     * Valide le règlement/paiement immédiat d'une rémunération.
+     */
+    public function validerPaiement(Remuneration $remuneration)
+    {
+        if ($remuneration->statut === 'payee') {
+            return back()->with('alert', 'Cette rémunération est déjà réglée.');
+        }
+
+        $this->remunerationService->validerPaiementRemuneration($remuneration);
+
+        return back()->with('alert', 'Paiement de la rémunération validé avec succès.');
     }
 
     /**

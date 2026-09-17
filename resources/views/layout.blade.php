@@ -419,27 +419,27 @@
                     <span>Mouvements Espèces</span>
                 </a>
 
-                {{-- MODULE 3: SERVICES & PRESTATIONS --}}
-                <div class="menu-header">Services & Actes</div>
+                {{-- MODULE 3: SERVICES & SOINS MÉDICAUX --}}
+                <div class="menu-header">Soins & Corps Médical</div>
+                <a href="{{ route('actes.index') }}" class="nav-link-custom {{ request()->routeIs('actes.*', 'acte.*') ? 'active' : '' }}">
+                    <i data-lucide="book-open"></i>
+                    <span>Catalogue des Actes</span>
+                </a>
+                <a href="{{ route('prestations.index') }}" class="nav-link-custom {{ request()->routeIs('prestations.*', 'prestation.*') ? 'active' : '' }}">
+                    <i data-lucide="activity"></i>
+                    <span>Soins aux Patients</span>
+                </a>
                 <a href="{{ route('services.index') }}" class="nav-link-custom {{ request()->routeIs('services.*', 'service.*') ? 'active' : '' }}">
                     <i data-lucide="building-2"></i>
                     <span>Services Médicaux</span>
                 </a>
-                <a href="{{ route('prestations.index') }}" class="nav-link-custom {{ request()->routeIs('prestations.*', 'prestation.*') ? 'active' : '' }}">
-                    <i data-lucide="stethoscope"></i>
-                    <span>Actes & Prestations</span>
-                </a>
-                <a href="{{ route('tarifs.index') }}" class="nav-link-custom {{ request()->routeIs('tarifs.*', 'tarif.*') ? 'active' : '' }}">
-                    <i data-lucide="tags"></i>
-                    <span>Grille Tarifaire</span>
-                </a>
                 <a href="{{ route('medecins.index') }}" class="nav-link-custom {{ request()->routeIs('medecins.*', 'medecin.*') ? 'active' : '' }}">
                     <i data-lucide="user-check"></i>
-                    <span>Médecins</span>
+                    <span>Médecins Praticiens</span>
                 </a>
                 <a href="{{ route('remunerations.index') }}" class="nav-link-custom {{ request()->routeIs('remunerations.*', 'reglespartage.*') ? 'active' : '' }}">
                     <i data-lucide="calculator"></i>
-                    <span>Rémunérations</span>
+                    <span>Rémunérations & Paies</span>
                 </a>
 
                 {{-- MODULE 4: COMPTABILITÉ & FINANCES --}}

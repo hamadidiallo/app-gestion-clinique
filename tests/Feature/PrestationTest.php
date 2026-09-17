@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\Acte;
 use App\Models\Medecin;
 use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\Service;
-use App\Models\Tarif;
 
 test('peut afficher la liste des prestations', function () {
     $response = $this->get(route('prestations.index'));
@@ -32,8 +32,10 @@ test('peut créer une nouvelle prestation', function () {
         'statut' => 1,
     ]);
 
-    $tarif = Tarif::create([
+    $acte = Acte::create([
         'service_id' => $service->id,
+        'code' => 'LAB-NFS-01',
+        'nom' => 'Numération Formule Sanguine',
         'tarif_normal' => 20000,
         'statut' => 1,
     ]);
@@ -48,7 +50,7 @@ test('peut créer une nouvelle prestation', function () {
     $prestationData = [
         'patient_id' => $patient->id,
         'service_id' => $service->id,
-        'tarif_id' => $tarif->id,
+        'acte_id' => $acte->id,
         'medecin_id' => $medecin->id,
         'type' => 'Examen sanguin',
         'montant' => 20000,
@@ -81,8 +83,10 @@ test('peut modifier une prestation existante', function () {
         'statut' => 1,
     ]);
 
-    $tarif = Tarif::create([
+    $acte = Acte::create([
         'service_id' => $service->id,
+        'code' => 'OPH-FOND-01',
+        'nom' => 'Fond d\'oeil',
         'tarif_normal' => 25000,
         'statut' => 1,
     ]);
@@ -90,7 +94,7 @@ test('peut modifier une prestation existante', function () {
     $prestation = Prestation::create([
         'patient_id' => $patient->id,
         'service_id' => $service->id,
-        'tarif_id' => $tarif->id,
+        'acte_id' => $acte->id,
         'montant' => 25000,
         'date_prestation' => now(),
         'statut' => 1,
@@ -99,7 +103,7 @@ test('peut modifier une prestation existante', function () {
     $updateData = [
         'patient_id' => $patient->id,
         'service_id' => $service->id,
-        'tarif_id' => $tarif->id,
+        'acte_id' => $acte->id,
         'type' => 'Consultation Spécialisée',
         'montant' => 30000,
         'date_prestation' => now()->format('Y-m-d H:i:s'),
@@ -129,8 +133,10 @@ test('peut supprimer une prestation', function () {
         'statut' => 1,
     ]);
 
-    $tarif = Tarif::create([
+    $acte = Acte::create([
         'service_id' => $service->id,
+        'code' => 'RAD-PMR-01',
+        'nom' => 'Radio Poumon',
         'tarif_normal' => 18000,
         'statut' => 1,
     ]);
@@ -138,7 +144,7 @@ test('peut supprimer une prestation', function () {
     $prestation = Prestation::create([
         'patient_id' => $patient->id,
         'service_id' => $service->id,
-        'tarif_id' => $tarif->id,
+        'acte_id' => $acte->id,
         'montant' => 18000,
         'date_prestation' => now(),
         'statut' => 1,

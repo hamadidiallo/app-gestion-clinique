@@ -83,18 +83,18 @@
                 @enderror
             </div>
 
-            {{-- Liste déroulante pour la modification du tarif applicable --}}
+            {{-- Liste déroulante pour la modification de l'acte applicable --}}
             <div class="mb-3">
-                <label for="tarif_id" class="form-label">Tarif Applicable : </label>
-                <select name="tarif_id" id="tarif_id" class="form-select @error('tarif_id') is-invalid @enderror">
-                    <option value="">-- Sélectionner un tarif --</option>
-                    @foreach($tarifs as $tarif)
-                        <option value="{{ $tarif->id }}" {{ (string)old('tarif_id', $prestation->tarif_id) === (string)$tarif->id ? 'selected' : '' }}>
-                            {{ $tarif->service->nom ?? 'Service' }} - Normal: {{ number_format($tarif->tarif_normal, 2, ',', ' ') }} FCFA {{ $tarif->tarif_amo ? '(AMO: ' . number_format($tarif->tarif_amo, 2, ',', ' ') . ' FCFA)' : '' }}
+                <label for="acte_id" class="form-label">Acte / Nomenclature Applicable : </label>
+                <select name="acte_id" id="acte_id" class="form-select @error('acte_id') is-invalid @enderror">
+                    <option value="">-- Sélectionner un acte (Optionnel) --</option>
+                    @foreach($actes as $acte)
+                        <option value="{{ $acte->id }}" {{ (string)old('acte_id', $prestation->acte_id) === (string)$acte->id ? 'selected' : '' }}>
+                            [{{ $acte->code }}] {{ $acte->nom }} ({{ $acte->service->nom ?? 'Général' }}) - {{ number_format($acte->tarif_base, 0, ',', ' ') }} FCFA
                         </option>
                     @endforeach
                 </select>
-                @error('tarif_id')
+                @error('acte_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

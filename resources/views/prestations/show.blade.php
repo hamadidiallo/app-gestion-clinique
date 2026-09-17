@@ -62,14 +62,14 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Tarif Appliqué :</div>
+                    <div class="col-md-3 fw-bold">Acte / Nomenclature :</div>
                     <div class="col-md-9">
-                        @if($prestation->tarif)
-                            <a href="{{ route('tarifs.show', $prestation->tarif) }}" class="text-decoration-none">
-                                Tarif #{{ $prestation->tarif->id }} - Base: {{ number_format($prestation->tarif->tarif_normal, 2, ',', ' ') }} FCFA
+                        @if($prestation->acte)
+                            <a href="{{ route('actes.show', $prestation->acte) }}" class="text-decoration-none fw-semibold text-teal">
+                                [{{ $prestation->acte->code }}] {{ $prestation->acte->nom }} ({{ number_format($prestation->acte->tarif_base, 0, ',', ' ') }} FCFA)
                             </a>
                         @else
-                            <span class="text-muted">Aucun tarif lié</span>
+                            <span class="text-muted">Aucun acte spécifique lié</span>
                         @endif
                     </div>
                 </div>

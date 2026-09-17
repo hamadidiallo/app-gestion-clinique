@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TicketRequest;
+use App\Models\Acte;
 use App\Models\Assurance;
 use App\Models\Caisse;
 use App\Models\Dette;
@@ -82,12 +83,18 @@ class TicketController extends Controller
         $medecins = Medecin::where('statut', true)->orderBy('nom')->get();
         $modesPaiement = ModePaiement::where('statut', true)->get();
         $tarifs = Tarif::with('service')->where('statut', true)->get();
+        $actes = Acte::with('service')->where('statut', true)->orderBy('nom')->get();
 
         $selectedPatient = null;
         if (request()->has('patient_id')) {
             $selectedPatient = Patient::with(['cartesAssurance' => function ($q) {
                 $q->where('statut', true)->with('assurance');
             }])->find(request()->get('patient_id'));
+        }
+
+        $selectedActe = null;
+        if (request()->has('acte_id')) {
+            $selectedActe = Acte::with('service')->find(request()->get('acte_id'));
         }
 
         $statuts = [
@@ -99,7 +106,7 @@ class TicketController extends Controller
 
         $defaultReference = $this->ticketService->genererReferenceTicket();
 
-        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'modesPaiement', 'tarifs'));
+        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'selectedActe', 'modesPaiement', 'tarifs', 'actes'));
     }
 
     /**
