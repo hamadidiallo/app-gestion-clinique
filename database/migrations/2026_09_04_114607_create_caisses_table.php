@@ -34,7 +34,7 @@ return new class extends Migration
             // État de la caisse
             $table->enum('statut', [
                 'ouverte',
-                'fermee'
+                'fermee',
             ])->default('ouverte');
             $table->text('observation')->nullable();
             $table->timestamps();

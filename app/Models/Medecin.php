@@ -23,15 +23,21 @@ class Medecin extends Model
         'salaire_fixe' => 'decimal:2',
         'statut' => 'boolean',
     ];
+
     // LA RELATION MEDECIN ----> PRESTATION
     public function prestations(): HasMany
     {
         return $this->hasMany(Prestation::class);
     }
+
     // LA RELATION MEDECIN ---> RENUMERATIONS
     public function remunerations(): HasMany
     {
         return $this->hasMany(Remuneration::class);
     }
 
+    public function consultations(): HasMany
+    {
+        return $this->hasMany(Consultation::class);
+    }
 }

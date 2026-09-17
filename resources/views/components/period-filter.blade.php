@@ -13,19 +13,19 @@
     $queryParams = request()->except(['periode', 'date_debut', 'date_fin', 'page', 'q', 'search', 'statut']);
     
     $periods = [
-        'tous' => ['label' => 'Tout', 'icon' => 'bi-infinity'],
-        'jour' => ['label' => 'Jour', 'icon' => 'bi-calendar-day'],
-        'semaine' => ['label' => 'Semaine', 'icon' => 'bi-calendar-week'],
-        'mois' => ['label' => 'Mois', 'icon' => 'bi-calendar-month'],
-        'trimestre' => ['label' => 'Trimestre', 'icon' => 'bi-calendar3'],
-        'semestre' => ['label' => 'Semestre', 'icon' => 'bi-calendar-range'],
-        'annuel' => ['label' => 'Annuel', 'icon' => 'bi-calendar-event'],
+        'tous' => ['label' => 'Tout', 'icon' => 'infinity'],
+        'jour' => ['label' => 'Jour', 'icon' => 'calendar'],
+        'semaine' => ['label' => 'Semaine', 'icon' => 'calendar-range'],
+        'mois' => ['label' => 'Mois', 'icon' => 'calendar-days'],
+        'trimestre' => ['label' => 'Trimestre', 'icon' => 'calendar'],
+        'semestre' => ['label' => 'Semestre', 'icon' => 'calendar-range'],
+        'annuel' => ['label' => 'Annuel', 'icon' => 'calendar'],
     ];
 
     $hasActiveFilters = $currentPeriod !== 'tous' || !empty($searchValue) || !empty($statusValue) || !empty($customStart) || !empty($customEnd);
 @endphp
 
-<div class="card border-0 shadow-sm mb-4 bg-white">
+<div class="card mb-4 bg-white border-0 shadow-sm rounded-3" style="border: 1px solid #e6ebf0 !important;">
     <div class="card-body p-3">
         {{-- Ligne supérieure : Recherche par mot-clé & Filtre par statut --}}
         <form action="{{ $baseUrl }}" method="GET" class="row g-2 mb-3 align-items-center">
@@ -46,21 +46,21 @@
             <div class="{{ $statuses ? 'col-md-7 col-sm-12' : 'col-md-9 col-sm-12' }}">
                 <div class="input-group">
                     <span class="input-group-text bg-light text-muted border-end-0">
-                        <i class="bi bi-search"></i>
+                        <i data-lucide="search" style="width: 0.95rem; height: 0.95rem;"></i>
                     </span>
                     <input type="text" 
                            name="q" 
-                           class="form-control border-start-0 ps-0" 
-                           placeholder="Rechercher par référence, nom, matricule ou mot-clé dans le tableau..." 
+                           class="form-control border-start-0 ps-1" 
+                           placeholder="Rechercher par référence, nom, matricule ou mot-clé..." 
                            value="{{ $searchValue }}">
                     @if($searchValue)
                         <a href="{{ $baseUrl . '?' . http_build_query(array_merge($queryParams, ['periode' => $currentPeriod])) }}" 
-                           class="btn btn-outline-secondary border-start-0" 
+                           class="btn btn-outline-secondary border-start-0 d-flex align-items-center" 
                            title="Effacer la recherche">
-                            <i class="bi bi-x-circle-fill text-muted"></i>
+                            <i data-lucide="x" style="width: 0.9rem; height: 0.9rem;" class="text-muted"></i>
                         </a>
                     @endif
-                    <button type="submit" class="btn btn-primary fw-bold px-3">
+                    <button type="submit" class="btn btn-teal fw-semibold px-3">
                         Rechercher
                     </button>
                 </div>
@@ -83,8 +83,8 @@
             {{-- Bouton de réinitialisation générale --}}
             @if($hasActiveFilters)
                 <div class="col-md-2 col-sm-6 text-end">
-                    <a href="{{ $baseUrl }}" class="btn btn-sm btn-outline-danger w-100 fw-bold d-inline-flex align-items-center justify-content-center gap-1">
-                        <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                    <a href="{{ $baseUrl }}" class="btn btn-sm btn-outline-danger w-100 fw-semibold d-inline-flex align-items-center justify-content-center gap-1">
+                        <i data-lucide="rotate-ccw" style="width: 0.85rem; height: 0.85rem;"></i> Réinitialiser
                     </a>
                 </div>
             @endif
@@ -96,11 +96,11 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-1">
             {{-- Libellé & Badge d'affichage de la période courante --}}
             <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-funnel-fill text-primary fs-5"></i>
-                <div>
-                    <span class="text-muted small d-block">Filtre Temporel :</span>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fs-7 fw-bold">
-                        <i class="bi bi-clock-history me-1"></i> {{ $periodLabel }}
+                <i data-lucide="calendar" style="width: 1rem; height: 1rem;" class="text-teal"></i>
+                <div class="d-flex align-items-center gap-1.5">
+                    <span class="text-muted small">Période active :</span>
+                    <span class="badge badge-info-pill font-mono">
+                        {{ $periodLabel }}
                     </span>
                 </div>
             </div>
@@ -116,19 +116,20 @@
                         $isActive = ($currentPeriod === $key);
                     @endphp
                     <a href="{{ $url }}" 
-                       class="btn btn-sm {{ $isActive ? 'btn-primary fw-bold shadow-sm' : 'btn-outline-secondary' }} d-inline-flex align-items-center gap-1 rounded-pill px-3">
-                        <i class="bi {{ $info['icon'] }}"></i>
+                       class="btn btn-sm {{ $isActive ? 'btn-teal fw-semibold shadow-sm' : 'btn-light border text-muted' }} d-inline-flex align-items-center gap-1 rounded-pill px-3">
+                        <i data-lucide="{{ $info['icon'] }}" style="width: 0.85rem; height: 0.85rem;"></i>
                         <span>{{ $info['label'] }}</span>
                     </a>
                 @endforeach
 
                 {{-- Bouton pour afficher/masquer le filtre par date spécifique --}}
-                <button class="btn btn-sm {{ $currentPeriod === 'custom' ? 'btn-info text-white fw-bold shadow-sm' : 'btn-outline-info' }} rounded-pill px-3 ms-1" 
+                <button class="btn btn-sm {{ $currentPeriod === 'custom' ? 'btn-teal fw-semibold shadow-sm' : 'btn-light border text-muted' }} rounded-pill px-3 ms-1 d-inline-flex align-items-center gap-1" 
                         type="button" 
                         data-bs-toggle="collapse" 
                         data-bs-target="#customDateFilter" 
                         aria-expanded="{{ $currentPeriod === 'custom' ? 'true' : 'false' }}">
-                    <i class="bi bi-sliders"></i> Personnaliser
+                    <i data-lucide="sliders-horizontal" style="width: 0.85rem; height: 0.85rem;"></i>
+                    <span>Personnaliser</span>
                 </button>
             </div>
         </div>
@@ -158,11 +159,11 @@
                     <input type="date" name="date_fin" class="form-control form-control-sm" value="{{ $customEnd }}">
                 </div>
                 <div class="col-md-4 col-sm-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">
-                        <i class="bi bi-check-circle me-1"></i> Appliquer l'intervalle
+                    <button type="submit" class="btn btn-sm btn-teal w-100 fw-semibold d-inline-flex align-items-center justify-content-center gap-1">
+                        <i data-lucide="check" style="width: 0.85rem; height: 0.85rem;"></i> Appliquer l'intervalle
                     </button>
-                    <a href="{{ $baseUrl }}" class="btn btn-sm btn-outline-secondary" title="Réinitialiser">
-                        <i class="bi bi-x-lg"></i>
+                    <a href="{{ $baseUrl }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Réinitialiser">
+                        <i data-lucide="x" style="width: 0.85rem; height: 0.85rem;"></i>
                     </a>
                 </div>
             </form>

@@ -21,9 +21,7 @@ class PrestationService
     /**
      * Recherche le tarif actif pour un service à une date donnée.
      *
-     * @param int $serviceId
-     * @param Carbon|string|null $datePrestation
-     * @return Tarif|null
+     * @param  Carbon|string|null  $datePrestation
      */
     public function trouverTarifActif(int $serviceId, $datePrestation = null): ?Tarif
     {
@@ -46,9 +44,7 @@ class PrestationService
     /**
      * Recherche la carte d'assurance active et valide pour un patient.
      *
-     * @param int $patientId
-     * @param Carbon|string|null $datePrestation
-     * @return CarteAssurance|null
+     * @param  Carbon|string|null  $datePrestation
      */
     public function trouverCarteAssuranceValide(int $patientId, $datePrestation = null): ?CarteAssurance
     {
@@ -70,9 +66,7 @@ class PrestationService
     /**
      * Recherche la règle de partage des honoraires pour un service et un médecin.
      *
-     * @param int $serviceId
-     * @param Medecin|null $medecin
-     * @param Carbon|string|null $datePrestation
+     * @param  Carbon|string|null  $datePrestation
      * @return array{pourcentage_medecin: float, pourcentage_clinique: float}
      */
     public function ObtenirPourcentagesPartage(int $serviceId, ?Medecin $medecin = null, $datePrestation = null): array
@@ -112,11 +106,7 @@ class PrestationService
     /**
      * Simule les calculs automatiques d'une prestation avant enregistrement (pour AJAX ou prévisualisation).
      *
-     * @param int $patientId
-     * @param int $serviceId
-     * @param int|null $medecinId
-     * @param Carbon|string|null $datePrestation
-     * @return array
+     * @param  Carbon|string|null  $datePrestation
      */
     public function calculerPrestationAutomatique(int $patientId, int $serviceId, ?int $medecinId = null, $datePrestation = null): array
     {
@@ -133,10 +123,15 @@ class PrestationService
         $tauxCouverture = 0.0;
         $assuranceId = null;
         if ($patient->statut === 'assure') {
-            $carte = $this->trouverCarteAssuranceValide($patientId, $date);
-            if ($carte) {
-                $tauxCouverture = (float) $carte->taux_couverture;
-                $assuranceId = $carte->assurance_id;
+            if ($patient->assurance_id) {
+                $assuranceId = $patient->assurance_id;
+                $tauxCouverture = (float) ($patient->taux_couverture ?? $patient->assurance?->taux_par_defaut ?? 80);
+            } else {
+                $carte = $this->trouverCarteAssuranceValide($patientId, $date);
+                if ($carte) {
+                    $tauxCouverture = (float) $carte->taux_couverture;
+                    $assuranceId = $carte->assurance_id;
+                }
             }
         }
 
@@ -175,20 +170,19 @@ class PrestationService
     /**
      * Enregistre une prestation automatisée dans la base de données.
      *
-     * @param array $donnees Contient patient_id, service_id, medecin_id optionnel, date_prestation optionnelle, description
-     * @return Prestation
+     * @param  array  $donnees  Contient patient_id, service_id, medecin_id optionnel, date_prestation optionnelle, description
      */
     public function creerPrestationAutomatique(array $donnees): Prestation
     {
         return DB::transaction(function () use ($donnees) {
             $patientId = (int) $donnees['patient_id'];
             $serviceId = (int) $donnees['service_id'];
-            $medecinId = !empty($donnees['medecin_id']) ? (int) $donnees['medecin_id'] : null;
+            $medecinId = ! empty($donnees['medecin_id']) ? (int) $donnees['medecin_id'] : null;
             $datePrestation = $donnees['date_prestation'] ?? Carbon::now();
 
             $calculs = $this->calculerPrestationAutomatique($patientId, $serviceId, $medecinId, $datePrestation);
 
-            if (!$calculs['tarif']) {
+            if (! $calculs['tarif']) {
                 throw new \InvalidArgumentException("Aucun tarif actif n'est configuré pour le service sélectionné.");
             }
 
@@ -216,7 +210,7 @@ class PrestationService
                 module: 'prestation',
                 objetType: Prestation::class,
                 objetId: $prestation->id,
-                description: 'Création automatique prestation #' . $prestation->id . ' pour ' . $calculs['patient']->nom . ' ' . $calculs['patient']->prenom,
+                description: 'Création automatique prestation #'.$prestation->id.' pour '.$calculs['patient']->nom.' '.$calculs['patient']->prenom,
                 nouvellesValeurs: $prestation->toArray()
             );
 

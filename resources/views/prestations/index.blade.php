@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-journal-medical me-2"></i>Liste des Prestations Médicales
+                    <i data-lucide="file-text" class="me-2"></i>Liste des Prestations Médicales
                 </h1>
                 <p class="text-muted mb-0">Gestion et suivi des soins, examens et actes dispensés aux patients.</p>
             </div>
             <div>
                 <a href="{{ route('prestation.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Enregistrer une Prestation
+                    <i data-lucide="plus-circle"></i> Enregistrer une Prestation
                 </a>
             </div>
         </div>
@@ -28,7 +28,7 @@
                 <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
                     <div class="d-flex align-items-center">
                         <div class="bg-success-subtle text-success p-3 rounded-circle me-3">
-                            <i class="bi bi-journal-check fs-4"></i>
+                            <i data-lucide="journal-check" class="fs-4"></i>
                         </div>
                         <div>
                             <span class="text-muted small d-block">Total Prestations Médicales (Période)</span>
@@ -42,7 +42,7 @@
                 <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3">
-                            <i class="bi bi-activity fs-4"></i>
+                            <i data-lucide="activity" class="fs-4"></i>
                         </div>
                         <div>
                             <span class="text-muted small d-block">Nombre d'Actes Réalisés</span>
@@ -57,7 +57,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-list-check text-primary me-2"></i>Registre des Actes Soignants
+                    <i data-lucide="list-check" class="text-primary me-2"></i>Registre des Actes Soignants
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="prestationsTable" title="Registre des Actes Soignants" filename="prestations" />
@@ -118,13 +118,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('prestations.show', $prestation) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('prestations.edit', $prestation) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletePrestationModal{{ $prestation->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -155,7 +155,7 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center py-4 text-muted">
-                                        <i class="bi bi-journal-medical fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="file-text" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucune prestation médicale enregistrée pour cette période.
                                     </td>
                                 </tr>

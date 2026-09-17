@@ -54,12 +54,21 @@ class TicketRequest extends FormRequest
             'montant_patient' => 'required|numeric|min:0',
             'montant_paye' => 'nullable|numeric|min:0',
             'reste_a_payer' => 'nullable|numeric|min:0',
+            'mode_paiement_id' => 'nullable|exists:mode_paiements,id',
 
             // Statut du ticket (ex: paye, impaye, partiel, annule)
             'statut' => 'required|string|max:50',
 
             // Description optionnelle
             'description' => 'nullable|string',
+
+            // Lignes de facturation détaillées (Actes, Médicaments, Hospitalisation)
+            'items' => 'nullable|array',
+            'items.*.designation' => 'nullable|string|max:255',
+            'items.*.type_item' => 'nullable|string|in:acte,medicament,hospitalisation',
+            'items.*.quantite' => 'nullable|numeric|min:0.01',
+            'items.*.prix_unitaire' => 'nullable|numeric|min:0',
+            'items.*.montant_total' => 'nullable|numeric|min:0',
         ];
     }
 

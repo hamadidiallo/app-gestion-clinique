@@ -31,7 +31,7 @@ return new class extends Migration
                 'en_attente',
                 'partiellement_paye',
                 'paye',
-                'annule'
+                'annule',
             ])->default('en_attente');
 
             $table->text('description')->nullable();

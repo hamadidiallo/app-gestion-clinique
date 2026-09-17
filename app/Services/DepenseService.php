@@ -17,26 +17,23 @@ class DepenseService
 
     /**
      * Enregistre une dépense validée et crée automatiquement le mouvement de caisse correspondant.
-     *
-     * @param array $donnees
-     * @return Depense
      */
     public function enregistrerDepense(array $donnees): Depense
     {
         return DB::transaction(function () use ($donnees) {
             $effectiveUserId = $donnees['user_id'] ?? auth()->id();
 
-            if (!$effectiveUserId) {
+            if (! $effectiveUserId) {
                 $user = User::first();
                 $effectiveUserId = $user ? $user->id : null;
             }
 
-            if (!$effectiveUserId) {
-                throw new \InvalidArgumentException("Identifiant utilisateur requis pour enregistrer une dépense.");
+            if (! $effectiveUserId) {
+                throw new \InvalidArgumentException('Identifiant utilisateur requis pour enregistrer une dépense.');
             }
 
             if (empty($donnees['reference'])) {
-                $donnees['reference'] = 'DEP-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+                $donnees['reference'] = 'DEP-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
             }
 
             $donnees['user_id'] = $effectiveUserId;
@@ -59,7 +56,7 @@ class DepenseService
                         origine: 'depense',
                         reference: $depense->reference,
                         montant: (float) $depense->montant,
-                        description: 'Sortie caisse dépense #' . $depense->reference . ' (' . ($depense->beneficiaire ?? 'Sans bénéficiaire') . ')'
+                        description: 'Sortie caisse dépense #'.$depense->reference.' ('.($depense->beneficiaire ?? 'Sans bénéficiaire').')'
                     );
                 }
             }
@@ -69,7 +66,7 @@ class DepenseService
                 module: 'depense',
                 objetType: Depense::class,
                 objetId: $depense->id,
-                description: 'Enregistrement dépense de ' . $depense->montant . ' FCFA (Réf: ' . $depense->reference . ')',
+                description: 'Enregistrement dépense de '.$depense->montant.' FCFA (Réf: '.$depense->reference.')',
                 nouvellesValeurs: $depense->toArray()
             );
 

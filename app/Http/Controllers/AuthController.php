@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 // Importations des classes nécessaires pour l'authentification
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 /**
  * Contrôleur gérant l'authentification des utilisateurs (Connexion, Inscription et Déconnexion).
@@ -17,7 +19,7 @@ class AuthController extends Controller
     /**
      * Affiche le formulaire de connexion (Login).
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function showLoginForm()
     {
@@ -33,8 +35,7 @@ class AuthController extends Controller
     /**
      * Traite la tentative de connexion de l'utilisateur.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function login(Request $request)
     {
@@ -66,7 +67,7 @@ class AuthController extends Controller
     /**
      * Affiche le formulaire d'inscription (Register).
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function showRegisterForm()
     {
@@ -85,8 +86,7 @@ class AuthController extends Controller
     /**
      * Traite l'inscription d'un nouvel utilisateur dans le système.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function register(Request $request)
     {
@@ -127,8 +127,7 @@ class AuthController extends Controller
     /**
      * Traite la déconnexion de l'utilisateur connecté (Logout).
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function logout(Request $request)
     {

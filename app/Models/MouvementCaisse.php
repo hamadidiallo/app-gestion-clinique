@@ -18,16 +18,19 @@ class MouvementCaisse extends Model
         'description',
         'statut',
     ];
-     protected $casts = [
+
+    protected $casts = [
         'montant' => 'decimal:2',
         'date_mouvement' => 'datetime',
         'statut' => 'boolean',
     ];
+
     // RELATION BIDIRECTIONNELLE MOUVEMENTCAISSE ---> CAISSE
     public function caisse(): BelongsTo
     {
         return $this->belongsTo(Caisse::class);
     }
+
     // RELATION BIDIRECTIONNELLE MOUVEMENTCAISSE ---> USER
     public function user(): BelongsTo
     {

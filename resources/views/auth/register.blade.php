@@ -41,7 +41,7 @@
             <div class="col-12 d-flex justify-content-center">
                 <div class="card register-card border-0 bg-white">
                     <div class="card-header card-header-custom text-white text-center py-4 border-0">
-                        <i class="bi bi-person-plus-fill fs-1 d-block mb-2"></i>
+                        <i data-lucide="user-plus" class="fs-1 d-block mb-2"></i>
                         <h3 class="fw-bold mb-1">Créer un Compte</h3>
                         <p class="mb-0 small opacity-75">CLINGEST - Gestion Clinique Médicale</p>
                     </div>
@@ -103,7 +103,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm rounded-3 mt-4">
-                                <i class="bi bi-check-circle-fill me-2"></i> Finaliser l'Inscription
+                                <i data-lucide="check-circle" class="me-2"></i> Finaliser l'Inscription
                             </button>
                         </form>
                     </div>

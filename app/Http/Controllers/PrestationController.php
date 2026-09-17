@@ -82,7 +82,7 @@ class PrestationController extends Controller
             $calculs = $this->prestationService->calculerPrestationAutomatique(
                 (int) $validated['patient_id'],
                 (int) $validated['service_id'],
-                !empty($validated['medecin_id']) ? (int) $validated['medecin_id'] : null,
+                ! empty($validated['medecin_id']) ? (int) $validated['medecin_id'] : null,
                 $validated['date_prestation'] ?? null
             );
 
@@ -97,7 +97,7 @@ class PrestationController extends Controller
                     'pourcentage_clinique' => $calculs['pourcentage_clinique'],
                     'part_medecin' => $calculs['part_medecin'],
                     'part_clinique' => $calculs['part_clinique'],
-                    'medecin_nom' => $calculs['medecin'] ? 'Dr ' . $calculs['medecin']->nom . ' ' . $calculs['medecin']->prenom : 'Non affecté',
+                    'medecin_nom' => $calculs['medecin'] ? 'Dr '.$calculs['medecin']->nom.' '.$calculs['medecin']->prenom : 'Non affecté',
                 ],
             ]);
         } catch (\Exception $e) {
@@ -121,7 +121,7 @@ class PrestationController extends Controller
             // Générer le ticket directement
             $ticket = $this->ticketService->creerTicketDepuisPrestations([$prestation->id]);
 
-            return to_route('tickets.print', $ticket)->with('alert', 'Prestation et Ticket N° ' . $ticket->reference . ' enregistrés automatiquement avec succès.');
+            return to_route('tickets.print', $ticket)->with('alert', 'Prestation et Ticket N° '.$ticket->reference.' enregistrés automatiquement avec succès.');
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['service_id' => $e->getMessage()]);
         }

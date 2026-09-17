@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-clock-history me-2"></i>Journal d'Audit & Traçabilité des Actions
+                    <i data-lucide="clock" class="me-2"></i>Journal d'Audit & Traçabilité des Actions
                 </h1>
                 <p class="text-muted mb-0">Historique des connexions, modifications et évènements enregistrés.</p>
             </div>
@@ -21,7 +21,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-shield-lock text-primary me-2"></i>Logs d'Audit Système
+                    <i data-lucide="shield-alert" class="text-primary me-2"></i>Logs d'Audit Système
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="journalActivitesTable" title="Journal d'Audit & Traçabilité" filename="journal_activites" />
@@ -59,14 +59,14 @@
                                     <td><code>{{ $log->adresse_ip ?? '127.0.0.1' }}</code></td>
                                     <td class="text-center pe-3">
                                         <a href="{{ route('journalactivites.show', $log) }}" class="btn btn-sm btn-outline-info" title="Détails">
-                                            <i class="bi bi-eye"></i> Détails
+                                            <i data-lucide="eye"></i> Détails
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="bi bi-clock-history fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="clock" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucune activité enregistrée pour cette période.
                                     </td>
                                 </tr>

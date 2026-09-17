@@ -54,12 +54,10 @@ class User extends Authenticatable
     /**
      * Accesseur virtuel pour $user->name qui retourne le nom complet (Nom + Prénom).
      * Permet d'assurer la compatibilité avec toutes les vues Blade du système.
-     *
-     * @return string
      */
     public function getNameAttribute(): string
     {
-        return trim(($this->nom ?? '') . ' ' . ($this->prenom ?? ''));
+        return trim(($this->nom ?? '').' '.($this->prenom ?? ''));
     }
 
     /**
@@ -69,48 +67,57 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
     // Relation USER ---> Tickets
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
     }
+
     // RELATION USER ---> Paiement
     public function paiements(): HasMany
     {
         return $this->hasMany(Paiement::class);
     }
+
     // RELATION USER ---> DETTES
     // Cela permet de connaître l'utilisateur qui a créé la dette.
     public function dettes(): HasMany
     {
         return $this->hasMany(Dette::class);
     }
+
     // RELATION USER ---> Recettes
     // On pourra donc savoir quel utilisateur a enregistré les recettes.
     public function recettes(): HasMany
     {
         return $this->hasMany(Recette::class);
     }
+
     // RELATION USER ---> CAISSE
     public function caisses(): HasMany
     {
         return $this->hasMany(Caisse::class);
     }
+
     // RELATION USER MOUVEMENT CAISSE
     public function mouvementsCaisses(): HasMany
     {
         return $this->hasMany(MouvementCaisse::class);
     }
+
     // RELATION USER ---> DEPENSES
     public function depenses(): HasMany
     {
         return $this->hasMany(Depense::class);
     }
+
     // RELATION USER ---> RENUMERATIONS
     public function remunerations(): HasMany
     {
         return $this->hasMany(Remuneration::class);
     }
+
     // RELATION USER ---> JOURNALACTIVITES
     public function journalActivites()
     {

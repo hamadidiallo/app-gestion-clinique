@@ -5,33 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Connexion - CLINGEST</title>
 
-    {{-- Bootstrap 5 & Bootstrap Icons --}}
+    {{-- Google Fonts : IBM Plex Sans & IBM Plex Mono --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    {{-- Bootstrap 5 --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    {{-- Lucide Icons --}}
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
+        :root {
+            --primary-color: #0f766e;
+            --primary-hover: #0b5a54;
+            --primary-soft: #e2f1ef;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0d6efd 100%);
+            background: #eef1f4;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 1.5rem 0;
+            color: #1e2a32;
         }
 
         .login-card {
             width: 100%;
             max-width: 440px;
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(15, 118, 110, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e6ebf0;
             overflow: hidden;
+            background: #ffffff;
         }
 
-        .card-header-custom {
-            background-color: #0d6efd;
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .lucide {
+            width: 1.15rem;
+            height: 1.15rem;
+            stroke-width: 1.9;
+            vertical-align: -0.15em;
+            display: inline-block;
         }
     </style>
   </head>
@@ -39,11 +68,13 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 d-flex justify-content-center">
-                <div class="card login-card border-0 bg-white">
-                    <div class="card-header card-header-custom text-white text-center py-4 border-0">
-                        <i class="bi bi-hospital fs-1 d-block mb-2"></i>
-                        <h3 class="fw-bold mb-1">CLINGEST</h3>
-                        <p class="mb-0 small opacity-75">Gestion Clinique Médicale</p>
+                <div class="card login-card">
+                    <div class="p-4 text-center border-bottom bg-white">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-2" style="width: 48px; height: 48px; background: #0f766e; color: #ffffff;">
+                            <i data-lucide="cross" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h3 class="fw-bold mb-1 text-dark">CLINGEST</h3>
+                        <p class="mb-0 small text-muted">Clinique Gahambani · Bamako / Kati</p>
                     </div>
 
                     <div class="card-body p-4 p-sm-5">
@@ -51,24 +82,29 @@
                         <x-form.erreur />
                         <x-form.alert />
 
-                        <h5 class="fw-bold text-dark mb-4 text-center">Connexion à votre espace</h5>
+                        <div class="mb-4 text-center">
+                            <h5 class="fw-bold text-dark mb-1">Espace Professionnel</h5>
+                            <p class="small text-muted mb-0">Identifiez-vous pour accéder à la caisse et aux dossiers</p>
+                        </div>
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
 
                             {{-- Champ Email --}}
                             <div class="mb-3">
-                                <label for="email" class="form-label fw-semibold text-muted small">Adresse Email :</label>
+                                <label for="email" class="form-label fw-semibold text-muted small">Adresse Email</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                    <span class="input-group-text bg-light border-end-0 text-muted">
+                                        <i data-lucide="mail" class="lucide-sm"></i>
+                                    </span>
                                     <input type="email" 
                                            name="email" 
                                            id="email" 
-                                           class="form-control border-start-0 ps-0 @error('email') is-invalid @enderror" 
+                                           class="form-control border-start-0 ps-1 @error('email') is-invalid @enderror" 
                                            value="{{ old('email') }}" 
                                            required 
                                            autofocus 
-                                           placeholder="votre.email@clinique.com">
+                                           placeholder="agent@clingest.com">
                                 </div>
                                 @error('email')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -77,13 +113,15 @@
 
                             {{-- Champ Mot de passe --}}
                             <div class="mb-3">
-                                <label for="password" class="form-label fw-semibold text-muted small">Mot de passe :</label>
+                                <label for="password" class="form-label fw-semibold text-muted small">Mot de passe</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                    <span class="input-group-text bg-light border-end-0 text-muted">
+                                        <i data-lucide="lock" class="lucide-sm"></i>
+                                    </span>
                                     <input type="password" 
                                            name="password" 
                                            id="password" 
-                                           class="form-control border-start-0 ps-0 @error('password') is-invalid @enderror" 
+                                           class="form-control border-start-0 ps-1 @error('password') is-invalid @enderror" 
                                            required 
                                            placeholder="••••••••">
                                 </div>
@@ -95,19 +133,20 @@
                             {{-- Se souvenir de moi --}}
                             <div class="mb-4 form-check">
                                 <input type="checkbox" name="remember" class="form-check-input" id="remember">
-                                <label class="form-check-label text-muted small" for="remember">Se souvenir de moi sur cet appareil</label>
+                                <label class="form-check-label text-muted small" for="remember">Mémoriser ma session</label>
                             </div>
 
                             {{-- Bouton de Connexion --}}
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded-3">
-                                <i class="bi bi-box-arrow-in-right me-2"></i> Se Connecter
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded-3 d-inline-flex align-items-center justify-content-center gap-2">
+                                <i data-lucide="log-in" class="lucide-sm"></i>
+                                <span>Se Connecter</span>
                             </button>
                         </form>
                     </div>
 
-                    <div class="card-footer bg-light text-center py-3 border-0">
-                        <span class="text-muted small">Vous n'avez pas de compte ?</span>
-                        <a href="{{ route('register') }}" class="fw-bold text-primary text-decoration-none ms-1 small">S'inscrire ici</a>
+                    <div class="card-footer bg-light text-center py-3 border-top">
+                        <span class="text-muted small">Besoin d'accès ? Contactez l'administrateur ou</span>
+                        <a href="{{ route('register') }}" class="fw-bold text-decoration-none ms-1 small" style="color: #0f766e;">Créer un compte</a>
                     </div>
                 </div>
             </div>
@@ -115,5 +154,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
   </body>
 </html>

@@ -6,23 +6,20 @@ use App\Models\Assurance;
 use App\Models\Caisse;
 use App\Models\CarteAssurance;
 use App\Models\CategorieDepense;
-use App\Models\Depense;
 use App\Models\Dette;
 use App\Models\Medecin;
 use App\Models\ModePaiement;
 use App\Models\MouvementCaisse;
-use App\Models\Patient;
 use App\Models\Paiement;
+use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\Recette;
 use App\Models\ReglePartage;
-use App\Models\Remuneration;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\Tarif;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Services\CaisseService;
 use App\Services\DepenseService;
 use App\Services\GestionCaisseService;
 use App\Services\PaiementService;
@@ -38,6 +35,7 @@ class AutomatisationFluxFinancierTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected ModePaiement $modeEspeces;
 
     protected function setUp(): void
@@ -54,7 +52,7 @@ class AutomatisationFluxFinancierTest extends TestCase
         ]);
         $this->actingAs($this->user);
 
-        $this->modeEspeces = ModePaiement::create(['nom' => 'Espèces', 'statut' => true]);
+        $this->modeEspeces = ModePaiement::create(['nom' => 'Espèces', 'code' => 'ESPECES', 'statut' => true]);
     }
 
     /** TEST 1 & 2 : Prestation Consultation & Partage Médecin/Clinique */
@@ -223,7 +221,7 @@ class AutomatisationFluxFinancierTest extends TestCase
     public function test_depense_et_mouvement_caisse_sortie(): void
     {
         $caisse = app(GestionCaisseService::class)->ouvrirCaisse($this->user->id, 50000);
-        $cat = CategorieDepense::create(['nom' => 'Fournitures', 'statut' => true]);
+        $cat = CategorieDepense::create(['nom' => 'Fournitures', 'code' => 'FOURNITURES', 'statut' => true]);
 
         $depense = app(DepenseService::class)->enregistrerDepense([
             'categorie_depense_id' => $cat->id,

@@ -1,150 +1,189 @@
 @extends('layout')
 
-@section('title', 'Tableau de Bord Financier')
+@section('title', 'Tableau de Bord Financier & Activité')
 
 @section('content')
-    <section class="mt-4">
+    <section>
         {{-- En-tête principal & Barre de Filtres Temporels --}}
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
-                <h1 class="h2 mb-1">Tableau de Bord Financier & Administrative</h1>
-                <p class="text-muted mb-0">Indicateurs clés du {{ $debut->format('d/m/Y') }} au {{ $fin->format('d/m/Y') }}</p>
+                <div class="small text-muted mb-1 d-flex align-items-center gap-1">
+                    <span>Supervision</span>
+                    <span class="opacity-50">/</span>
+                    <span class="fw-semibold text-dark">Contrôle Financier & Activité</span>
+                </div>
+                <h1 class="h3 fw-bold mb-0 text-dark">Tableau de Bord</h1>
             </div>
 
             {{-- Filtres temporels par boutons radio / liens --}}
-            <div class="btn-group shadow-sm" role="group" aria-label="Filtre par période">
+            <div class="d-flex align-items-center gap-2 bg-white p-1 rounded-3 border">
                 @foreach($periodesLabels as $key => $label)
-                    <a href="{{ route('dashboard', ['periode' => $key]) }}" class="btn btn-outline-primary {{ $periode === $key ? 'active' : '' }}">
+                    <a href="{{ route('dashboard', ['periode' => $key]) }}" 
+                       class="btn btn-sm {{ $periode === $key ? 'btn-primary shadow-sm' : 'btn-light border-0 text-muted' }}" 
+                       style="font-size: 0.8rem; padding: 0.4rem 0.85rem;">
                         {{ $label }}
                     </a>
                 @endforeach
             </div>
         </div>
 
-        {{-- Ligne 1 : Cartes KPI Financières Principales --}}
+        {{-- Ligne 1 : Cartes KPI Financières Principales (Style doc/Clinique.dc.html) --}}
         <div class="row g-3 mb-4">
             {{-- Recettes Totales --}}
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-success text-white">
-                    <div class="card-body">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Recettes Encaissement</h6>
-                        <h3 class="fw-bold mb-0">{{ number_format($totalRecettes, 2, ',', ' ') }} FCFA</h3>
-                        <small class="text-white-50">Période : {{ $periodesLabels[$periode] }}</small>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: #e3f3ee; color: #0f6b5f;">
+                            <i data-lucide="trending-up" class="lucide"></i>
+                        </div>
+                        <span class="badge badge-success-pill">Recettes</span>
                     </div>
+                    <div class="font-mono fs-4 fw-bold text-dark mb-1">
+                        {{ number_format($totalRecettes, 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
+                    </div>
+                    <div class="small text-muted">Recettes encaissées</div>
                 </div>
             </div>
 
             {{-- Dépenses Totales --}}
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-danger text-white">
-                    <div class="card-body">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Dépenses & Charges</h6>
-                        <h3 class="fw-bold mb-0">{{ number_format($totalDepenses, 2, ',', ' ') }} FCFA</h3>
-                        <small class="text-white-50">Période : {{ $periodesLabels[$periode] }}</small>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: #fce4e4; color: #b3261e;">
+                            <i data-lucide="trending-down" class="lucide"></i>
+                        </div>
+                        <span class="badge badge-danger-pill">Charges</span>
                     </div>
+                    <div class="font-mono fs-4 fw-bold text-dark mb-1">
+                        {{ number_format($totalDepenses, 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
+                    </div>
+                    <div class="small text-muted">Dépenses & charges</div>
                 </div>
             </div>
 
             {{-- Solde Net --}}
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm {{ $soldeNet >= 0 ? 'bg-primary' : 'bg-dark' }} text-white">
-                    <div class="card-body">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Solde Financier Net</h6>
-                        <h3 class="fw-bold mb-0">{{ number_format($soldeNet, 2, ',', ' ') }} FCFA</h3>
-                        <small class="text-white-50">Recettes - Dépenses</small>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: #e2f1ef; color: #0f766e;">
+                            <i data-lucide="scale" class="lucide"></i>
+                        </div>
+                        <span class="badge {{ $soldeNet >= 0 ? 'badge-info-pill' : 'badge-danger-pill' }}">Net</span>
                     </div>
+                    <div class="font-mono fs-4 fw-bold {{ $soldeNet >= 0 ? 'text-dark' : 'text-danger' }} mb-1">
+                        {{ number_format($soldeNet, 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
+                    </div>
+                    <div class="small text-muted">Solde d'exploitation net</div>
                 </div>
             </div>
 
             {{-- Créances & Dettes Patients --}}
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-warning text-dark">
-                    <div class="card-body">
-                        <h6 class="text-dark-50 text-uppercase fw-bold mb-2">Dettes & Reste à Recouvrer</h6>
-                        <h3 class="fw-bold mb-0">{{ number_format($totalDettesRestantes, 2, ',', ' ') }} FCFA</h3>
-                        <small class="text-dark-50">Cumul général des impayés</small>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: #fdf0d5; color: #8a5712;">
+                            <i data-lucide="alert-circle" class="lucide"></i>
+                        </div>
+                        <span class="badge badge-warning-pill">À recouvrer</span>
                     </div>
+                    <div class="font-mono fs-4 fw-bold text-dark mb-1">
+                        {{ number_format($totalDettesRestantes, 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
+                    </div>
+                    <div class="small text-muted">Impayés & dettes actives</div>
                 </div>
             </div>
         </div>
 
-        {{-- Ligne 2 : Cartes KPI Secondaires (Actes & Caisses) --}}
+        {{-- Ligne 2 : Cartes KPI Secondaires --}}
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Facturation & Tickets Émis</h6>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fs-2 fw-bold text-dark">{{ $nombreTickets }}</span>
-                            <span class="fs-5 text-primary fw-bold">{{ number_format($totalMontantTickets, 0, ',', ' ') }} FCFA</span>
-                        </div>
-                        <p class="text-muted small mb-0 mt-2">Volume total des tickets enregistrés sur la période.</p>
+                <div class="card p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">Tickets & Facturation</span>
+                        <i data-lucide="receipt" class="lucide text-muted"></i>
                     </div>
+                    <div class="d-flex justify-content-between align-items-baseline mt-2">
+                        <span class="font-mono fs-3 fw-bold text-dark">{{ $nombreTickets }}</span>
+                        <span class="font-mono fs-5 fw-bold" style="color: var(--primary-color);">{{ number_format($totalMontantTickets, 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div class="small text-muted mt-2">Volume et valeur totale des actes facturés</div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Honoraires Médecins à Payer</h6>
-                        <span class="fs-2 fw-bold text-danger">{{ number_format($partsMedecinsDues, 2, ',', ' ') }} FCFA</span>
-                        <p class="text-muted small mb-0 mt-2">Part des rétrocessions en attente de versement.</p>
+                <div class="card p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">Honoraires Praticiens</span>
+                        <i data-lucide="user-check" class="lucide text-muted"></i>
                     </div>
+                    <div class="font-mono fs-3 fw-bold text-dark mt-2">
+                        {{ number_format($partsMedecinsDues, 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
+                    </div>
+                    <div class="small text-muted mt-2">Rétrocessions médicales dues en attente</div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Caisses Actuellement Ouvertes</h6>
-                        <span class="fs-2 fw-bold text-success">{{ $caissesOuvertes->count() }} Session(s)</span>
-                        <div class="mt-2">
-                            @forelse($caissesOuvertes as $caisse)
-                                <span class="badge bg-success me-1">#{{ $caisse->id }} - {{ $caisse->user->name ?? '' }}</span>
-                            @empty
-                                <span class="text-muted small">Aucune caisse ouverte.</span>
-                            @endforelse
-                        </div>
+                <div class="card p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">Guichets & Sessions</span>
+                        <i data-lucide="banknote" class="lucide text-muted"></i>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-2">
+                        <span class="font-mono fs-3 fw-bold text-dark">{{ $caissesOuvertes->count() }}</span>
+                        <span class="badge badge-success-pill">En service</span>
+                    </div>
+                    <div class="mt-2 text-truncate small">
+                        @forelse($caissesOuvertes as $caisse)
+                            <span class="badge badge-info-pill me-1">#{{ $caisse->id }} {{ $caisse->user->name ?? '' }}</span>
+                        @empty
+                            <span class="text-muted">Aucun guichet actuellement ouvert.</span>
+                        @endforelse
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Ligne 3 : Tableau de Synthèse des Prestations par Service --}}
-        <div class="card shadow-sm mb-4">
+        <div class="card overflow-hidden mb-4">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0 fw-bold">Synthèse de l'Activité par Service Médical</h5>
-                <span class="badge bg-primary">CLINGEST V1</span>
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="building-2" class="lucide text-primary" style="color: var(--primary-color) !important;"></i>
+                    <h2 class="h6 mb-0 fw-bold text-dark">Chiffre d'Affaires par Service Médical</h2>
+                </div>
+                <span class="small text-muted">{{ count($servicesStats) }} service(s)</span>
             </div>
-            <div class="card-body p-0">
+            <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
-                            <th>Code</th>
+                            <th style="width: 100px;">Code</th>
                             <th>Service Médical</th>
-                            <th>Nombre de Prestations</th>
-                            <th>Chiffre d'Affaires Généré</th>
-                            <th>Statut Service</th>
+                            <th>Actes au Catalogue</th>
+                            <th class="text-end">C.A. Généré</th>
+                            <th class="text-center" style="width: 120px;">Statut</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($servicesStats as $service)
                             <tr>
-                                <td><code>{{ $service->code }}</code></td>
-                                <td><strong>{{ $service->nom }}</strong></td>
-                                <td>{{ $service->prestations_count }} prestation(s) au catalogue</td>
-                                <td><strong class="text-success">{{ number_format($service->chiffre_affaires, 2, ',', ' ') }} FCFA</strong></td>
-                                <td>
+                                <td><span class="font-mono text-muted small">{{ $service->code }}</span></td>
+                                <td><strong class="text-dark">{{ $service->nom }}</strong></td>
+                                <td><span class="text-muted">{{ $service->prestations_count }} prestation(s)</span></td>
+                                <td class="text-end font-mono fw-bold" style="color: var(--primary-color);">
+                                    {{ number_format($service->chiffre_affaires, 0, ',', ' ') }} FCFA
+                                </td>
+                                <td class="text-center">
                                     @if($service->statut)
-                                        <span class="badge bg-success">Actif</span>
+                                        <span class="badge badge-success-pill">Actif</span>
                                     @else
-                                        <span class="badge bg-danger">Inactif</span>
+                                        <span class="badge badge-danger-pill">Inactif</span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center">Aucun service répertorié.</td>
+                                <td colspan="5" class="text-center py-4 text-muted">Aucun service répertorié.</td>
                             </tr>
                         @endforelse
                     </tbody>

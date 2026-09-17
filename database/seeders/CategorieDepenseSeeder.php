@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CategorieDepense;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CategorieDepenseSeeder extends Seeder
@@ -67,10 +66,10 @@ class CategorieDepenseSeeder extends Seeder
         ];
 
         foreach ($categories as $categorie) {
-    CategorieDepense::updateOrCreate(
-        ['code' => $categorie['code']],
-        $categorie
-    );
+            CategorieDepense::updateOrCreate(
+                ['code' => $categorie['code']],
+                $categorie
+            );
+        }
     }
-}
 }

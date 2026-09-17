@@ -17,9 +17,10 @@ class CategorieDepense extends Model
     protected $casts = [
         'statut' => 'boolean',
     ];
+
     // RELATION CATEGORIEDEPENSE ---> DEPENSES
     public function depenses(): HasMany
     {
         return $this->hasMany(Depense::class);
     }
-  }
+}

@@ -43,7 +43,7 @@
                 <label for="statut" class="form-label fw-bold">Statut du Service : <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <span class="input-group-text bg-light text-muted border-end-0">
-                        <i class="bi bi-toggle-on"></i>
+                        <i data-lucide="toggle-on"></i>
                     </span>
                     <select name="statut" id="statut" class="form-select border-start-0 @error('statut') is-invalid @enderror" required>
                         @foreach($statuts as $key => $label)
@@ -55,7 +55,7 @@
                 </div>
                 @error('statut')
                     <div class="invalid-feedback d-block mt-1">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
+                        <i data-lucide="alert-triangle" class="me-1"></i>{{ $message }}
                     </div>
                 @enderror
             </div>

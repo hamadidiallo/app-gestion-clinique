@@ -139,7 +139,7 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="text-center py-5 text-muted">
-                                    <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                    <i data-lucide="inbox" class="fs-2 d-block mb-2 text-secondary"></i>
                                     Aucune prise en charge d'assurance (Tiers Payant) trouvée pour cette sélection.
                                 </td>
                             </tr>

@@ -29,7 +29,7 @@ class ModePaiementRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Le code unique du mode de paiement est obligatoire
-            'code' => 'required|string|max:50|unique:mode_paiements,code,' . $modePaiementId,
+            'code' => 'required|string|max:50|unique:mode_paiements,code,'.$modePaiementId,
 
             // Description optionnelle
             'description' => 'nullable|string',

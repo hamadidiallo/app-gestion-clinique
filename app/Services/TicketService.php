@@ -9,6 +9,7 @@ use App\Models\TicketDetail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class TicketService
 {
@@ -18,48 +19,31 @@ class TicketService
 
     /**
      * Génère une référence unique de ticket (ou réutilise la référence de carte d'assurance si le patient est assuré).
-     *
-     * @param int|null $patientId
-     * @return string
      */
     public function genererReferenceTicket(?int $patientId = null): string
     {
-        if ($patientId) {
-            $patient = \App\Models\Patient::with(['cartesAssurance' => function ($q) {
-                $q->where('statut', true);
-            }])->find($patientId);
-
-            if ($patient && $patient->statut === 'assure') {
-                $carte = $patient->cartesAssurance->first();
-                if ($carte && !empty($carte->reference)) {
-                    return $carte->reference;
-                }
-            }
-        }
-
-        return 'TCK-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        return 'TCK-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -5));
     }
 
     /**
      * Crée automatiquement un ticket et ses détails à partir d'une ou plusieurs prestations.
      *
-     * @param array $prestationIds Identifiants des prestations à inclure
-     * @param int|null $userId Identifiant de l'agent caissier
-     * @param string|null $description Explication ou observation
-     * @return Ticket
+     * @param  array  $prestationIds  Identifiants des prestations à inclure
+     * @param  int|null  $userId  Identifiant de l'agent caissier
+     * @param  string|null  $description  Explication ou observation
      */
     public function creerTicketDepuisPrestations(array $prestationIds, ?int $userId = null, ?string $description = null): Ticket
     {
         return DB::transaction(function () use ($prestationIds, $userId, $description) {
             $effectiveUserId = $userId ?? auth()->id();
 
-            if (!$effectiveUserId) {
+            if (! $effectiveUserId) {
                 $user = User::first();
                 $effectiveUserId = $user ? $user->id : null;
             }
 
-            if (!$effectiveUserId) {
-                throw new \InvalidArgumentException("Un utilisateur caissier est requis pour générer un ticket.");
+            if (! $effectiveUserId) {
+                throw new \InvalidArgumentException('Un utilisateur caissier est requis pour générer un ticket.');
             }
 
             $prestations = Prestation::with(['patient', 'service'])->whereIn('id', $prestationIds)->get();
@@ -69,11 +53,15 @@ class TicketService
             }
 
             $firstPrestation = $prestations->first();
+            $patient = $firstPrestation->patient;
             $patientId = $firstPrestation->patient_id;
 
-            // Vérification de la carte d'assurance pour la référence de l'assurance
-            $carte = CarteAssurance::where('patient_id', $patientId)->where('statut', true)->first();
-            $assuranceId = $carte ? $carte->assurance_id : null;
+            // Récupération directe de l'assurance depuis le patient (ou rétrocompatibilité carte)
+            $assuranceId = $patient?->assurance_id;
+            if (! $assuranceId) {
+                $carte = CarteAssurance::where('patient_id', $patientId)->where('statut', true)->first();
+                $assuranceId = $carte ? $carte->assurance_id : null;
+            }
 
             $dateTicket = Carbon::now();
             $dateExpiration = $dateTicket->copy()->addDays(7); // Ticket valide 7 jours
@@ -104,10 +92,10 @@ class TicketService
                 'description' => $description,
             ];
 
-            if (\Illuminate\Support\Facades\Schema::hasColumn('tickets', 'service_id')) {
+            if (Schema::hasColumn('tickets', 'service_id')) {
                 $ticketData['service_id'] = $firstPrestation->service_id ?? null;
             }
-            if (\Illuminate\Support\Facades\Schema::hasColumn('tickets', 'medecin_id')) {
+            if (Schema::hasColumn('tickets', 'medecin_id')) {
                 $ticketData['medecin_id'] = $firstPrestation->medecin_id ?? null;
             }
 
@@ -131,7 +119,7 @@ class TicketService
                 module: 'facturation',
                 objetType: Ticket::class,
                 objetId: $ticket->id,
-                description: 'Génération automatique ticket ' . $ticket->reference . ' (Reste: ' . $ticket->reste_a_payer . ' FCFA)',
+                description: 'Génération automatique ticket '.$ticket->reference.' (Reste: '.$ticket->reste_a_payer.' FCFA)',
                 nouvellesValeurs: $ticket->toArray()
             );
 

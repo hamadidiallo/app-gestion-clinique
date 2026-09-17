@@ -41,8 +41,15 @@ class PatientRequest extends FormRequest
 
             // Champs optionnels d'assurance rattachée au patient
             'assurance_id' => 'nullable|exists:assurances,id',
+            'numero_assure' => 'nullable|string|max:100',
             'carte_reference' => 'nullable|string|max:100',
             'taux_couverture' => 'nullable|numeric|min:0|max:100',
+
+            // Dossier médical initial et action de redirection
+            'groupe_sanguin' => 'nullable|string|max:10',
+            'allergies' => 'nullable|string|max:255',
+            'antecedents_personnels' => 'nullable|string',
+            'action' => 'nullable|string|in:save,save_and_ticket',
         ];
     }
 

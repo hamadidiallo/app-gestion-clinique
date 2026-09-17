@@ -18,7 +18,7 @@ return new class extends Migration
             // Mode de paiement
             $table->foreignId('mode_paiement_id')->constrained('mode_paiements')->restrictOnDelete();
             // Utilisateur ayant enregistré la dépense
-            $table->foreignId('user_id')  ->constrained('users')  ->restrictOnDelete();
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             // Montant
             $table->decimal('montant', 15, 2);
             // Date

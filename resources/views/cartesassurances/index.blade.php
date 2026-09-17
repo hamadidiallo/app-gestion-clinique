@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-card-heading me-2"></i>Cartes d'Assurance Patients
+                    <i data-lucide="card-heading" class="me-2"></i>Cartes d'Assurance Patients
                 </h1>
                 <p class="text-muted mb-0">Registre des numéros d'affiliation et taux de prise en charge tiers payant.</p>
             </div>
             <div>
                 <a href="{{ route('carteassurance.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Créer une Carte d'Assurance
+                    <i data-lucide="plus-circle"></i> Créer une Carte d'Assurance
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-credit-card-2-back text-primary me-2"></i>Liste des Cartes Délivrées
+                    <i data-lucide="credit-card-2-back" class="text-primary me-2"></i>Liste des Cartes Délivrées
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="cartesAssurancesTable" title="Cartes d'Assurance Patients" filename="cartes_assurance" />
@@ -69,13 +69,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('cartesassurances.show', $carte) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('cartesassurances.edit', $carte) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCarteModal{{ $carte->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -106,7 +106,7 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center py-4 text-muted">
-                                        <i class="bi bi-card-heading fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="card-heading" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucune carte d'assurance trouvée pour cette période.
                                     </td>
                                 </tr>

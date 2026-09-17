@@ -26,6 +26,7 @@ class Prestation extends Model
         'description',
         'statut',
     ];
+
     protected $casts = [
         'montant' => 'decimal:2',
         'taux_couverture' => 'decimal:2',
@@ -38,26 +39,31 @@ class Prestation extends Model
         'date_prestation' => 'datetime',
         'statut' => 'boolean',
     ];
+
     // RELATION BIDIRECTIONNELLE PATIENT ---> PRESTATION
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
+
     // RELATION BIDIRECTIONNELLE SERVICE ---> PRESTATION
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
+
     // RELATION BIDIRECTIONNELLE MEDECIN ---> PRESTATION
     public function medecin(): BelongsTo
     {
         return $this->belongsTo(Medecin::class);
     }
+
     // RELATION BIDIRECTIONNELLE MEDECIN ---> TARIF
     public function tarif(): BelongsTo
     {
         return $this->belongsTo(Tarif::class);
     }
+
     // RELATION PRESTATION ----> TICKETDETAILS
     public function ticketDetails(): HasMany
     {

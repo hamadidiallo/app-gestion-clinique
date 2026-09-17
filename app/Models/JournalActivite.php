@@ -19,15 +19,16 @@ class JournalActivite extends Model
         'adresse_ip',
         'date_action',
     ];
+
     protected $casts = [
         'anciennes_valeurs' => 'array',
         'nouvelles_valeurs' => 'array',
         'date_action' => 'datetime',
     ];
+
     // RELATION BIDIRECTIONNELLE JOURNALACTIVITE ---> USER
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-
 }

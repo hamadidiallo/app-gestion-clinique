@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CarteAssuranceRequest;
 use App\Models\Assurance;
 use App\Models\CarteAssurance;
+use App\Models\Patient;
 use App\Traits\HasPeriodFilter;
 
 class CarteAssuranceController extends Controller
@@ -47,7 +48,7 @@ class CarteAssuranceController extends Controller
 
         $selectedPatient = null;
         if (request()->has('patient_id')) {
-            $selectedPatient = \App\Models\Patient::find(request()->get('patient_id'));
+            $selectedPatient = Patient::find(request()->get('patient_id'));
         }
 
         return view('cartesassurances.create', compact('assurances', 'statuts', 'selectedPatient'));

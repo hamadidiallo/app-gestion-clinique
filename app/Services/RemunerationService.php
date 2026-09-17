@@ -6,6 +6,7 @@ use App\Models\Medecin;
 use App\Models\Prestation;
 use App\Models\ReglePartage;
 use App\Models\Remuneration;
+use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +20,9 @@ class RemunerationService
     /**
      * Calcule la répartition d'un montant d'acte médical entre le médecin et la clinique.
      *
-     * @param float $montantActe Montant brut de l'acte médical
-     * @param int|null $serviceId Identifiant du service pour vérifier l'existence d'une règle spécifique
-     * @param Medecin|null $medecin Objet médecin avec ses paramètres de rémunération
+     * @param  float  $montantActe  Montant brut de l'acte médical
+     * @param  int|null  $serviceId  Identifiant du service pour vérifier l'existence d'une règle spécifique
+     * @param  Medecin|null  $medecin  Objet médecin avec ses paramètres de rémunération
      * @return array{montant_medecin: float, montant_clinique: float, pourcentage_medecin: float, pourcentage_clinique: float}
      */
     public function calculerPartMedecinEtClinique(float $montantActe, ?int $serviceId = null, ?Medecin $medecin = null): array
@@ -59,11 +60,8 @@ class RemunerationService
     /**
      * Calcule et génère la synthèse de rémunération d'un médecin pour une période donnée.
      *
-     * @param int $medecinId
-     * @param string|Carbon $periodeDebut
-     * @param string|Carbon $periodeFin
-     * @param int|null $userId
-     * @return Remuneration
+     * @param  string|Carbon  $periodeDebut
+     * @param  string|Carbon  $periodeFin
      */
     public function genererRemunerationMensuelle(int $medecinId, $periodeDebut, $periodeFin, ?int $userId = null): Remuneration
     {
@@ -71,7 +69,7 @@ class RemunerationService
             $medecin = Medecin::findOrFail($medecinId);
 
             $effectiveUserId = $userId ?? auth()->id();
-            if (!$effectiveUserId) {
+            if (! $effectiveUserId) {
                 $user = User::first();
                 $effectiveUserId = $user ? $user->id : null;
             }
@@ -86,7 +84,7 @@ class RemunerationService
                 ->first();
 
             if ($remunerationExistante && $remunerationExistante->statut === 'payee') {
-                throw new \InvalidArgumentException("Une rémunération déjà réglée existe pour cette période. Elle ne peut plus être recalculée.");
+                throw new \InvalidArgumentException('Une rémunération déjà réglée existe pour cette période. Elle ne peut plus être recalculée.');
             }
 
             $typeRemuneration = $medecin->type_remuneration ?? 'pourcentage';
@@ -130,7 +128,7 @@ class RemunerationService
                     'montant_medecin' => round($montantMedecin, 2),
                     'montant_clinique' => round($montantClinique, 2),
                     'statut' => $remunerationExistante ? $remunerationExistante->statut : 'calculee',
-                    'description' => 'Calcul automatique rémunération période du ' . $debut->format('d/m/Y') . ' au ' . $fin->format('d/m/Y'),
+                    'description' => 'Calcul automatique rémunération période du '.$debut->format('d/m/Y').' au '.$fin->format('d/m/Y'),
                 ]
             );
 
@@ -139,7 +137,7 @@ class RemunerationService
                 module: 'remuneration',
                 objetType: Remuneration::class,
                 objetId: $remuneration->id,
-                description: 'Calcul rémunération Dr ' . $medecin->nom . ' (' . $remuneration->montant_medecin . ' FCFA)',
+                description: 'Calcul rémunération Dr '.$medecin->nom.' ('.$remuneration->montant_medecin.' FCFA)',
                 nouvellesValeurs: $remuneration->toArray()
             );
 
@@ -149,9 +147,6 @@ class RemunerationService
 
     /**
      * Valide le paiement d'une rémunération.
-     *
-     * @param Remuneration $remuneration
-     * @return Remuneration
      */
     public function validerPaiementRemuneration(Remuneration $remuneration): Remuneration
     {
@@ -166,7 +161,7 @@ class RemunerationService
                 module: 'remuneration',
                 objetType: Remuneration::class,
                 objetId: $remuneration->id,
-                description: 'Règlement effectué de la rémunération #' . $remuneration->id . ' pour Dr ' . $remuneration->medecin->nom,
+                description: 'Règlement effectué de la rémunération #'.$remuneration->id.' pour Dr '.$remuneration->medecin->nom,
                 nouvellesValeurs: $remuneration->toArray()
             );
 
@@ -177,11 +172,8 @@ class RemunerationService
     /**
      * Actualise automatiquement le partage d'honoraires et la rémunération des médecins
      * à chaque fois qu'un paiement est effectué sur un ticket.
-     *
-     * @param \App\Models\Ticket $ticket
-     * @return void
      */
-    public function actualiserRemunerationAutomatiquePourPaiementTicket(\App\Models\Ticket $ticket): void
+    public function actualiserRemunerationAutomatiquePourPaiementTicket(Ticket $ticket): void
     {
         $ticket->loadMissing(['details.prestation.medecin', 'details.prestation.service']);
 

@@ -65,7 +65,7 @@ class PaiementController extends Controller
             'annule' => 'Annulé',
         ];
 
-        $defaultReference = 'PAY-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $defaultReference = 'PAY-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
         return view('paiements.create', compact('tickets', 'users', 'assurances', 'modePaiements', 'statuts', 'defaultReference'));
     }
@@ -80,7 +80,7 @@ class PaiementController extends Controller
         try {
             $paiement = $this->paiementService->enregistrerPaiement($validated);
 
-            return to_route('paiements.index')->with('alert', 'Règlement #' . $paiement->id . ' enregistré avec succès. Recette, mouvement de caisse et solde du ticket mis à jour automatiquement.');
+            return to_route('paiements.index')->with('alert', 'Règlement #'.$paiement->id.' enregistré avec succès. Recette, mouvement de caisse et solde du ticket mis à jour automatiquement.');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['montant_recu' => $e->getMessage()]);
         }

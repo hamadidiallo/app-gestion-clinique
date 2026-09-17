@@ -21,6 +21,7 @@ class Caisse extends Model
         'statut',
         'observation',
     ];
+
     protected $casts = [
         'date_ouverture' => 'datetime',
         'date_fermeture' => 'datetime',
@@ -31,15 +32,16 @@ class Caisse extends Model
         'solde_physique' => 'decimal:2',
         'ecart' => 'decimal:2',
     ];
+
     // RELATION BIDIRECTIONNELLE CAISSE ---> USER
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
     // RELATION CAISSE ---> MOUVEMENTS
     public function mouvements(): HasMany
     {
         return $this->hasMany(MouvementCaisse::class);
     }
-    
 }

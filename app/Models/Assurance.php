@@ -15,6 +15,7 @@ class Assurance extends Model
     protected $fillable = [
         'nom',
         'code',
+        'taux_par_defaut',
         'telephone',
         'email',
         'adresse',
@@ -27,8 +28,17 @@ class Assurance extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'taux_par_defaut' => 'decimal:2',
         'statut' => 'boolean',
     ];
+
+    /**
+     * Relation un-à-plusieurs : Une assurance couvre plusieurs patients.
+     */
+    public function patients(): HasMany
+    {
+        return $this->hasMany(Patient::class);
+    }
 
     /**
      * Relation un-à-plusieurs : Une assurance possède plusieurs cartes d'assurance.
@@ -37,6 +47,7 @@ class Assurance extends Model
     {
         return $this->hasMany(CarteAssurance::class);
     }
+
     // RELATION ASSURANCE ---> PAIEMENT
     public function paiements(): HasMany
     {

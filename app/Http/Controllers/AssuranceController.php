@@ -63,7 +63,7 @@ class AssuranceController extends Controller
      */
     public function show(Assurance $assurance)
     {
-        $assurance->load('cartesAssurance.patient');
+        $assurance->load(['patients', 'cartesAssurance.patient']);
 
         return view('assurances.show', compact('assurance'));
     }

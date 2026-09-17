@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequest;
 use App\Models\Service;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -22,11 +23,11 @@ class ServiceController extends Controller
     /**
      * Recherche les services par leur nom ou leur code pour l'autocomplétion (format JSON).
      */
-    public function search(\Illuminate\Http\Request $request)
+    public function search(Request $request)
     {
         $rawQuery = $request->input('q', '');
         if (is_array($rawQuery)) {
-            $rawQuery = implode(' ', array_filter($rawQuery, fn($i) => is_string($i) || is_numeric($i)));
+            $rawQuery = implode(' ', array_filter($rawQuery, fn ($i) => is_string($i) || is_numeric($i)));
         }
         $query = trim((string) $rawQuery);
 
@@ -39,7 +40,7 @@ class ServiceController extends Controller
         $services = Service::where('statut', true)
             ->where(function ($q) use ($query) {
                 $q->where('nom', 'LIKE', "%{$query}%")
-                  ->orWhere('code', 'LIKE', "%{$query}%");
+                    ->orWhere('code', 'LIKE', "%{$query}%");
             })
             ->limit(10)
             ->get(['id', 'nom', 'code']);
@@ -50,7 +51,7 @@ class ServiceController extends Controller
                 'id' => $service->id,
                 'nom' => $service->nom,
                 'code' => $service->code,
-                'label' => $service->nom . ' (' . $service->code . ')',
+                'label' => $service->nom.' ('.$service->code.')',
             ];
         });
 

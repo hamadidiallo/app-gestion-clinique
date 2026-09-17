@@ -26,6 +26,7 @@ class Ticket extends Model
         'statut',
         'description',
     ];
+
     protected $casts = [
         'date_ticket' => 'datetime',
         'date_expiration' => 'datetime',
@@ -35,41 +36,49 @@ class Ticket extends Model
         'montant_paye' => 'decimal:2',
         'reste_a_payer' => 'decimal:2',
     ];
+
     // RELATION BIDIRECTIONNELLE TICKET ---> Patient
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
+
     // RELATION BIDIRECTIONNELLE TICKET ---> Assurance
     public function assurance(): BelongsTo
     {
         return $this->belongsTo(Assurance::class);
     }
+
     // RELATION BIDIRECTIONNELLE TICKET ---> Service
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
+
     // RELATION BIDIRECTIONNELLE TICKET ---> Medecin
     public function medecin(): BelongsTo
     {
         return $this->belongsTo(Medecin::class);
     }
+
     // RELATION BIDIRECTIONNELLE TICKET ---> User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
     // RELATION  TICKET ---> TicketDétails
     public function details(): HasMany
     {
         return $this->hasMany(TicketDetail::class);
     }
+
     // RELATION Ticket ---> Paiement
     public function paiements(): HasMany
     {
         return $this->hasMany(Paiement::class);
     }
+
     // RELATION TICKET ---> DETTE
     // Pourquoi hasOne ?
     // Parce qu'un ticket aura une dette correspondante, dont le montant évoluera au fur et à mesure des paiements.
@@ -77,9 +86,32 @@ class Ticket extends Model
     {
         return $this->hasOne(Dette::class);
     }
+
     // RELATION TICKET ---> RECETTE
     public function recettes(): HasMany
     {
         return $this->hasMany(Recette::class);
+    }
+
+    public function consultation(): HasOne
+    {
+        return $this->hasOne(Consultation::class);
+    }
+
+    public function actes(): HasMany
+    {
+        return $this->hasMany(TicketDetail::class)->where(function ($q) {
+            $q->where('type_item', 'acte')->orWhereNull('type_item');
+        });
+    }
+
+    public function medicaments(): HasMany
+    {
+        return $this->hasMany(TicketDetail::class)->where('type_item', 'medicament');
+    }
+
+    public function hospitalisations(): HasMany
+    {
+        return $this->hasMany(TicketDetail::class)->where('type_item', 'hospitalisation');
     }
 }

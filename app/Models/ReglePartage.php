@@ -26,10 +26,10 @@ class ReglePartage extends Model
         'date_fin' => 'date',
         'statut' => 'boolean',
     ];
+
     // Relation bidirectionnelle REGLEPARTAGE ---> SERVICE
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
-
 }

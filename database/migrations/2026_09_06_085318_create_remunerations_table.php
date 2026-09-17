@@ -25,7 +25,7 @@ return new class extends Migration
             // Type de rémunération
             $table->enum('type_remuneration', [
                 'salaire_fixe',
-                'pourcentage'
+                'pourcentage',
             ]);
 
             // Période concernée
@@ -49,13 +49,13 @@ return new class extends Migration
             $table->enum('statut', [
                 'calculee',
                 'payee',
-                'annulee'
+                'annulee',
             ])->default('calculee');
 
             $table->date('date_paiement')->nullable();
 
             $table->text('description')->nullable();
-            
+
             $table->timestamps();
         });
     }

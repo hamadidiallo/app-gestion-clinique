@@ -6,10 +6,10 @@
     <section class="mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h1 class="h3 mb-1 text-primary"><i class="bi bi-file-medical me-2"></i>Nouvelle Prestation Médicale</h1>
+                <h1 class="h3 mb-1 text-primary"><i data-lucide="file-medical" class="me-2"></i>Nouvelle Prestation Médicale</h1>
                 <p class="text-muted small mb-0">Saisie simplifiée : les calculs de facturation et de partage sont gérés automatiquement par le système.</p>
             </div>
-            <a href="{{ route('prestations.index') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Retour à la liste</a>
+            <a href="{{ route('prestations.index') }}" class="btn btn-outline-secondary btn-sm"><i data-lucide="arrow-left" class="me-1"></i>Retour à la liste</a>
         </div>
 
         <form action="{{ route('prestations.store') }}" method="post" id="prestationForm">
@@ -97,11 +97,11 @@
                 <div class="col-md-4">
                     <div class="card border-primary border-2 shadow-sm bg-light mb-3">
                         <div class="card-header bg-primary text-white font-weight-bold py-3">
-                            <h5 class="card-title mb-0 h6 text-white"><i class="bi bi-calculator me-2"></i>Résumé Automatique des Calculs</h5>
+                            <h5 class="card-title mb-0 h6 text-white"><i data-lucide="calculator" class="me-2"></i>Résumé Automatique des Calculs</h5>
                         </div>
                         <div class="card-body">
                             <div id="previewPlaceholder" class="text-center py-4 text-muted">
-                                <i class="bi bi-info-circle display-6 mb-2 d-block text-secondary"></i>
+                                <i data-lucide="info" class="display-6 mb-2 d-block text-secondary"></i>
                                 Sélectionnez un <strong>Patient</strong> et un <strong>Service</strong> pour afficher le calcul en temps réel.
                             </div>
 
@@ -140,7 +140,7 @@
                             </div>
                         </div>
                         <div class="card-footer bg-white border-0 text-center py-3">
-                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm"><i class="bi bi-check-circle me-2"></i>Valider & Générer Ticket</button>
+                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm"><i data-lucide="check-circle" class="me-2"></i>Valider & Générer Ticket</button>
                         </div>
                     </div>
                 </div>

@@ -31,7 +31,7 @@ class AssuranceRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Le code d'assurance est facultatif, mais s'il est renseigné il doit être unique
-            'code' => 'nullable|string|max:50|unique:assurances,code,' . $assuranceId,
+            'code' => 'nullable|string|max:50|unique:assurances,code,'.$assuranceId,
 
             // Le numéro de téléphone est facultatif et ne doit pas dépasser 20 caractères
             'telephone' => 'nullable|string|max:20',
@@ -41,6 +41,9 @@ class AssuranceRequest extends FormRequest
 
             // L'adresse physique est facultative et limitée à 500 caractères
             'adresse' => 'nullable|string|max:500',
+
+            // Taux de prise en charge par défaut (%) (ex: 70%, 80%)
+            'taux_par_defaut' => 'nullable|numeric|min:0|max:100',
 
             // Le statut est obligatoire et doit être un booléen (1 pour Actif, 0 pour Inactif)
             'statut' => 'required|boolean',

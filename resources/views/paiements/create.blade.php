@@ -7,19 +7,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-primary font-weight-bold mb-1">
-                <i class="bi bi-credit-card-2-front me-2"></i>Enregistrer un Règlement / Paiement
+                <i data-lucide="credit-card-2-front" class="me-2"></i>Enregistrer un Règlement / Paiement
             </h1>
             <p class="text-muted mb-0">Encaissement guichet avec calcul automatique de la monnaie et sélection intelligente des tickets.</p>
         </div>
         <a href="{{ route('paiements.index') }}" class="btn btn-outline-secondary fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+            <i data-lucide="arrow-left" class="me-1"></i> Retour à la liste
         </a>
     </div>
 
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="card-title mb-0 fw-bold text-dark">
-                <i class="bi bi-receipt-cutoff text-primary me-2"></i>Fiche d'Encaissement
+                <i data-lucide="receipt-cutoff" class="text-primary me-2"></i>Fiche d'Encaissement
             </h5>
         </div>
         <div class="card-body p-4">
@@ -31,7 +31,7 @@
                     <div class="col-md-6">
                         <label for="reference" class="form-label fw-bold">Référence du Reçu <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-hash"></i></span>
+                            <span class="input-group-text bg-light text-muted border-end-0"><i data-lucide="hash"></i></span>
                             <input type="text" name="reference" id="reference" class="form-control font-monospace border-start-0 @error('reference') is-invalid @enderror" value="{{ old('reference', $defaultReference) }}" required>
                         </div>
                         @error('reference')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -41,7 +41,7 @@
                     <div class="col-md-6">
                         <label for="mode_paiement_id" class="form-label fw-bold">Mode de Règlement <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-wallet2"></i></span>
+                            <span class="input-group-text bg-light text-muted border-end-0"><i data-lucide="wallet"></i></span>
                             <select name="mode_paiement_id" id="mode_paiement_id" class="form-select border-start-0 @error('mode_paiement_id') is-invalid @enderror" required>
                                 <option value="">-- Sélectionner le mode de paiement --</option>
                                 @foreach($modePaiements as $mode)
@@ -57,14 +57,14 @@
                     {{-- SECTEUR RECHERCHE ET SELECTION TICKET AVEC AUTOCOMPLETION --}}
                     <div class="col-md-12 bg-light p-3 rounded-3 border mb-2">
                         <label for="ticket_search_input" class="form-label fw-bold text-primary fs-6 mb-1">
-                            <i class="bi bi-search me-1"></i>Ticket de Facturation & Recherche Rapide <span class="text-danger">*</span>
+                            <i data-lucide="search" class="me-1"></i>Ticket de Facturation & Recherche Rapide <span class="text-danger">*</span>
                         </label>
                         <p class="text-muted small mb-2">Recherchez instantanément par <strong>N° de Ticket, Nom, Prénom ou Téléphone du patient</strong> pour filtrer la liste ci-dessous.</p>
 
                         {{-- Champ d'autocomplétion / recherche dynamique --}}
                         <div class="input-group mb-2">
                             <span class="input-group-text bg-white text-muted border-end-0">
-                                <i class="bi bi-search text-primary"></i>
+                                <i data-lucide="search" class="text-primary"></i>
                             </span>
                             <input type="text" 
                                    id="ticket_search_input" 
@@ -72,7 +72,7 @@
                                    placeholder="Tapez ici le nom du patient, son n° de téléphone ou la référence ticket..."
                                    autocomplete="off">
                             <button type="button" class="btn btn-outline-secondary" id="btn_clear_ticket_search" title="Réinitialiser la recherche">
-                                <i class="bi bi-x-circle-fill"></i> Effacer
+                                <i data-lucide="x-circle"></i> Effacer
                             </button>
                         </div>
 
@@ -164,7 +164,7 @@
                             <input type="number" step="1" min="0" name="montant_rendu" id="montant_rendu" class="form-control form-control-lg fw-bold text-warning bg-light" value="{{ old('montant_rendu', 0) }}" readonly>
                             <span class="input-group-text bg-warning text-dark fw-bold">FBU</span>
                         </div>
-                        <small class="text-muted"><i class="bi bi-calculator me-1"></i>Calculé : Reçu - Imputé</small>
+                        <small class="text-muted"><i data-lucide="calculator" class="me-1"></i>Calculé : Reçu - Imputé</small>
                         @error('montant_rendu')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
@@ -196,7 +196,7 @@
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
-                        <i class="bi bi-check-circle-fill me-2"></i>Valider l'Encaissement
+                        <i data-lucide="check-circle" class="me-2"></i>Valider l'Encaissement
                     </button>
                 </div>
             </form>

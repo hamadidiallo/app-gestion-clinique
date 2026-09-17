@@ -52,7 +52,7 @@ class MouvementCaisseController extends Controller
             '0' => 'Annulé',
         ];
 
-        $defaultReference = 'MVT-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $defaultReference = 'MVT-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
         return view('mouvementcaisses.create', compact('caisses', 'users', 'types', 'statuts', 'defaultReference'));
     }

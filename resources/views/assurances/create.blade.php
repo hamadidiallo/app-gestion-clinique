@@ -33,7 +33,10 @@
             <x-form.input type="text" name="nom" label="Nom de l'assurance : " value="{{ old('nom') }}" />
 
             {{-- Champ pour la saisie du code unique d'assurance --}}
-            <x-form.input type="text" name="code" label="Code identifiant : " value="{{ old('code') }}" />
+            <x-form.input type="text" name="code" label="Code identifiant (ex: AMO, INPS) : " value="{{ old('code') }}" />
+
+            {{-- Champ pour le taux de prise en charge par défaut (%) --}}
+            <x-form.input type="number" name="taux_par_defaut" label="Taux de prise en charge par défaut (%) : " value="{{ old('taux_par_defaut', 80) }}" min="0" max="100" step="1" />
 
             {{-- Champ pour la saisie du numéro de téléphone --}}
             <x-form.input type="text" name="telephone" label="Téléphone : " value="{{ old('telephone') }}" />
@@ -49,7 +52,7 @@
                 <label for="statut" class="form-label fw-bold">Statut : <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <span class="input-group-text bg-light text-muted border-end-0">
-                        <i class="bi bi-toggle-on"></i>
+                        <i data-lucide="toggle-on"></i>
                     </span>
                     <select name="statut" id="statut" class="form-select border-start-0 @error('statut') is-invalid @enderror" required>
                         @foreach($statuts as $key => $label)
@@ -61,7 +64,7 @@
                 </div>
                 @error('statut')
                     <div class="invalid-feedback d-block mt-1">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
+                        <i data-lucide="alert-triangle" class="me-1"></i>{{ $message }}
                     </div>
                 @enderror
             </div>

@@ -8,16 +8,16 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <h1 class="h3 text-primary font-weight-bold mb-1">
-                <i class="bi bi-building me-2"></i>Services Médicaux & Départements
+                <i data-lucide="building-2" class="me-2"></i>Services Médicaux & Départements
             </h1>
             <p class="text-muted mb-0">Gestion de la structure médicale, départements et grilles tarifaires associées.</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('service.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                <i class="bi bi-plus-circle-fill"></i> Créer un Service
+                <i data-lucide="plus-circle"></i> Créer un Service
             </a>
             <a href="{{ route('tarif.create') }}" class="btn btn-outline-info fw-semibold d-flex align-items-center gap-2">
-                <i class="bi bi-tags"></i> Ajouter un Tarif
+                <i data-lucide="tags"></i> Ajouter un Tarif
             </a>
         </div>
     </div>
@@ -28,7 +28,7 @@
             <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3">
-                        <i class="bi bi-hospital fs-4"></i>
+                        <i data-lucide="building-2" class="fs-4"></i>
                     </div>
                     <div>
                         <span class="text-muted small d-block">Total Services Médicaux</span>
@@ -42,7 +42,7 @@
             <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
                 <div class="d-flex align-items-center">
                     <div class="bg-success-subtle text-success p-3 rounded-circle me-3">
-                        <i class="bi bi-check-circle fs-4"></i>
+                        <i data-lucide="check-circle" class="fs-4"></i>
                     </div>
                     <div>
                         <span class="text-muted small d-block">Services Actifs</span>
@@ -56,7 +56,7 @@
             <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-info">
                 <div class="d-flex align-items-center">
                     <div class="bg-info-subtle text-info p-3 rounded-circle me-3">
-                        <i class="bi bi-tags fs-4"></i>
+                        <i data-lucide="tags" class="fs-4"></i>
                     </div>
                     <div>
                         <span class="text-muted small d-block">Total Tarifs Rattachés</span>
@@ -71,7 +71,7 @@
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h5 class="card-title mb-0 fw-bold text-dark">
-                <i class="bi bi-list-task text-primary me-2"></i>Répertoire des Services Médicaux
+                <i data-lucide="list-task" class="text-primary me-2"></i>Répertoire des Services Médicaux
             </h5>
             <div class="d-flex align-items-center gap-2">
                 <x-export-buttons table-id="servicesTable" title="Répertoire des Services Médicaux" filename="services_medicaux" />
@@ -83,14 +83,14 @@
                 <table id="servicesTable" class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-3"><i class="bi bi-hash text-muted me-1"></i>#</th>
-                            <th><i class="bi bi-building text-muted me-1"></i>Nom du Service</th>
-                            <th><i class="bi bi-barcode text-muted me-1"></i>Code</th>
-                            <th><i class="bi bi-card-text text-muted me-1"></i>Description</th>
-                            <th><i class="bi bi-tags text-muted me-1"></i>Tarifs Associés</th>
-                            <th class="text-center"><i class="bi bi-flag text-muted me-1"></i>Statut</th>
-                            <th><i class="bi bi-calendar-event text-muted me-1"></i>Date Création</th>
-                            <th class="text-center pe-3"><i class="bi bi-gear text-muted me-1"></i>Actions</th>
+                            <th class="ps-3"><i data-lucide="hash" class="text-muted me-1"></i>#</th>
+                            <th><i data-lucide="building-2" class="text-muted me-1"></i>Nom du Service</th>
+                            <th><i data-lucide="barcode" class="text-muted me-1"></i>Code</th>
+                            <th><i data-lucide="card-text" class="text-muted me-1"></i>Description</th>
+                            <th><i data-lucide="tags" class="text-muted me-1"></i>Tarifs Associés</th>
+                            <th class="text-center"><i data-lucide="flag" class="text-muted me-1"></i>Statut</th>
+                            <th><i data-lucide="calendar" class="text-muted me-1"></i>Date Création</th>
+                            <th class="text-center pe-3"><i data-lucide="settings" class="text-muted me-1"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,13 +110,13 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 rounded-pill">
-                                        <i class="bi bi-tag-fill me-1"></i> {{ $service->tarifs_count ?? 0 }} tarif(s)
+                                        <i data-lucide="tag-fill" class="me-1"></i> {{ $service->tarifs_count ?? 0 }} tarif(s)
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     @if ($service->statut)
                                         <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
-                                            <i class="bi bi-check-circle-fill me-1"></i> Actif
+                                            <i data-lucide="check-circle" class="me-1"></i> Actif
                                         </span>
                                     @else
                                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-bold">
@@ -132,13 +132,13 @@
                                 <td class="text-center pe-3">
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ route('services.show', $service) }}" class="btn btn-outline-primary" title="Voir Fiche">
-                                            <i class="bi bi-eye"></i>
+                                            <i data-lucide="eye"></i>
                                         </a>
                                         <a href="{{ route('services.edit', $service) }}" class="btn btn-outline-warning" title="Modifier">
-                                            <i class="bi bi-pencil"></i>
+                                            <i data-lucide="edit-3"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteServiceModal{{ $service->id }}" title="Supprimer">
-                                            <i class="bi bi-trash"></i>
+                                            <i data-lucide="trash-2"></i>
                                         </button>
                                     </div>
 
@@ -147,7 +147,7 @@
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content border-0 shadow">
                                                 <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation</h5>
+                                                    <h5 class="modal-title"><i data-lucide="alert-triangle" class="me-2"></i>Confirmation</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body text-start">
@@ -169,7 +169,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center py-5 text-muted">
-                                    <i class="bi bi-building fs-1 d-block mb-2 text-secondary"></i>
+                                    <i data-lucide="building-2" class="fs-1 d-block mb-2 text-secondary"></i>
                                     Aucun service médical répertorié. Cliquez sur "Créer un Service" pour commencer.
                                 </td>
                             </tr>

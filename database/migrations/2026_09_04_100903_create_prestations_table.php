@@ -18,7 +18,7 @@ return new class extends Migration
             // CLE ETRANGERE SERVICE
             $table->foreignId('service_id')->constrained('services')->restrictOnDelete();
             // CLE ETRANGERE MEDECIN
-            $table->foreignId('medecin_id') ->nullable()->constrained('medecins')->nullOnDelete();
+            $table->foreignId('medecin_id')->nullable()->constrained('medecins')->nullOnDelete();
             // CLE ETRANGERE TARIF
             $table->foreignId('tarif_id')->constrained('tarifs')->restrictOnDelete();
             $table->string('type')->nullable();

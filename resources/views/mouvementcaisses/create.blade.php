@@ -7,19 +7,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-primary font-weight-bold mb-1">
-                <i class="bi bi-arrow-left-right me-2"></i>Saisir un Mouvement de Caisse
+                <i data-lucide="arrow-left-right" class="me-2"></i>Saisir un Mouvement de Caisse
             </h1>
             <p class="text-muted mb-0">Enregistrement des flux d'espèces (alimentations, retraits, transferts).</p>
         </div>
         <a href="{{ route('mouvementcaisses.index') }}" class="btn btn-outline-secondary fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+            <i data-lucide="arrow-left" class="me-1"></i> Retour à la liste
         </a>
     </div>
 
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="card-title mb-0 fw-bold text-dark">
-                <i class="bi bi-cash-stack text-primary me-2"></i>Détails du Flux d'Espèces
+                <i data-lucide="banknote" class="text-primary me-2"></i>Détails du Flux d'Espèces
             </h5>
         </div>
         <div class="card-body p-4">
@@ -147,7 +147,7 @@
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
-                        <i class="bi bi-check-circle-fill me-2"></i>Valider le Mouvement
+                        <i data-lucide="check-circle" class="me-2"></i>Valider le Mouvement
                     </button>
                 </div>
             </form>

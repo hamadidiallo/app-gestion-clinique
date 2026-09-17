@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Caisse;
 use App\Models\Depense;
 use App\Models\Dette;
-use App\Models\Paiement;
-use App\Models\Prestation;
 use App\Models\Recette;
 use App\Models\Remuneration;
 use App\Models\Service;
@@ -24,7 +22,7 @@ class DashboardController extends Controller
         // 1. Détermination de la période de filtrage (default: ce mois)
         $periode = $request->get('periode', 'mois');
 
-        $debut = match($periode) {
+        $debut = match ($periode) {
             'jour' => Carbon::today(),
             'semaine' => Carbon::now()->startOfWeek(),
             'mois' => Carbon::now()->startOfMonth(),
@@ -70,6 +68,7 @@ class DashboardController extends Controller
                 })->whereBetween('date_ticket', [$debut, $fin])->sum('montant_total');
 
                 $service->chiffre_affaires = $chiffreAffaires;
+
                 return $service;
             });
 

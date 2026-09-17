@@ -67,7 +67,7 @@ class CaisseController extends Controller
 
             $caisse = $this->caisseService->ouvrirCaisse($userId, $fondsInitial, $observation);
 
-            return to_route('caisses.index')->with('alert', 'Session de caisse #' . $caisse->id . ' ouverte avec succès.');
+            return to_route('caisses.index')->with('alert', 'Session de caisse #'.$caisse->id.' ouverte avec succès.');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['user_id' => $e->getMessage()]);
         }
@@ -112,7 +112,7 @@ class CaisseController extends Controller
 
                 $this->caisseService->fermerCaisse($caiss, $soldePhysique, $observation);
 
-                return to_route('caisses.index')->with('alert', 'Session de caisse #' . $caiss->id . ' fermée avec succès. Écart comptabilisé.');
+                return to_route('caisses.index')->with('alert', 'Session de caisse #'.$caiss->id.' fermée avec succès. Écart comptabilisé.');
             } catch (\InvalidArgumentException $e) {
                 return back()->withInput()->withErrors(['solde_physique' => $e->getMessage()]);
             }

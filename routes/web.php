@@ -2,45 +2,44 @@
 
 // Importation des contrôleurs existants
 use App\Http\Controllers\AssuranceController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CaisseController;
 use App\Http\Controllers\CarteAssuranceController;
+use App\Http\Controllers\CategorieDepenseController;
+use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepenseController;
+// Importation des 15 nouveaux contrôleurs
+use App\Http\Controllers\DetteController;
+use App\Http\Controllers\EmployeController;
+use App\Http\Controllers\JournalActiviteController;
+use App\Http\Controllers\MedecinController;
+use App\Http\Controllers\ModePaiementController;
+use App\Http\Controllers\MouvementCaisseController;
+use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrestationController;
+use App\Http\Controllers\RapportController;
+use App\Http\Controllers\RecetteController;
+use App\Http\Controllers\ReglePartageController;
+use App\Http\Controllers\RemunerationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TarifController;
-use App\Http\Controllers\UserController;
-
-// Importation des 15 nouveaux contrôleurs
-use App\Http\Controllers\MedecinController;
-use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketDetailController;
-use App\Http\Controllers\ModePaiementController;
-use App\Http\Controllers\PaiementController;
-use App\Http\Controllers\DetteController;
-use App\Http\Controllers\ReglePartageController;
-use App\Http\Controllers\RemunerationController;
-use App\Http\Controllers\CaisseController;
-use App\Http\Controllers\MouvementCaisseController;
-use App\Http\Controllers\CategorieDepenseController;
-use App\Http\Controllers\DepenseController;
-use App\Http\Controllers\RecetteController;
-use App\Http\Controllers\JournalActiviteController;
-
-// Importation des contrôleurs du Dashboard, des Rapports et de l'Authentification
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\RapportController;
-use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 // Route utilitaire pour exécuter les migrations en base de données
 Route::get('/run-migrations', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '<h3>Migration exécutée avec succès !</h3><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre><br><a href="' . route('tickets.create') . '">➔ Obtenir ou créer un ticket</a>';
-    } catch (\Throwable $e) {
-        return '<h3>Erreur lors de la migration :</h3><pre>' . $e->getMessage() . '</pre>';
+        Artisan::call('migrate', ['--force' => true]);
+
+        return '<h3>Migration exécutée avec succès !</h3><pre>'.Artisan::output().'</pre><br><a href="'.route('tickets.create').'">➔ Obtenir ou créer un ticket</a>';
+    } catch (Throwable $e) {
+        return '<h3>Erreur lors de la migration :</h3><pre>'.$e->getMessage().'</pre>';
     }
 });
 
@@ -61,10 +60,11 @@ Route::middleware(['auth'])->group(function () {
     // Route utilitaire pour exécuter les migrations en base de données
     Route::get('/run-migrations', function () {
         try {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            return '<h3>Migration exécutée avec succès !</h3><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre><br><a href="' . route('tickets.create') . '">➔ Obtenir ou créer un ticket</a>';
-        } catch (\Throwable $e) {
-            return '<h3>Erreur lors de la migration :</h3><pre>' . $e->getMessage() . '</pre>';
+            Artisan::call('migrate', ['--force' => true]);
+
+            return '<h3>Migration exécutée avec succès !</h3><pre>'.Artisan::output().'</pre><br><a href="'.route('tickets.create').'">➔ Obtenir ou créer un ticket</a>';
+        } catch (Throwable $e) {
+            return '<h3>Erreur lors de la migration :</h3><pre>'.$e->getMessage().'</pre>';
         }
     });
 
@@ -104,13 +104,27 @@ Route::middleware(['auth'])->group(function () {
     // Groupe de routes web gérant toutes les opérations CRUD liées aux patients
     Route::controller(PatientController::class)->group(function () {
         Route::get('/patient/index', 'index')->name('patients.index');
-        Route::get('/create/patient', 'create')->name('patient.create');
+        Route::get('/create/patient', 'create')->name('patients.create');
+        Route::get('/patients/create', 'create')->name('patient.create');
         Route::post('/create/patient', 'store')->name('patients.store');
         Route::get('/patients/search', 'search')->name('patients.search');
         Route::get('/patients/{patient}', 'show')->name('patients.show');
+        Route::post('/patients/{patient}/dossier-medical', 'updateDossierMedical')->name('patients.dossier-medical.update');
         Route::get('/patients/{patient}/edit', 'edit')->name('patients.edit');
         Route::put('/patients/{patient}', 'update')->name('patients.update');
         Route::delete('/patients/{patient}', 'destroy')->name('patients.destroy');
+    });
+
+    // Groupe de routes pour le Dossier Médical et les Consultations
+    Route::controller(ConsultationController::class)->group(function () {
+        Route::get('/consultations', 'index')->name('consultations.index');
+        Route::get('/consultations/create', 'create')->name('consultations.create');
+        Route::post('/consultations', 'store')->name('consultations.store');
+        Route::get('/consultations/{consultation}', 'show')->name('consultations.show');
+        Route::get('/consultations/{consultation}/edit', 'edit')->name('consultations.edit');
+        Route::put('/consultations/{consultation}', 'update')->name('consultations.update');
+        Route::delete('/consultations/{consultation}', 'destroy')->name('consultations.destroy');
+        Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
     });
 
     // Groupe de routes web gérant toutes les opérations CRUD liées aux assurances
@@ -332,4 +346,3 @@ Route::middleware(['auth'])->group(function () {
     });
 
 });
-

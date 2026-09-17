@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #eef1f4; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1e2a32; -webkit-font-smoothing: antialiased; }
+  a { color: #0f766e; text-decoration: none; }
+  a:hover { color: #0b5a54; text-decoration: underline; }
+  ::selection { background: #cfeae6; }
+  input::placeholder { color: #93a1ab; }
+</style>
+</helmet>
+
+<div style="display: flex; flex-wrap: wrap; align-items: stretch; min-height: 100vh; background: #eef1f4;">
+
+  <aside style="flex: 0 0 248px; background: #ffffff; border-right: 1px solid #e3e8ee; display: flex; flex-direction: column; padding: 22px 16px; gap: 22px; position: sticky; top: 0; align-self: stretch; height: 100vh; overflow: auto;">
+    <div style="display: flex; align-items: center; gap: 12px; padding: 0 6px;">
+      <div style="width: 38px; height: 38px; border-radius: 11px; background: #0f766e; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0;">
+        <div style="font-size: 15px; font-weight: 700; line-height: 1.15;">Policlinique Sabati</div>
+        <div style="font-size: 11px; color: #6b7a85; margin-top: 2px;">Bamako · AMO / INPS agréée</div>
+      </div>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 3px; flex: 1;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+        <div onClick="{{ n.select }}" style="{{ n.style }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>
+          <span style="flex: 1; min-width: 0;">{{ n.label }}</span>
+          <span style="{{ n.badgeStyle }}">{{ n.badge }}</span>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 11px; padding: 12px; border-radius: 9px; background: #e2f1ef;">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">AT</div>
+      <div style="min-width: 0;">
+        <div style="font-size: 13px; font-weight: 600;">Aminata Traoré</div>
+        <div style="font-size: 11px; color: #6b7a85;">Administrateur · Comptabilité</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column;">
+
+    <header style="background: #ffffff; border-bottom: 1px solid #e6ebf0; padding: 16px 24px 0;">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 14px;">
+        <div style="min-width: 0;">
+          <div style="font-size: 12.5px; color: #6b7a85; margin-bottom: 5px;">{{ crumb }} <span style="margin: 0 6px; opacity: 0.5;">/</span> <b style="color: #1e2a32; font-weight: 600;">{{ crumbSub }}</b></div>
+          <h1 style="margin: 0; font-size: 23px; font-weight: 700; letter-spacing: -0.01em;">{{ pageTitre }}</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: #6b7a85;">Jeudi 17 septembre 2026</div>
+            <div style="font-size: 12.5px; font-weight: 600; color: #0f766e;">Journée en cours</div>
+          </div>
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">AT</div>
+        </div>
+      </div>
+
+      <div style="{{ tabsWrap }}">
+        <sc-for list="{{ onglets }}" as="o" hint-placeholder-count="3">
+          <button onClick="{{ o.select }}" style="{{ o.style }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ o.d }}"></path></svg>
+            <span>{{ o.label }}</span>
+            <span style="{{ o.badgeStyle }}">{{ o.badge }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div style="flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 22px;">
+
+      <sc-if value="{{ estRappro }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px;">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+          <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+              <div style="{{ k.iconStyle }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ k.d }}"></path></svg>
+              </div>
+              <span style="{{ k.subStyle }}">{{ k.sub }}</span>
+            </div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 23px; font-weight: 600; line-height: 1;">{{ k.value }}</div>
+            <div style="font-size: 13px; color: #6b7a85;">{{ k.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- VUE DES CAISSES -->
+      <sc-if value="{{ vueCaisses }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700;">État des guichets en temps réel</h2>
+            <span style="font-size: 12.5px; color: #6b7a85;">Actualisé il y a 30 s</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            <sc-for list="{{ guichets }}" as="g" hint-placeholder-count="4">
+              <div style="{{ g.carte }}">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+                  <div style="min-width: 0;">
+                    <div style="font-size: 15px; font-weight: 700;">{{ g.nom }}</div>
+                    <div style="font-size: 12px; color: #6b7a85; margin-top: 3px;">{{ g.emplacement }}</div>
+                  </div>
+                  <span style="{{ g.statutStyle }}"><span style="{{ g.dotStyle }}"></span>{{ g.statut }}</span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0 14px;">
+                  <span style="{{ g.avatarStyle }}">{{ g.init }}</span>
+                  <div style="min-width: 0;">
+                    <div style="font-size: 13px; font-weight: 600;">{{ g.caissier }}</div>
+                    <div style="font-size: 11.5px; color: #6b7a85; margin-top: 1px;">{{ g.session }}</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 13px; border-top: 1px solid #e6ebf0;">
+                  <div>
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">Encaissé</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 19px; font-weight: 600; margin-top: 4px;">{{ g.montant }}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 12px; color: #6b7a85;">{{ g.ops }} opérations</div>
+                    <div style="{{ g.ecartStyle }}">{{ g.ecart }}</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Z DE CAISSE -->
+      <sc-if value="{{ vueZ }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+          <div style="flex: 1 1 460px; min-width: 0; background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden;">
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #e6ebf0;">
+              <div style="min-width: 0;">
+                <h2 style="margin: 0; font-size: 16px; font-weight: 700;">Z de caisse — Guichet 2</h2>
+                <p style="margin: 5px 0 0; font-size: 12.5px; color: #6b7a85;">Salimata Konaté · session du 17/09 · rapprochement par mode</p>
+              </div>
+              <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: #8a5712; background: #fdf0d5; padding: 7px 13px; border-radius: 999px; white-space: nowrap;">Comptage en cours</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; padding: 12px 20px; background: #eef1f4; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">
+              <span>Mode de paiement</span><span style="text-align: right;">Théorique</span><span style="text-align: right;">Déclaré</span><span style="text-align: right;">Écart</span>
+            </div>
+
+            <sc-for list="{{ rappro }}" as="r" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; align-items: center; padding: 13px 20px; border-top: 1px solid #e6ebf0;">
+                <span style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <span style="width: 30px; height: 30px; border-radius: 8px; background: #f4f6f8; color: #6b7a85; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ r.d }}"></path></svg>
+                  </span>
+                  <span style="font-size: 13.5px; font-weight: 600;">{{ r.mode }}</span>
+                </span>
+                <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #6b7a85;">{{ r.theorique }}</span>
+                <span style="text-align: right;">
+                  <input value="{{ r.declare }}" onChange="{{ r.onDeclare }}" style="width: 96px; padding: 7px 9px; border: 1px solid #e0e6eb; border-radius: 8px; background: #ffffff; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; text-align: right; color: #1e2a32;" />
+                </span>
+                <span style="text-align: right;"><span style="{{ r.ecartStyle }}">{{ r.ecartTxt }}</span></span>
+              </div>
+            </sc-for>
+
+            <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; align-items: center; padding: 15px 20px; border-top: 2px solid #e6ebf0; background: #f8fafb;">
+              <span style="font-size: 13.5px; font-weight: 700;">Total</span>
+              <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 600;">{{ zTheoTxt }}</span>
+              <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 600;">{{ zDeclTxt }}</span>
+              <span style="text-align: right;"><span style="{{ zEcartStyle }}">{{ zEcartTxt }}</span></span>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+            <div style="{{ verdictCarte }}">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ verdictIcon }}"></path></svg>
+                <span style="font-size: 15px; font-weight: 700;">{{ verdictTitre }}</span>
+              </div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 27px; font-weight: 600; margin: 12px 0 4px;">{{ zEcartTxt }}</div>
+              <p style="margin: 0; font-size: 12.5px; line-height: 1.5; text-wrap: pretty; opacity: 0.92;">{{ verdictNote }}</p>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 18px;">
+              <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 700;">Récapitulatif de session</h3>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <span style="display: flex; justify-content: space-between; gap: 10px;"><span style="color: #6b7a85;">Ouverture</span><span style="font-family: 'IBM Plex Mono', monospace;">07 h 42</span></span>
+                <span style="display: flex; justify-content: space-between; gap: 10px;"><span style="color: #6b7a85;">Fonds d'ouverture</span><span style="font-family: 'IBM Plex Mono', monospace;">50 000 F</span></span>
+                <span style="display: flex; justify-content: space-between; gap: 10px;"><span style="color: #6b7a85;">Opérations</span><span style="font-family: 'IBM Plex Mono', monospace;">38</span></span>
+                <span style="display: flex; justify-content: space-between; gap: 10px;"><span style="color: #6b7a85;">Sorties de caisse</span><span style="font-family: 'IBM Plex Mono', monospace;">− 12 000 F</span></span>
+              </div>
+            </div>
+
+            <button onClick="{{ demanderCloture }}" style="width: 100%; padding: 14px; border-radius: 11px; border: none; background: #0c2b2a; color: #ffffff; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;" style-hover="background:#123b39">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V7a7 7 0 0114 0v4M4 11h16v10H4zM12 15v3"></path></svg>
+              Clôturer et verrouiller les écritures
+            </button>
+            <p style="margin: -6px 2px 0; font-size: 11.5px; color: #6b7a85; line-height: 1.45; text-wrap: pretty;">Le verrouillage est définitif : aucune écriture de cette session ne pourra être modifiée après clôture.</p>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- JOURNAL & AUDIT -->
+      <sc-if value="{{ vueJournal }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden;">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid #e6ebf0;">
+            <div style="flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #e6ebf0; background: #f8fafb;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#93a1ab" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+              <input value="{{ jq }}" onChange="{{ onJq }}" placeholder="Reçu, patient, caissier…" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 13px; color: #1e2a32;" />
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <sc-for list="{{ jfiltres }}" as="f" hint-placeholder-count="4">
+                <button onClick="{{ f.select }}" style="{{ f.style }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 1fr) 96px; gap: 0 12px; padding: 12px 18px; background: #eef1f4; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">
+            <span>Reçu</span><span>Patient</span><span>Caissier</span><span>Mode</span><span style="text-align: right;">Montant</span><span></span>
+          </div>
+
+          <sc-for list="{{ transactions }}" as="t" hint-placeholder-count="6">
+            <div style="{{ t.rowStyle }}">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6b7a85;">{{ t.num }}
+                <span style="{{ t.annuleTag }}">annulé</span>
+              </span>
+              <span style="min-width: 0;">
+                <span style="display: block; font-size: 13.5px; font-weight: 600; {{ t.strike }}">{{ t.patient }}</span>
+                <span style="display: block; font-size: 11.5px; color: #6b7a85; margin-top: 2px;">{{ t.heure }} · {{ t.service }}</span>
+              </span>
+              <span style="font-size: 12.5px; color: #6b7a85; min-width: 0;">{{ t.caissier }}</span>
+              <span><span style="{{ t.modeBadge }}">{{ t.mode }}</span></span>
+              <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; {{ t.strike }}">{{ t.montant }}</span>
+              <span style="text-align: right;">
+                <button onClick="{{ t.annuler }}" style="{{ t.btnStyle }}">{{ t.btnLabel }}</button>
+              </span>
+            </div>
+          </sc-for>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 15px 18px; border-top: 1px solid #e6ebf0; font-size: 12.5px; color: #6b7a85;">
+            <span>{{ jCompteur }}</span>
+            <span>Toute annulation est tracée et signée dans l'audit.</span>
+          </div>
+        </div>
+      </sc-if>
+      </sc-if>
+
+      <!-- ASSURANCES -->
+      <sc-if value="{{ estAssurances }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px;">
+          <sc-for list="{{ assurStats }}" as="s" hint-placeholder-count="3">
+            <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; line-height: 1;">{{ s.value }}</div>
+              <div style="font-size: 12.5px; color: #6b7a85; margin-top: 7px;">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden;">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid #e6ebf0;">
+            <div style="flex: 1 1 240px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #e6ebf0; background: #f8fafb;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#93a1ab" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+              <input value="{{ aq }}" onChange="{{ onAq }}" placeholder="Organisme, n° de convention…" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 13px; color: #1e2a32;" />
+            </div>
+            <button style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: none; background: #0f766e; color: #fff; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;" style-hover="background:#0b5a54">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+              Nouvelle convention
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.2fr); gap: 0 12px; padding: 12px 18px; background: #eef1f4; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">
+            <span>Organisme</span><span style="text-align: right;">Taux</span><span>Convention</span><span style="text-align: right;">En attente</span><span style="text-align: right;">Statut</span>
+          </div>
+
+          <sc-for list="{{ assurances }}" as="a" hint-placeholder-count="6">
+            <div style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.2fr); gap: 0 12px; align-items: center; padding: 13px 18px; border-top: 1px solid #e6ebf0;" style-hover="background:#f8fafb">
+              <span style="display: flex; align-items: center; gap: 11px; min-width: 0;">
+                <span style="width: 36px; height: 36px; border-radius: 10px; background: #e2f1ef; color: #0f766e; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">{{ a.init }}</span>
+                <span style="min-width: 0;">
+                  <span style="display: block; font-size: 14px; font-weight: 600;">{{ a.nom }}</span>
+                  <span style="display: block; font-size: 12px; color: #6b7a85; margin-top: 2px;">{{ a.type }}</span>
+                </span>
+              </span>
+              <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;">{{ a.taux }}</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #6b7a85;">{{ a.conv }}</span>
+              <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;">{{ a.attente }}</span>
+              <span style="text-align: right;"><span style="{{ a.badge }}">{{ a.statut }}</span></span>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ aAucun }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 34px 20px; border-top: 1px solid #e6ebf0; text-align: center;">
+              <p style="margin: 0; font-size: 13px; color: #6b7a85;">Aucune assurance ne correspond à cette recherche.</p>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- TABLEAU DE BORD -->
+      <sc-if value="{{ estDashboard }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px;">
+          <sc-for list="{{ dashKpis }}" as="k" hint-placeholder-count="4">
+            <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="{{ k.iconStyle }}">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ k.d }}"></path></svg>
+                </div>
+                <span style="font-size: 12px; font-weight: 600; color: #6b7a85; white-space: nowrap;">{{ k.sub }}</span>
+              </div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 23px; font-weight: 600; line-height: 1;">{{ k.value }}</div>
+              <div style="font-size: 13px; color: #6b7a85;">{{ k.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+          <div style="flex: 1 1 420px; min-width: 0; background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 20px;">
+            <h2 style="margin: 0 0 16px; font-size: 16px; font-weight: 700;">Recette par service</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <sc-for list="{{ recetteService }}" as="r" hint-placeholder-count="5">
+                <div>
+                  <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 6px; font-size: 13px;">
+                    <span style="font-weight: 600;">{{ r.nom }}</span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; color: #6b7a85;">{{ r.montant }}</span>
+                  </div>
+                  <div style="height: 8px; border-radius: 999px; background: #eef1f4; overflow: hidden;">
+                    <span style="{{ r.barre }}"></span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 300px; min-width: 0; background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 20px;">
+            <h2 style="margin: 0 0 14px; font-size: 16px; font-weight: 700;">Activité récente</h2>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ activite }}" as="a" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 70px 14px minmax(0, 1fr); gap: 11px; padding-bottom: 16px;">
+                  <span style="font-size: 12px; color: #6b7a85; text-align: right; padding-top: 1px;">{{ a.heure }}</span>
+                  <span style="display: flex; flex-direction: column; align-items: center;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #12a594; margin-top: 5px;"></span>
+                    <span style="flex: 1; width: 1px; background: #e6ebf0; margin-top: 4px;"></span>
+                  </span>
+                  <span style="min-width: 0;">
+                    <span style="display: block; font-size: 13px; font-weight: 600; line-height: 1.3;">{{ a.titre }}</span>
+                    <span style="display: block; font-size: 12px; color: #6b7a85; margin-top: 2px;">{{ a.detail }}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- TABLES (Patients, Crédits) -->
+      <sc-if value="{{ estTable }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px;">
+          <sc-for list="{{ tableStats }}" as="s" hint-placeholder-count="3">
+            <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; line-height: 1;">{{ s.value }}</div>
+              <div style="font-size: 12.5px; color: #6b7a85; margin-top: 7px;">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden;">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid #e6ebf0;">
+            <div style="flex: 1 1 240px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #e6ebf0; background: #f8fafb;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#93a1ab" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+              <input value="{{ tq }}" onChange="{{ onTq }}" placeholder="{{ tablePlaceholder }}" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 13px; color: #1e2a32;" />
+            </div>
+            <button style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: none; background: #0f766e; color: #fff; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;" style-hover="background:#0b5a54">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+              {{ tableAction }}
+            </button>
+          </div>
+
+          <div style="{{ tableHead }}">
+            <sc-for list="{{ tableCols }}" as="c" hint-placeholder-count="5">
+              <span style="{{ c.style }}">{{ c.label }}</span>
+            </sc-for>
+          </div>
+
+          <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="6">
+            <div style="{{ r.style }}" style-hover="background:#f8fafb">
+              <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                <span style="{{ c.wrap }}">
+                  <span style="{{ c.avatarStyle }}">{{ c.avatar }}</span>
+                  <span style="min-width: 0;">
+                    <span style="{{ c.mainStyle }}">{{ c.main }}</span>
+                    <span style="{{ c.subStyle }}">{{ c.sub }}</span>
+                  </span>
+                </span>
+              </sc-for>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ tAucun }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 34px 20px; border-top: 1px solid #e6ebf0; text-align: center;">
+              <p style="margin: 0; font-size: 13px; color: #6b7a85;">Aucun résultat pour cette recherche.</p>
+            </div>
+          </sc-if>
+
+          <div style="padding: 15px 18px; border-top: 1px solid #e6ebf0; font-size: 12.5px; color: #6b7a85;">{{ tCompteur }}</div>
+        </div>
+      </sc-if>
+
+      <!-- AGENDA -->
+      <sc-if value="{{ estAgenda }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden;">
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #e6ebf0;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700;">Rendez-vous du jour</h2>
+            <span style="font-size: 12.5px; color: #6b7a85;">Jeudi 17 septembre 2026 · 6 rendez-vous</span>
+          </div>
+          <sc-for list="{{ agenda }}" as="a" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 74px 4px minmax(0, 1fr) minmax(0, 1fr); gap: 0 14px; align-items: center; padding: 14px 20px; border-top: 1px solid #e6ebf0;" style-hover="background:#f8fafb">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #0f766e;">{{ a.heure }}</span>
+              <span style="width: 4px; height: 34px; border-radius: 3px; background: #12a594;"></span>
+              <span style="min-width: 0;">
+                <span style="display: block; font-size: 14px; font-weight: 600;">{{ a.patient }}</span>
+                <span style="display: block; font-size: 12px; color: #6b7a85; margin-top: 2px;">{{ a.motif }}</span>
+              </span>
+              <span style="font-size: 12.5px; color: #6b7a85; text-align: right;">{{ a.medecin }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- CAISSE (guichets) -->
+      <sc-if value="{{ estCaisse }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 14px 16px; border-radius: 12px; background: #e2f1ef; border: 1px solid #cfe6e2; font-size: 13px; color: #0b5a54; line-height: 1.5; text-wrap: pretty;">Vue de supervision des guichets. L'encaissement se fait depuis l'interface caissier de chaque guichet.</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+          <sc-for list="{{ guichets }}" as="g" hint-placeholder-count="4">
+            <div style="{{ g.carte }}">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+                <div style="min-width: 0;">
+                  <div style="font-size: 15px; font-weight: 700;">{{ g.nom }}</div>
+                  <div style="font-size: 12px; color: #6b7a85; margin-top: 3px;">{{ g.emplacement }}</div>
+                </div>
+                <span style="{{ g.statutStyle }}"><span style="{{ g.dotStyle }}"></span>{{ g.statut }}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0 14px;">
+                <span style="{{ g.avatarStyle }}">{{ g.init }}</span>
+                <div style="min-width: 0;">
+                  <div style="font-size: 13px; font-weight: 600;">{{ g.caissier }}</div>
+                  <div style="font-size: 11.5px; color: #6b7a85; margin-top: 1px;">{{ g.session }}</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 13px; border-top: 1px solid #e6ebf0;">
+                <div>
+                  <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">Encaissé</div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 19px; font-weight: 600; margin-top: 4px;">{{ g.montant }}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 12px; color: #6b7a85;">{{ g.ops }} opérations</div>
+                  <div style="{{ g.ecartStyle }}">{{ g.ecart }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- PARAMÈTRES -->
+      <sc-if value="{{ estParams }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <sc-for list="{{ paramSections }}" as="p" hint-placeholder-count="4">
+            <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 20px;">
+              <div style="display: flex; align-items: center; gap: 11px; margin-bottom: 14px;">
+                <span style="width: 38px; height: 38px; border-radius: 10px; background: #e2f1ef; color: #0f766e; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ p.d }}"></path></svg>
+                </span>
+                <h2 style="margin: 0; font-size: 15px; font-weight: 700;">{{ p.titre }}</h2>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <sc-for list="{{ p.lignes }}" as="l" hint-placeholder-count="3">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid #f1f4f6;">
+                    <span style="font-size: 13px; color: #1e2a32; min-width: 0;">{{ l.label }}</span>
+                    <span style="{{ l.valStyle }}">{{ l.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- PLACEHOLDER (fallback) -->
+      <sc-if value="{{ estVierge }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #ffffff; border: 1px solid #e6ebf0; border-radius: 12px; padding: 56px 32px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px;">
+          <span style="width: 58px; height: 58px; border-radius: 15px; background: #e2f1ef; color: #0f766e; display: flex; align-items: center; justify-content: center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ viergeIcon }}"></path></svg>
+          </span>
+          <h2 style="margin: 0; font-size: 18px; font-weight: 700;">{{ pageTitre }}</h2>
+          <p style="margin: 0; max-width: 360px; font-size: 13.5px; color: #6b7a85; line-height: 1.55; text-wrap: pretty;">Cette section sera raccordée prochainement. La navigation et la structure sont en place.</p>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- MODAL ANNULATION -->
+  <sc-if value="{{ modalOuverte }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 50; background: rgba(12,43,42,0.42); display: flex; align-items: center; justify-content: center; padding: 20px;">
+      <div style="width: 100%; max-width: 440px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 60px rgba(12,43,42,0.28);">
+        <div style="padding: 20px 22px; border-bottom: 1px solid #e6ebf0; display: flex; align-items: center; gap: 12px;">
+          <span style="width: 38px; height: 38px; border-radius: 10px; background: #fce4e4; color: #b3261e; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0zM12 9v5M12 17h.01"></path></svg>
+          </span>
+          <div style="min-width: 0;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700;">Annulation d'un reçu</h2>
+            <p style="margin: 3px 0 0; font-size: 12.5px; color: #6b7a85;">{{ modalNum }} · {{ modalMontant }}</p>
+          </div>
+        </div>
+
+        <div style="padding: 20px 22px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="padding: 12px 14px; border-radius: 10px; background: #fdf0d5; border: 1px solid #f0dcae; font-size: 12.5px; color: #7a5210; line-height: 1.5; text-wrap: pretty;">Cette opération réintègre le montant au solde du patient et crée une écriture d'annulation signée. Elle nécessite une validation administrateur.</div>
+
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">Motif de l'annulation <span style="color: #b3261e;">obligatoire</span></span>
+            <textarea value="{{ motif }}" onChange="{{ onMotif }}" placeholder="Erreur de saisie, double encaissement, geste commercial…" style="min-height: 78px; padding: 11px 13px; border: 1px solid #e0e6eb; border-radius: 10px; background: #f8fafb; font-family: inherit; font-size: 13px; color: #1e2a32; resize: vertical;"></textarea>
+          </label>
+
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b7a85;">Code administrateur</span>
+            <input value="{{ code }}" onChange="{{ onCode }}" type="password" placeholder="••••" style="padding: 11px 13px; border: 1px solid #e0e6eb; border-radius: 10px; background: #f8fafb; font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.2em; color: #1e2a32;" />
+          </label>
+        </div>
+
+        <div style="padding: 16px 22px; border-top: 1px solid #e6ebf0; display: flex; gap: 10px; justify-content: flex-end;">
+          <button onClick="{{ fermerModal }}" style="padding: 11px 18px; border-radius: 10px; border: 1px solid #e6ebf0; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="background:#f5f7f9">Annuler</button>
+          <button onClick="{{ confirmerAnnulation }}" style="{{ confirmerStyle }}">Confirmer l'annulation</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1040}}">
+class Component extends DCLogic {
+  state = {
+    page: "Rapprochement",
+    aq: "",
+    vue: "Caisses",
+    declare: { "Espèces": "296 000", "Orange Money": "78 000", "Moov Money": "34 000", "Carte": "34 000" },
+    jq: "",
+    jfiltre: "Toutes",
+    modal: null,
+    motif: "",
+    code: "",
+    annules: {}
+  };
+
+  fmt(n) { const s = Math.abs(n).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " "); return (n < 0 ? "− " : "") + s + " F"; }
+  num(v) { return parseInt(String(v).replace(/[^0-9]/g, ""), 10) || 0; }
+
+  theo() {
+    return { "Espèces": 298500, "Orange Money": 78000, "Moov Money": 34000, "Carte": 34000 };
+  }
+
+  renderVals() {
+    const accent = "#0f766e", soft = "#e2f1ef", muted = "#6b7a85";
+
+    const navItems = [
+      { label: "Tableau de bord", d: "M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" },
+      { label: "Agenda", d: "M3 5h18v16H3zM3 10h18M8 2v4M16 2v4" },
+      { label: "Patients", d: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.9", badge: "1 284" },
+      { label: "Caisse", d: "M6 6h15l-1.6 9h-11.8zM6 6l-1-3H2M9 21a1.4 1.4 0 100-2.8 1.4 1.4 0 000 2.8zM18 21a1.4 1.4 0 100-2.8 1.4 1.4 0 000 2.8z" },
+      { label: "Crédits patients", d: "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" },
+      { label: "Assurance", d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4", badge: "7" },
+      { label: "Rapprochement", d: "M3 3v18h18M7 15l3-4 3 3 5-7" },
+      { label: "Paramètres", d: "M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.4-2.3 1a7.6 7.6 0 00-1.7-1l-.4-2.6h-4l-.4 2.6a7.6 7.6 0 00-1.7 1l-2.3-1-2 3.4L4.6 11a7.6 7.6 0 000 2l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 001.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 001.7-1l2.3 1 2-3.4z" }
+    ];
+    const nav = navItems.map(n => {
+      const active = n.label === this.state.page;
+      return {
+        label: n.label, d: n.d, badge: n.badge || "",
+        select: () => this.setState({ page: n.label }),
+        style: "display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:9px;font-size:14px;cursor:pointer;font-weight:" +
+          (active ? 600 : 500) + ";" + (active ? "background:" + soft + ";color:" + accent + ";" : "background:transparent;color:" + muted + ";"),
+        badgeStyle: n.badge ? "font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;" +
+          (active ? "background:" + accent + ";color:#fff;" : "background:#eef1f4;color:" + muted + ";") : "display:none;"
+      };
+    });
+
+    const tabs = [
+      { key: "Caisses", label: "Vue des caisses", badge: "4", d: "M2 7h20v13H2zM2 11h20M6 4h12" },
+      { key: "Z", label: "Clôture (Z de caisse)", badge: "", d: "M5 11V7a7 7 0 0114 0v4M4 11h16v10H4z" },
+      { key: "Journal", label: "Journal & audit", badge: "", d: "M4 4h16v16H4zM8 9h8M8 13h8M8 17h5" }
+    ];
+    const onglets = tabs.map(t => {
+      const active = t.key === this.state.vue;
+      return {
+        label: t.label, d: t.d, badge: t.badge,
+        select: () => this.setState({ vue: t.key }),
+        style: "display:flex;align-items:center;gap:9px;padding:12px 16px;border:none;border-bottom:2px solid " +
+          (active ? accent : "transparent") + ";background:transparent;font-family:inherit;font-size:13.5px;font-weight:" +
+          (active ? 700 : 500) + ";color:" + (active ? accent : muted) + ";cursor:pointer;white-space:nowrap;margin-bottom:-1px;",
+        badgeStyle: t.badge ? "font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:" +
+          (active ? accent : "#eef1f4") + ";color:" + (active ? "#fff" : muted) + ";" : "display:none;"
+      };
+    });
+
+    const theo = this.theo();
+    const totalTheo = Object.values(theo).reduce((a, b) => a + b, 0);
+    const totalDecl = Object.keys(theo).reduce((a, k) => a + this.num(this.state.declare[k]), 0);
+    const zEcart = totalDecl - totalTheo;
+
+    const tint = (hex, a) => {
+      const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+      return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    };
+    const kpiData = [
+      { label: "Recette consolidée du jour", value: "1,24 M", sub: "4 guichets", tone: accent, d: "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" },
+      { label: "Guichets ouverts", value: "3 / 4", sub: "1 en pause", tone: "#2563eb", d: "M2 7h20v13H2zM2 11h20" },
+      { label: "Opérations validées", value: "142", sub: "aujourd'hui", tone: "#8a5712", d: "M4 4h16v16H4zM8 9h8M8 13h8" },
+      { label: "Écart de caisse cumulé", value: "− 2 500", sub: "à justifier", tone: "#e0483d", d: "M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0zM12 9v5M12 17h.01" }
+    ];
+    const kpis = kpiData.map(k => ({
+      label: k.label, value: k.value, sub: k.sub, d: k.d,
+      iconStyle: "width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:" + tint(k.tone, 0.13) + ";color:" + k.tone + ";",
+      subStyle: "font-size:12px;font-weight:600;color:" + muted + ";white-space:nowrap;"
+    }));
+
+    // GUICHETS
+    const gData = [
+      { nom: "Guichet 1", emplacement: "Hall d'accueil", statut: "Ouverte", init: "MC", caissier: "Modibo Camara", session: "07 h 30 · 51 op.", montant: "438 000 F", ops: 51, ecart: "équilibré", ecartOk: true, ton: "ok" },
+      { nom: "Guichet 2", emplacement: "Consultations externes", statut: "Ouverte", init: "SK", caissier: "Salimata Konaté", session: "07 h 42 · 38 op.", montant: "412 500 F", ops: 38, ecart: "− 2 500 F", ecartOk: false, ton: "ok" },
+      { nom: "Caisse Urgences", emplacement: "Bloc urgences · 24 h", statut: "Ouverte", init: "OD", caissier: "Oumar Diallo", session: "00 h 00 · 33 op.", montant: "286 000 F", ops: 33, ecart: "équilibré", ecartOk: true, ton: "ok" },
+      { nom: "Guichet 3", emplacement: "Laboratoire", statut: "En pause", init: "KB", caissier: "Kadiatou Bah", session: "en pause depuis 11 h 20", montant: "104 000 F", ops: 20, ecart: "équilibré", ecartOk: true, ton: "pause" }
+    ];
+    const statutTons = {
+      ok: { bg: "#e3f3ee", fg: "#0f6b5f", dot: "#12a594", border: "#cfe6e2" },
+      pause: { bg: "#fdf0d5", fg: "#8a5712", dot: "#e0a021", border: "#f0dcae" },
+      ferme: { bg: "#eef1f4", fg: "#6b7a85", dot: "#93a1ab", border: "#e6ebf0" }
+    };
+    const guichets = gData.map(g => {
+      const st = g.statut === "Ouverte" ? statutTons.ok : (g.statut === "En pause" ? statutTons.pause : statutTons.ferme);
+      return {
+        nom: g.nom, emplacement: g.emplacement, statut: g.statut, init: g.init,
+        caissier: g.caissier, session: g.session, montant: g.montant, ops: g.ops, ecart: g.ecart,
+        carte: "background:#ffffff;border:1px solid " + (g.ecartOk ? "#e6ebf0" : "#f0c9c2") + ";border-radius:12px;padding:18px;display:flex;flex-direction:column;",
+        statutStyle: "display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:" + st.bg + ";color:" + st.fg + ";",
+        dotStyle: "width:7px;height:7px;border-radius:50%;background:" + st.dot + ";",
+        avatarStyle: "width:36px;height:36px;border-radius:10px;background:" + soft + ";color:" + accent + ";display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;",
+        ecartStyle: "font-size:12px;font-weight:700;margin-top:3px;color:" + (g.ecartOk ? "#0f6b5f" : "#b3261e") + ";"
+      };
+    });
+
+    // RAPPROCHEMENT
+    const modeIcons = {
+      "Espèces": "M2 7h20v10H2zM12 15a3 3 0 100-6 3 3 0 000 6z",
+      "Orange Money": "M7 2h10v20H7zM11 18h2",
+      "Moov Money": "M7 2h10v20H7zM11 18h2",
+      "Carte": "M2 6h20v12H2zM2 10h20"
+    };
+    const rappro = Object.keys(theo).map(mode => {
+      const ecart = this.num(this.state.declare[mode]) - theo[mode];
+      return {
+        mode, d: modeIcons[mode],
+        theorique: this.fmt(theo[mode]),
+        declare: this.state.declare[mode],
+        onDeclare: e => this.setState(s => ({ declare: { ...s.declare, [mode]: e.target.value } })),
+        ecartTxt: ecart === 0 ? "0 F" : this.fmt(ecart),
+        ecartStyle: "display:inline-block;padding:3px 9px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;" +
+          (ecart === 0 ? "background:#e3f3ee;color:#0f6b5f;" : (ecart < 0 ? "background:#fce4e4;color:#b3261e;" : "background:#fdf0d5;color:#8a5712;"))
+      };
+    });
+
+    const zEcartStyle = "display:inline-block;padding:4px 11px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;" +
+      (zEcart === 0 ? "background:#e3f3ee;color:#0f6b5f;" : (zEcart < 0 ? "background:#fce4e4;color:#b3261e;" : "background:#fdf0d5;color:#8a5712;"));
+
+    const equilibre = zEcart === 0, manquant = zEcart < 0;
+    const verdictCarte = "border-radius:12px;padding:20px;color:#ffffff;background:" +
+      (equilibre ? "#0f766e" : (manquant ? "#b3261e" : "#8a5712")) + ";";
+
+    const page = this.state.page;
+    const estRappro = page === "Rapprochement";
+    const estAssurances = page === "Assurance";
+    const estVierge = !estRappro && !estAssurances;
+
+    const viergeIcons = {
+      "Tableau de bord": "M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z",
+      "Agenda": "M3 5h18v16H3zM3 10h18M8 2v4M16 2v4",
+      "Patients": "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z",
+      "Caisse": "M6 6h15l-1.6 9h-11.8zM6 6l-1-3H2",
+      "Crédits patients": "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6",
+      "Paramètres": "M12 15a3 3 0 100-6 3 3 0 000 6z"
+    };
+
+    const assurStats = [
+      { value: "7", label: "Conventions actives" },
+      { value: "1,84 M F", label: "En attente de remboursement" },
+      { value: "3", label: "Bordereaux à envoyer" }
+    ];
+    const aData = [
+      { init: "AM", nom: "AMO — CANAM", type: "Régime obligatoire · public", taux: "80 %", conv: "CV-2024-011", attente: "1 120 000 F", statut: "Active", ton: "ok" },
+      { init: "IN", nom: "INPS", type: "Travailleurs du privé", taux: "70 %", conv: "CV-2023-044", attente: "412 000 F", statut: "Active", ton: "ok" },
+      { init: "ME", nom: "Mutuelle des Enseignants", type: "Adhésion volontaire", taux: "60 %", conv: "CV-2025-007", attente: "188 000 F", statut: "Active", ton: "ok" },
+      { init: "AL", nom: "Allianz Mali", type: "Assurance privée", taux: "90 %", conv: "CV-2025-019", attente: "96 000 F", statut: "Active", ton: "ok" },
+      { init: "SA", nom: "Sunu Assurances", type: "Assurance privée", taux: "85 %", conv: "CV-2024-032", attente: "24 000 F", statut: "En attente", ton: "warn" },
+      { init: "MG", nom: "Mutuelle Gendarmerie", type: "Corps constitués", taux: "75 %", conv: "CV-2022-058", attente: "0 F", statut: "Échue", ton: "bad" }
+    ];
+    const aTons = { ok: "background:#e3f3ee;color:#0f6b5f;", warn: "background:#fdf0d5;color:#8a5712;", bad: "background:#fce4e4;color:#b3261e;" };
+    const aq = this.state.aq.trim().toLowerCase();
+    const aListe = aq ? aData.filter(a => (a.nom + " " + a.type + " " + a.conv).toLowerCase().includes(aq)) : aData;
+    const assurances = aListe.map(a => ({
+      init: a.init, nom: a.nom, type: a.type, taux: a.taux, conv: a.conv, attente: a.attente, statut: a.statut,
+      badge: "display:inline-block;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;" + aTons[a.ton]
+    }));
+
+    const crumbMap = {
+      "Rapprochement": ["Supervision", "Contrôle financier", "Contrôle des recettes"],
+      "Assurance": ["Administration", "Conventions", "Assurances conventionnées"]
+    };
+    const cm = crumbMap[page] || ["Administration", page, page];
+
+    return {
+      nav, onglets, kpis, guichets, rappro,
+      estRappro, estAssurances, estVierge,
+      crumb: cm[0], crumbSub: cm[1], pageTitre: cm[2],
+      tabsWrap: estRappro ? "display:flex;flex-wrap:wrap;gap:2px;margin-top:16px;" : "display:none;",
+      viergeIcon: viergeIcons[page] || "M4 4h16v16H4z",
+      assurStats, assurances,
+      aq: this.state.aq,
+      onAq: e => this.setState({ aq: e.target.value }),
+      aAucun: assurances.length === 0,
+      vueCaisses: this.state.vue === "Caisses",
+      vueZ: this.state.vue === "Z",
+      vueJournal: this.state.vue === "Journal",
+
+      zTheoTxt: this.fmt(totalTheo),
+      zDeclTxt: this.fmt(totalDecl),
+      zEcartTxt: zEcart === 0 ? "0 F" : this.fmt(zEcart),
+      zEcartStyle,
+      verdictCarte,
+      verdictIcon: equilibre ? "M20 6L9 17l-5-5" : "M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0zM12 9v5M12 17h.01",
+      verdictTitre: equilibre ? "Caisse équilibrée" : (manquant ? "Manquant détecté" : "Excédent détecté"),
+      verdictNote: equilibre
+        ? "Le montant déclaré correspond au théorique. La session peut être clôturée."
+        : (manquant
+            ? "Le comptage physique est inférieur au théorique. Justifiez l'écart avant de verrouiller."
+            : "Le comptage physique dépasse le théorique. Vérifiez la saisie ou une recette non enregistrée."),
+      demanderCloture: () => {},
+
+      ...this.journalVals(accent, soft, muted)
+    };
+  }
+
+  journalVals(accent, soft, muted) {
+    const base = [
+      { num: "R-1841", patient: "Amina Zerrouki", heure: "11 h 03", service: "Cardiologie", caissier: "S. Konaté", mode: "Espèces", montant: 6900 },
+      { num: "R-1840", patient: "Ibrahim Traoré", heure: "10 h 51", service: "Laboratoire", caissier: "M. Camara", mode: "Orange Money", montant: 12000 },
+      { num: "R-1839", patient: "Fatoumata Diallo", heure: "10 h 44", service: "Consultation", caissier: "S. Konaté", mode: "Espèces", montant: 3500 },
+      { num: "R-1838", patient: "Moussa Coulibaly", heure: "10 h 29", service: "Imagerie", caissier: "O. Diallo", mode: "Crédit", montant: 8000 },
+      { num: "R-1837", patient: "Aïssata Keïta", heure: "10 h 12", service: "Pharmacie", caissier: "M. Camara", mode: "Carte", montant: 5000 },
+      { num: "R-1836", patient: "Hawa Konaté", heure: "09 h 58", service: "Soins", caissier: "S. Konaté", mode: "Moov Money", montant: 7800 }
+    ];
+
+    const modeTons = {
+      "Espèces": { bg: "#e3f3ee", fg: "#0f6b5f" },
+      "Orange Money": { bg: "#fdeadf", fg: "#a2501a" },
+      "Moov Money": { bg: "#e4ecfb", fg: "#1d4ed8" },
+      "Carte": { bg: "#fdf0d5", fg: "#8a5712" },
+      "Crédit": { bg: "#fce4e4", fg: "#b3261e" }
+    };
+
+    const filtres = ["Toutes", "Espèces", "Mobile Money", "Carte", "Crédit"];
+    const jfiltres = filtres.map(label => {
+      const active = label === this.state.jfiltre;
+      return {
+        label,
+        select: () => this.setState({ jfiltre: label }),
+        style: "padding:8px 13px;border-radius:999px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;" +
+          (active ? "border:1px solid " + accent + ";background:" + accent + ";color:#fff;" : "border:1px solid #e6ebf0;background:#fff;color:" + muted + ";")
+      };
+    });
+
+    const q = this.state.jq.trim().toLowerCase();
+    let liste = base;
+    if (this.state.jfiltre === "Mobile Money") liste = liste.filter(t => t.mode === "Orange Money" || t.mode === "Moov Money");
+    else if (this.state.jfiltre !== "Toutes") liste = liste.filter(t => t.mode === this.state.jfiltre);
+    if (q) liste = liste.filter(t => (t.num + " " + t.patient + " " + t.caissier + " " + t.service).toLowerCase().includes(q));
+
+    const transactions = liste.map(t => {
+      const annule = !!this.state.annules[t.num];
+      const mt = modeTons[t.mode] || modeTons["Espèces"];
+      return {
+        num: t.num, patient: t.patient, heure: t.heure, service: t.service, caissier: t.caissier, mode: t.mode,
+        montant: this.fmt(t.montant),
+        rowStyle: "display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1.2fr) minmax(0,1.1fr) minmax(0,1fr) 96px;gap:0 12px;align-items:center;padding:13px 18px;border-top:1px solid #e6ebf0;" +
+          (annule ? "background:#fdf4f3;" : ""),
+        strike: annule ? "text-decoration:line-through;color:#93a1ab;" : "",
+        annuleTag: annule ? "display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;background:#fce4e4;color:#b3261e;font-family:'IBM Plex Sans',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:0.04em;" : "display:none;",
+        modeBadge: "display:inline-block;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;background:" + mt.bg + ";color:" + mt.fg + ";",
+        annuler: annule ? () => {} : () => this.setState({ modal: t, motif: "", code: "" }),
+        btnLabel: annule ? "Annulé" : "Annuler",
+        btnStyle: annule
+          ? "padding:6px 11px;border-radius:8px;border:1px solid #e6ebf0;background:#f4f6f8;color:#93a1ab;font-family:inherit;font-size:12px;font-weight:600;cursor:default;"
+          : "padding:6px 11px;border-radius:8px;border:1px solid #f0c9c2;background:#ffffff;color:#b3261e;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;"
+      };
+    });
+
+    const m = this.state.modal;
+    const valide = this.state.motif.trim().length >= 4 && this.state.code.trim().length >= 3;
+
+    return {
+      jq: this.state.jq,
+      onJq: e => this.setState({ jq: e.target.value }),
+      jfiltres, transactions,
+      jCompteur: transactions.length + " opérations affichées",
+
+      modalOuverte: !!m,
+      modalNum: m ? m.num : "",
+      modalMontant: m ? this.fmt(m.montant) : "",
+      motif: this.state.motif,
+      onMotif: e => this.setState({ motif: e.target.value }),
+      code: this.state.code,
+      onCode: e => this.setState({ code: e.target.value }),
+      fermerModal: () => this.setState({ modal: null }),
+      confirmerAnnulation: () => {
+        if (!valide || !m) return;
+        this.setState(s => ({ annules: { ...s.annules, [m.num]: { motif: s.motif } }, modal: null }));
+      },
+      confirmerStyle: "padding:11px 18px;border-radius:10px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;" +
+        (valide ? "background:#b3261e;color:#ffffff;cursor:pointer;" : "background:#e6d3d0;color:#c99;cursor:not-allowed;")
+    };
+  }
+}
+</script>
+</body>
+</html>

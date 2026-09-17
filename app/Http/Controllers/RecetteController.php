@@ -51,7 +51,7 @@ class RecetteController extends Controller
             '0' => 'Annulée',
         ];
 
-        $defaultReference = 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $defaultReference = 'REC-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
         return view('recettes.create', compact('tickets', 'paiements', 'modePaiements', 'users', 'statuts', 'defaultReference'));
     }

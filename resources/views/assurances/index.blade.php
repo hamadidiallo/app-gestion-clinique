@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-shield-check me-2"></i>Compagnies d'Assurance & Tiers Payant
+                    <i data-lucide="shield-check" class="me-2"></i>Compagnies d'Assurance & Tiers Payant
                 </h1>
                 <p class="text-muted mb-0">Gestion des organismes partenaires et suivi des prises en charge.</p>
             </div>
             <div>
                 <a href="{{ route('assurance.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Créer une Assurance
+                    <i data-lucide="plus-circle"></i> Créer une Assurance
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-list-check text-primary me-2"></i>Organismes Partenaires
+                    <i data-lucide="list-check" class="text-primary me-2"></i>Organismes Partenaires
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="assurancesTable" title="Organismes Partenaires d'Assurance" filename="assurances" />
@@ -41,6 +41,7 @@
                                 <th class="ps-3">#</th>
                                 <th>Nom de l'Organisme</th>
                                 <th>Code</th>
+                                <th class="text-center">Taux de Réf.</th>
                                 <th>Téléphone</th>
                                 <th class="text-end">Tickets Pris en Charge</th>
                                 <th class="text-end">Part Assurance (Période)</th>
@@ -54,6 +55,11 @@
                                     <th scope="row" class="ps-3">{{ $assurance->id }}</th>
                                     <td><strong>{{ $assurance->nom }}</strong></td>
                                     <td><code>{{ $assurance->code ?? '-' }}</code></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success-subtle text-success fw-bold px-2 py-1 fs-7">
+                                            {{ number_format($assurance->taux_par_defaut ?? 80, 0) }} %
+                                        </span>
+                                    </td>
                                     <td>{{ $assurance->telephone ?? '-' }}</td>
                                     <td class="text-end fw-semibold text-primary">
                                         {{ number_format($assurance->tickets_count ?? 0, 0, ',', ' ') }} ticket(s)
@@ -71,13 +77,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('assurances.show', $assurance) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('assurances.edit', $assurance) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAssuranceModal{{ $assurance->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -108,7 +114,7 @@
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="bi bi-shield-slash fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="shield-slash" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucune compagnie d'assurance trouvée.
                                     </td>
                                 </tr>

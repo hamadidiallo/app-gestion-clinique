@@ -31,7 +31,7 @@ class ServiceRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Le code du service est obligatoire et doit être unique dans la table services
-            'code' => 'required|string|max:50|unique:services,code,' . $serviceId,
+            'code' => 'required|string|max:50|unique:services,code,'.$serviceId,
 
             // La description du service est facultative
             'description' => 'nullable|string',

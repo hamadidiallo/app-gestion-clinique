@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->enum('type_remuneration', [
                 'salaire_fixe',
-                'pourcentage'
+                'pourcentage',
             ])->default('salaire_fixe');
             $table->decimal('salaire_fixe', 15, 2)->nullable();
             $table->decimal('pourcentage', 5, 2)->nullable();

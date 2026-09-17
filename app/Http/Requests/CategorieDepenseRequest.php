@@ -29,7 +29,7 @@ class CategorieDepenseRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Code unique
-            'code' => 'required|string|max:50|unique:categorie_depenses,code,' . $categorieId,
+            'code' => 'required|string|max:50|unique:categorie_depenses,code,'.$categorieId,
 
             // Description optionnelle
             'description' => 'nullable|string',

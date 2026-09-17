@@ -22,6 +22,7 @@ class Remuneration extends Model
         'date_paiement',
         'description',
     ];
+
     protected $casts = [
         'periode_debut' => 'date',
         'periode_fin' => 'date',
@@ -32,6 +33,7 @@ class Remuneration extends Model
         'montant_medecin' => 'decimal:2',
         'montant_clinique' => 'decimal:2',
     ];
+
     public function medecin(): BelongsTo
     {
         return $this->belongsTo(Medecin::class);

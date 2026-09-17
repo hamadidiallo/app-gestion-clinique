@@ -54,7 +54,7 @@ class DepenseController extends Controller
             '0' => 'Annulée',
         ];
 
-        $defaultReference = 'DEP-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $defaultReference = 'DEP-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
         return view('depenses.create', compact('categories', 'modePaiements', 'users', 'statuts', 'defaultReference'));
     }
@@ -68,7 +68,7 @@ class DepenseController extends Controller
 
         $depense = $this->depenseService->enregistrerDepense($validated);
 
-        return to_route('depenses.index')->with('alert', 'Dépense #' . $depense->reference . ' enregistrée avec succès. Mouvement de caisse généré.');
+        return to_route('depenses.index')->with('alert', 'Dépense #'.$depense->reference.' enregistrée avec succès. Mouvement de caisse généré.');
     }
 
     /**

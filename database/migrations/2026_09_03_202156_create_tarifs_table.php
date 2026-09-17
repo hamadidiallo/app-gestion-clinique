@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tarifs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id') ->constrained('services') ->restrictOnDelete();
+            $table->foreignId('service_id')->constrained('services')->restrictOnDelete();
             $table->decimal('tarif_normal', 15, 2);
             $table->decimal('tarif_amo', 15, 2)->nullable();
             $table->decimal('tarif_specifique', 15, 2)->nullable();

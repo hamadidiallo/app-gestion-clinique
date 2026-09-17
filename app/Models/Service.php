@@ -17,16 +17,19 @@ class Service extends Model
     protected $casts = [
         'statut' => 'boolean',
     ];
+
     // Relation Service->tarif
     public function tarifs(): HasMany
     {
         return $this->hasMany(Tarif::class);
     }
+
     // LA RELATION SERVICE ---> PRESTATION
     public function prestations(): HasMany
     {
         return $this->hasMany(Prestation::class);
     }
+
     // LA RELATION SERVICE ---> REGLEPARTAGE
     public function reglesPartage()
     {

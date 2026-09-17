@@ -19,11 +19,11 @@ class Employe extends Model
         'statut',
         'description',
     ];
+
     protected $casts = [
         'salaire_fixe' => 'decimal:2',
         'pourcentage' => 'decimal:2',
         'date_embauche' => 'date',
         'statut' => 'boolean',
     ];
-    
 }

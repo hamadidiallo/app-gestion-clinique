@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-wallet2 me-2"></i>Modes de Règlement de la Clinique
+                    <i data-lucide="wallet" class="me-2"></i>Modes de Règlement de la Clinique
                 </h1>
                 <p class="text-muted mb-0">Gestion et statistiques d'utilisation des moyens de paiement (Espèces, Carte, Virement, Mobile Money...).</p>
             </div>
             <div>
                 <a href="{{ route('modepaiements.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Ajouter un Mode de Paiement
+                    <i data-lucide="plus-circle"></i> Ajouter un Mode de Paiement
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-list-stars text-primary me-2"></i>Liste des Modes de Paiement Configurés
+                    <i data-lucide="list-stars" class="text-primary me-2"></i>Liste des Modes de Paiement Configurés
                 </h5>
                 <span class="badge bg-light text-dark border fs-7">{{ $modePaiements->count() }} mode(s)</span>
             </div>
@@ -68,13 +68,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('modepaiements.show', $mode) }}" class="btn btn-sm btn-outline-info" title="Voir détails">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('modepaiements.edit', $mode) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModeModal{{ $mode->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -83,7 +83,7 @@
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content border-0 shadow">
                                                     <div class="modal-header bg-danger text-white">
-                                                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation de suppression</h5>
+                                                        <h5 class="modal-title"><i data-lucide="alert-triangle" class="me-2"></i>Confirmation de suppression</h5>
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                                                     </div>
                                                     <div class="modal-body text-start">
@@ -105,7 +105,7 @@
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="bi bi-wallet2 fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="wallet" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucun mode de paiement configuré. Cliquez sur "Ajouter un Mode de Paiement" pour commencer.
                                     </td>
                                 </tr>

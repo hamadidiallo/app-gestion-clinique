@@ -7,19 +7,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-primary font-weight-bold mb-1">
-                <i class="bi bi-person-badge me-2"></i>Ajouter un Nouveau Médecin
+                <i data-lucide="user-check" class="me-2"></i>Ajouter un Nouveau Médecin
             </h1>
             <p class="text-muted mb-0">Création de la fiche d'un praticien médical et configuration de sa rémunération.</p>
         </div>
         <a href="{{ route('medecins.index') }}" class="btn btn-outline-secondary fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+            <i data-lucide="arrow-left" class="me-1"></i> Retour à la liste
         </a>
     </div>
 
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="card-title mb-0 fw-bold text-dark">
-                <i class="bi bi-person-lines-fill text-primary me-2"></i>Fiche Praticien
+                <i data-lucide="user" class="text-primary me-2"></i>Fiche Praticien
             </h5>
         </div>
         <div class="card-body p-4">
@@ -129,7 +129,7 @@
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
-                        <i class="bi bi-check-circle-fill me-2"></i>Enregistrer le médecin
+                        <i data-lucide="check-circle" class="me-2"></i>Enregistrer le médecin
                     </button>
                 </div>
             </form>

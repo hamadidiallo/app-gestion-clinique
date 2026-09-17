@@ -22,7 +22,7 @@ return new class extends Migration
             // Patient ou assurance
             $table->enum('type_payeur', [
                 'patient',
-                'assurance'
+                'assurance',
             ])->default('patient');
             // Montant donné/reçu
             $table->decimal('montant_recu', 15, 2);
@@ -38,10 +38,10 @@ return new class extends Migration
             // État du paiement
             $table->enum('statut', [
                 'valide',
-                'annule'
+                'annule',
             ])->default('valide');
             $table->text('description')->nullable();
-        }); 
+        });
     }
 
     /**

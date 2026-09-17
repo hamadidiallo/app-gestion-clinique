@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-person-badge me-2"></i>Corps Médical de la Clinique
+                    <i data-lucide="user-check" class="me-2"></i>Corps Médical de la Clinique
                 </h1>
                 <p class="text-muted mb-0">Gestion du répertoire des praticiens et suivi de leur activité médicale.</p>
             </div>
             <div>
                 <a href="{{ route('medecins.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Ajouter un Médecin
+                    <i data-lucide="plus-circle"></i> Ajouter un Médecin
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-list-check text-primary me-2"></i>Répertoire des Médecins
+                    <i data-lucide="list-check" class="text-primary me-2"></i>Répertoire des Médecins
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="medecinsTable" title="Répertoire des Médecins" filename="medecins" />
@@ -71,13 +71,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('medecins.show', $medecin) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('medecins.edit', $medecin) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteMedecinModal{{ $medecin->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -108,7 +108,7 @@
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="bi bi-person-badge fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="user-check" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucun médecin enregistré dans la base de données.
                                     </td>
                                 </tr>

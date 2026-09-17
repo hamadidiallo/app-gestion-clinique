@@ -8,13 +8,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h1 class="h3 text-primary font-weight-bold mb-1">
-                    <i class="bi bi-calculator me-2"></i>Rémunérations & Rétrocessions Médecins
+                    <i data-lucide="calculator" class="me-2"></i>Rémunérations & Rétrocessions Médecins
                 </h1>
                 <p class="text-muted mb-0">Calcul des honoraires et paie des praticiens médicaux.</p>
             </div>
             <div>
                 <a href="{{ route('remunerations.create') }}" class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-plus-circle-fill"></i> Générer une Paie
+                    <i data-lucide="plus-circle"></i> Générer une Paie
                 </a>
             </div>
         </div>
@@ -28,7 +28,7 @@
                 <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
                     <div class="d-flex align-items-center">
                         <div class="bg-success-subtle text-success p-3 rounded-circle me-3">
-                            <i class="bi bi-cash-stack fs-4"></i>
+                            <i data-lucide="banknote" class="fs-4"></i>
                         </div>
                         <div>
                             <span class="text-muted small d-block">Total Rétrocession Médecins (Période)</span>
@@ -42,7 +42,7 @@
                 <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3">
-                            <i class="bi bi-building-check fs-4"></i>
+                            <i data-lucide="building-check" class="fs-4"></i>
                         </div>
                         <div>
                             <span class="text-muted small d-block">Part Conservée Clinique (Période)</span>
@@ -57,7 +57,7 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="card-title mb-0 fw-bold text-dark">
-                    <i class="bi bi-file-earmark-spreadsheet text-primary me-2"></i>Registre des Paies
+                    <i data-lucide="file-earmark-spreadsheet" class="text-primary me-2"></i>Registre des Paies
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <x-export-buttons table-id="remunerationsTable" title="Registre des Paies & Rétrocessions Médecins" filename="remunerations_medecins" />
@@ -102,13 +102,13 @@
                                     <td class="text-center pe-3">
                                         <div class="d-inline-flex gap-1">
                                             <a href="{{ route('remunerations.show', $remun) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                                <i data-lucide="eye"></i>
                                             </a>
                                             <a href="{{ route('remunerations.edit', $remun) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
+                                                <i data-lucide="edit-3"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRemunModal{{ $remun->id }}" title="Supprimer">
-                                                <i class="bi bi-trash"></i>
+                                                <i data-lucide="trash-2"></i>
                                             </button>
                                         </div>
 
@@ -117,7 +117,7 @@
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content border-0 shadow">
                                                     <div class="modal-header bg-danger text-white">
-                                                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation de suppression</h5>
+                                                        <h5 class="modal-title"><i data-lucide="alert-triangle" class="me-2"></i>Confirmation de suppression</h5>
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                                                     </div>
                                                     <div class="modal-body text-start">
@@ -139,7 +139,7 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center py-4 text-muted">
-                                        <i class="bi bi-calculator fs-1 d-block mb-2 text-secondary"></i>
+                                        <i data-lucide="calculator" class="fs-1 d-block mb-2 text-secondary"></i>
                                         Aucune rémunération générée pour cette période.
                                     </td>
                                 </tr>

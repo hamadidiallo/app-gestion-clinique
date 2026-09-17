@@ -26,7 +26,7 @@ return new class extends Migration
             // Type du mouvement
             $table->enum('type', [
                 'entree',
-                'sortie'
+                'sortie',
             ]);
             // Origine du mouvement
             $table->enum('origine', [
@@ -34,7 +34,7 @@ return new class extends Migration
                 'recette',
                 'depense',
                 'dette',
-                'autre'
+                'autre',
             ]);
             // Référence de l'opération
             $table->string('reference')->nullable();
@@ -46,7 +46,7 @@ return new class extends Migration
             // Mouvement valide ou annulé
             $table->boolean('statut')->default(true);
             $table->timestamps();
-        }); 
+        });
     }
 
     /**

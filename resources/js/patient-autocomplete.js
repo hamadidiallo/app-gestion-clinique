@@ -81,10 +81,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             item.type = 'button';
                             item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3';
 
-                            // Contenu HTML de l'élément avec le nom complet et le téléphone
+                            // Contenu HTML de l'élément avec le nom complet, téléphone et badge assurance
+                            const badgeAssurance = patient.statut === 'assure'
+                                ? `<span class="badge bg-success-subtle text-success border border-success-subtle small ms-2"><i class="bi bi-shield-check"></i> ${patient.assurance_nom || 'Assuré'} (${patient.taux_couverture || 80}%)</span>`
+                                : `<span class="badge bg-light text-muted border small ms-2">Non Assuré</span>`;
+
                             item.innerHTML = `
-                                <div>
+                                <div class="d-flex align-items-center">
                                     <span class="fw-semibold">${patient.nom_complet}</span>
+                                    ${badgeAssurance}
                                 </div>
                                 <span class="badge bg-light text-dark border small">${patient.telephone}</span>
                             `;
@@ -95,6 +100,33 @@ document.addEventListener('DOMContentLoaded', function () {
                                 searchInput.value = patient.nom_complet;
                                 // Stockage de l'ID du patient dans le champ masqué
                                 hiddenPatientId.value = patient.id;
+
+                                // Notification aux observateurs et formulaires
+                                hiddenPatientId.dispatchEvent(new Event('change', { bubbles: true }));
+
+                                // Auto-remplissage de l'assurance et du taux de couverture si présents sur la page
+                                const assuranceSelect = document.getElementById('assurance_id');
+                                const tauxInput = document.getElementById('taux_assurance');
+                                const numeroAssureInput = document.getElementById('numero_assure');
+
+                                if (assuranceSelect) {
+                                    if (patient.assurance_id) {
+                                        assuranceSelect.value = patient.assurance_id;
+                                    } else {
+                                        assuranceSelect.value = '';
+                                    }
+                                    assuranceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+
+                                if (tauxInput) {
+                                    tauxInput.value = patient.statut === 'assure' ? (patient.taux_couverture || 80) : 0;
+                                    tauxInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                }
+
+                                if (numeroAssureInput && patient.numero_assure) {
+                                    numeroAssureInput.value = patient.numero_assure;
+                                }
+
                                 // Masquage de la liste de suggestions
                                 resultsContainer.innerHTML = '';
                                 resultsContainer.style.display = 'none';

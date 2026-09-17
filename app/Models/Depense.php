@@ -18,21 +18,25 @@ class Depense extends Model
         'description',
         'statut',
     ];
+
     protected $casts = [
         'montant' => 'decimal:2',
         'date_depense' => 'date',
         'statut' => 'boolean',
     ];
+
     // RELATION BIDIRECTIONNELLE CATEGORIEDEPENSE ---> DEPENSE
     public function categorieDepense(): BelongsTo
     {
         return $this->belongsTo(CategorieDepense::class);
     }
+
     // RELATION BIDIRECTIONNELLE MODEPAIEMENT ---> DEPENSE
     public function modePaiement(): BelongsTo
     {
         return $this->belongsTo(ModePaiement::class);
     }
+
     // RELATION BIDIRECTIONNELLE CATEGORIEDEPENSE ---> USER
     public function user(): BelongsTo
     {

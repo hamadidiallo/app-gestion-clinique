@@ -68,10 +68,10 @@ class RemunerationController extends Controller
                 medecinId: (int) $validated['medecin_id'],
                 periodeDebut: $validated['periode_debut'],
                 periodeFin: $validated['periode_fin'],
-                userId: !empty($validated['user_id']) ? (int) $validated['user_id'] : null
+                userId: ! empty($validated['user_id']) ? (int) $validated['user_id'] : null
             );
 
-            return to_route('remunerations.show', $remuneration)->with('alert', 'Rémunération calculée automatiquement avec succès (' . $remuneration->montant_medecin . ' FBU).');
+            return to_route('remunerations.show', $remuneration)->with('alert', 'Rémunération calculée automatiquement avec succès ('.$remuneration->montant_medecin.' FBU).');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['medecin_id' => $e->getMessage()]);
         }
@@ -113,6 +113,7 @@ class RemunerationController extends Controller
 
         if (isset($validated['statut']) && $validated['statut'] === 'payee' && $remuneration->statut !== 'payee') {
             $this->remunerationService->validerPaiementRemuneration($remuneration);
+
             return to_route('remunerations.index')->with('alert', 'Paiement de la rémunération validé avec succès.');
         }
 

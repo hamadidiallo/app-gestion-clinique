@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +17,22 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
- // ->use(RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
+    ->beforeEach(function () {
+        if (! isset($this->user)) {
+            $role = Role::firstOrCreate(['nom' => 'Administrateur']);
+            $user = User::firstOrCreate(
+                ['email' => 'admin-test@example.com'],
+                [
+                    'nom' => 'Admin',
+                    'prenom' => 'Test',
+                    'password' => bcrypt('password'),
+                    'role_id' => $role->id,
+                ]
+            );
+            $this->actingAs($user);
+        }
+    })
     ->in('Feature');
 
 /*

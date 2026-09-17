@@ -23,21 +23,20 @@ class PaiementService
     /**
      * Enregistre un paiement financier atomique avec toutes ses répercussions automatiques.
      *
-     * @param array $donnees Contient ticket_id, montant_recu, mode_paiement_id, user_id optionnel, description
-     * @return Paiement
+     * @param  array  $donnees  Contient ticket_id, montant_recu, mode_paiement_id, user_id optionnel, description
      */
     public function enregistrerPaiement(array $donnees): Paiement
     {
         return DB::transaction(function () use ($donnees) {
             $effectiveUserId = $donnees['user_id'] ?? auth()->id();
 
-            if (!$effectiveUserId) {
+            if (! $effectiveUserId) {
                 $user = User::first();
                 $effectiveUserId = $user ? $user->id : null;
             }
 
-            if (!$effectiveUserId) {
-                throw new \InvalidArgumentException("Identifiant utilisateur requis pour effectuer le paiement.");
+            if (! $effectiveUserId) {
+                throw new \InvalidArgumentException('Identifiant utilisateur requis pour effectuer le paiement.');
             }
 
             // 1. Vérification du ticket
@@ -48,12 +47,12 @@ class PaiementService
             }
 
             if ($ticket->reste_a_payer <= 0 || $ticket->statut === 'paye') {
-                throw new \InvalidArgumentException("Ce ticket est déjà entièrement réglé.");
+                throw new \InvalidArgumentException('Ce ticket est déjà entièrement réglé.');
             }
 
             $montantRecu = (float) $donnees['montant_recu'];
             if ($montantRecu <= 0) {
-                throw new \InvalidArgumentException("Le montant du paiement doit être supérieur à zéro.");
+                throw new \InvalidArgumentException('Le montant du paiement doit être supérieur à zéro.');
             }
 
             // 2. Vérification de la caisse ouverte
@@ -62,12 +61,12 @@ class PaiementService
                 ->lockForUpdate()
                 ->first();
 
-            if (!$caisseOuverte) {
+            if (! $caisseOuverte) {
                 // Essayer de trouver n'importe quelle caisse ouverte active dans le système
                 $caisseOuverte = Caisse::where('statut', 'ouverte')->first();
             }
 
-            if (!$caisseOuverte) {
+            if (! $caisseOuverte) {
                 throw new \InvalidArgumentException("Aucune session de caisse n'est actuellement ouverte pour enregistrer le mouvement.");
             }
 
@@ -91,7 +90,7 @@ class PaiementService
                 'mode_paiement_id' => $donnees['mode_paiement_id'],
                 'date_paiement' => Carbon::now(),
                 'statut' => 'valide',
-                'description' => $donnees['description'] ?? 'Règlement ticket ' . $ticket->reference,
+                'description' => $donnees['description'] ?? 'Règlement ticket '.$ticket->reference,
             ]);
 
             // 5. Mise à jour du Ticket
@@ -118,7 +117,7 @@ class PaiementService
                         'reste_a_payer' => $nouveauResteAPayer,
                         'statut' => $statutDette,
                         'date_creation' => Carbon::now()->toDateString(),
-                        'description' => 'Dette suite au paiement partiel du ticket ' . $ticket->reference,
+                        'description' => 'Dette suite au paiement partiel du ticket '.$ticket->reference,
                     ]
                 );
             } else {
@@ -131,7 +130,7 @@ class PaiementService
             }
 
             // 7. Création automatique de la Recette
-            $refRecette = 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+            $refRecette = 'REC-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
             $recette = Recette::create([
                 'ticket_id' => $ticket->id,
                 'paiement_id' => $paiement->id,
@@ -140,7 +139,7 @@ class PaiementService
                 'montant' => $montantImpute, // Le montant de la recette correspond au montant réellement encaissé pour les soins
                 'date_recette' => Carbon::now()->toDateString(),
                 'reference' => $refRecette,
-                'description' => 'Recette automatique pour le ticket ' . $ticket->reference,
+                'description' => 'Recette automatique pour le ticket '.$ticket->reference,
                 'statut' => true,
             ]);
 
@@ -152,7 +151,7 @@ class PaiementService
                 origine: 'paiement',
                 reference: $refRecette,
                 montant: $montantImpute,
-                description: 'Entrée caisse automatique pour paiement ' . $ticket->reference
+                description: 'Entrée caisse automatique pour paiement '.$ticket->reference
             );
 
             // 9. Actualisation automatique des honoraires médecins et règles de partage
@@ -164,7 +163,7 @@ class PaiementService
                 module: 'paiement',
                 objetType: Paiement::class,
                 objetId: $paiement->id,
-                description: 'Paiement de ' . $montantImpute . ' FBU (Rendu: ' . $montantRendu . ' FBU) sur ticket ' . $ticket->reference,
+                description: 'Paiement de '.$montantImpute.' FBU (Rendu: '.$montantRendu.' FBU) sur ticket '.$ticket->reference,
                 nouvellesValeurs: $paiement->toArray()
             );
 

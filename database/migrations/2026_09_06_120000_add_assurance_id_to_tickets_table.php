@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('tickets') && !Schema::hasColumn('tickets', 'assurance_id')) {
+        if (Schema::hasTable('tickets') && ! Schema::hasColumn('tickets', 'assurance_id')) {
             Schema::table('tickets', function (Blueprint $table) {
                 // Clé étrangère facultative liée à la table assurances
                 $table->foreignId('assurance_id')->nullable()->after('patient_id')->constrained('assurances')->nullOnDelete();

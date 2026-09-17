@@ -7,19 +7,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-primary font-weight-bold mb-1">
-                <i class="bi bi-graph-up-arrow me-2"></i>Enregistrer une Recette Financière
+                <i data-lucide="graph-up-arrow" class="me-2"></i>Enregistrer une Recette Financière
             </h1>
             <p class="text-muted mb-0">Comptabilisation directe d'encaissements et revenus divers de la clinique.</p>
         </div>
         <a href="{{ route('recettes.index') }}" class="btn btn-outline-secondary fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Retour au registre
+            <i data-lucide="arrow-left" class="me-1"></i> Retour au registre
         </a>
     </div>
 
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="card-title mb-0 fw-bold text-dark">
-                <i class="bi bi-cash-stack text-primary me-2"></i>Informations sur la Recette
+                <i data-lucide="banknote" class="text-primary me-2"></i>Informations sur la Recette
             </h5>
         </div>
         <div class="card-body p-4">
@@ -158,7 +158,7 @@
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
-                        <i class="bi bi-check-circle-fill me-2"></i>Comptabiliser la Recette
+                        <i data-lucide="check-circle" class="me-2"></i>Comptabiliser la Recette
                     </button>
                 </div>
             </form>

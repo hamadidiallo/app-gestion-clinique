@@ -16,7 +16,7 @@ return new class extends Migration
             // Ticket à l'origine de la dette
             $table->foreignId('ticket_id')->constrained('tickets')->restrictOnDelete();
             // Patient concerné
-            $table->foreignId('patient_id') ->constrained('patients') ->restrictOnDelete();
+            $table->foreignId('patient_id')->constrained('patients')->restrictOnDelete();
             // Utilisateur ayant enregistré la dette
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             // Montant initial de la dette
@@ -30,7 +30,7 @@ return new class extends Migration
                 'en_cours',
                 'partiellement_reglee',
                 'reglee',
-                'annulee'
+                'annulee',
             ])->default('en_cours');
             $table->date('date_creation');
             $table->date('date_reglement')->nullable();

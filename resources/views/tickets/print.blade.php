@@ -7,13 +7,16 @@
 
     {{-- Bootstrap 5 CSS pour l'aperçu écran --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     {{-- Style CSS optimisé pour Imprimante Ticket Thermique 80mm et impression --}}
     <style>
         body {
             background-color: #f1f5f9;
-            font-family: 'Courier New', Courier, monospace, monospace;
+            font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
             color: #000;
         }
 
@@ -111,15 +114,15 @@
     <div class="no-print bg-dark text-white p-3 shadow-sm mb-4">
         <div class="container d-flex justify-content-between align-items-center">
             <div>
-                <h5 class="mb-0 text-white"><i class="bi bi-printer me-2"></i> Impression Ticket Thermique & Facture</h5>
+                <h5 class="mb-0 text-white"><i data-lucide="printer" class="me-2"></i> Impression Ticket Thermique & Facture</h5>
                 <small class="text-light">Référence: {{ $ticket->reference }}</small>
             </div>
             <div class="d-flex gap-2">
                 <button onclick="window.print()" class="btn btn-success fw-bold">
-                    <i class="bi bi-printer-fill me-1"></i> Imprimer Ticket (80mm)
+                    <i data-lucide="printer" class="me-1"></i> Imprimer Ticket (80mm)
                 </button>
                 <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-outline-light">
-                    <i class="bi bi-arrow-left me-1"></i> Retour aux Détails
+                    <i data-lucide="arrow-left" class="me-1"></i> Retour aux Détails
                 </a>
             </div>
         </div>
@@ -158,11 +161,11 @@
             @endif
         </div>
 
-        {{-- Tableau des actes et prestations --}}
+        {{-- Tableau des actes, médicaments et hospitalisations --}}
         <table class="ticket-table">
             <thead>
                 <tr style="border-bottom: 1px solid #000;">
-                    <th>ACTE / PRESTATION</th>
+                    <th>DESIGNATION</th>
                     <th class="right">PU</th>
                     <th class="right">TOTAL</th>
                 </tr>
@@ -171,11 +174,11 @@
                 @forelse($ticket->details as $detail)
                     <tr>
                         <td>
-                            {{ $detail->prestation->libelle ?? 'Acte Médical' }}<br>
-                            <small>(Qte: {{ $detail->quantite }} | Taux: {{ number_format($detail->taux_couverture_applique, 0) }}%)</small>
+                            <strong>{{ $detail->libelle }}</strong><br>
+                            <small>[{{ strtoupper($detail->type_item ?? 'acte') }}] &times; {{ number_format($detail->quantite, 0) }}</small>
                         </td>
                         <td class="right" style="vertical-align: top;">{{ number_format($detail->prix_unitaire, 0, ',', ' ') }}</td>
-                        <td class="right" style="vertical-align: top;">{{ number_format($detail->prix_unitaire * $detail->quantite, 0, ',', ' ') }}</td>
+                        <td class="right" style="vertical-align: top;">{{ number_format($detail->montant_total, 0, ',', ' ') }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -188,41 +191,55 @@
         {{-- Résumé Financier --}}
         <div class="ticket-totals">
             <div class="d-flex justify-content-between">
-                <span>TOTAL PUBLIC:</span>
-                <strong>{{ number_format($ticket->montant_total, 0, ',', ' ') }} FBU</strong>
+                <span>TOTAL BRUT:</span>
+                <strong>{{ number_format($ticket->montant_total, 0, ',', ' ') }} FCFA</strong>
             </div>
 
             @if($ticket->montant_assurance > 0)
                 <div class="d-flex justify-content-between">
-                    <span>PART ASSURANCE:</span>
-                    <span>-{{ number_format($ticket->montant_assurance, 0, ',', ' ') }} FBU</span>
+                    <span>PART ASSURANCE ({{ $ticket->assurance ? $ticket->assurance->nom : 'TIERS' }}):</span>
+                    <span>-{{ number_format($ticket->montant_assurance, 0, ',', ' ') }} FCFA</span>
                 </div>
             @endif
 
             <div class="d-flex justify-content-between mt-1" style="font-size: 13px; font-weight: bold; border-top: 1px dashed #000; padding-top: 4px;">
                 <span>NET PATIENT:</span>
-                <span>{{ number_format($ticket->montant_patient, 0, ',', ' ') }} FBU</span>
+                <span>{{ number_format($ticket->montant_patient, 0, ',', ' ') }} FCFA</span>
             </div>
 
             <div class="d-flex justify-content-between mt-1">
-                <span>MONTANT PAYÉ:</span>
-                <span>{{ number_format($ticket->montant_paye, 0, ',', ' ') }} FBU</span>
+                <span>MONTANT ENCAISSÉ:</span>
+                <span>{{ number_format($ticket->montant_paye, 0, ',', ' ') }} FCFA</span>
             </div>
 
-            <div class="d-flex justify-content-between">
-                <span>RESTE À PAYER:</span>
-                <strong>{{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} FBU</strong>
-            </div>
+            @if($ticket->reste_a_payer > 0)
+                <div class="d-flex justify-content-between text-danger">
+                    <span>RESTE DÛ (DETTE):</span>
+                    <strong>{{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} FCFA</strong>
+                </div>
+            @else
+                <div class="d-flex justify-content-between text-success">
+                    <span>SOLDE:</span>
+                    <strong>SOLDÉ / PAYÉ</strong>
+                </div>
+            @endif
         </div>
 
         {{-- Pied de ticket --}}
         <div class="ticket-footer">
-            <p class="mb-1"><strong>STATUT: {{ strtoupper($ticket->statut) }}</strong></p>
+            <p class="mb-1"><strong>STATUT: {{ strtoupper(str_replace('_', ' ', $ticket->statut)) }}</strong></p>
             <p class="mb-1">Ticket valable 7 jours à compter de sa date d'émission.</p>
             <small>Caissier: {{ $ticket->user->name ?? 'Guichetier' }}</small><br>
             <small>*** Prompt et complet rétablissement ***</small>
         </div>
     </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    });
+</script>
 </body>
 </html>

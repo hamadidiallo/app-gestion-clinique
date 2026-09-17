@@ -19,6 +19,7 @@ class Dette extends Model
         'date_reglement',
         'description',
     ];
+
     protected $casts = [
         'montant_initial' => 'decimal:2',
         'montant_paye' => 'decimal:2',
@@ -26,19 +27,22 @@ class Dette extends Model
         'date_creation' => 'date',
         'date_reglement' => 'date',
     ];
+
     // Relation BIDIRECTIONNELLE DETTE ----> TICKET
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class);
     }
+
     // Relation BIDIRECTIONNELLE DETTE ----> PATIENT
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
+
     // Relation BIDIRECTIONNELLE DETTE ----> USER
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-} 
+}

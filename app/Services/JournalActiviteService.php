@@ -11,15 +11,14 @@ class JournalActiviteService
     /**
      * Enregistre une action sensible dans le journal d'activités.
      *
-     * @param string $action Nom court de l'action (ex: 'creation_ticket', 'paiement')
-     * @param string|null $module Nom du module métier (ex: 'facturation', 'caisse')
-     * @param string|null $objetType Nom de la classe ou table concernée
-     * @param int|null $objetId Identifiant de l'objet concerné
-     * @param string|null $description Explication lisible de l'action
-     * @param array|null $anciennesValeurs Données avant modification
-     * @param array|null $nouvellesValeurs Données après modification
-     * @param int|null $userId Identifiant de l'utilisateur (défaut: auth()->id())
-     * @return JournalActivite|null
+     * @param  string  $action  Nom court de l'action (ex: 'creation_ticket', 'paiement')
+     * @param  string|null  $module  Nom du module métier (ex: 'facturation', 'caisse')
+     * @param  string|null  $objetType  Nom de la classe ou table concernée
+     * @param  int|null  $objetId  Identifiant de l'objet concerné
+     * @param  string|null  $description  Explication lisible de l'action
+     * @param  array|null  $anciennesValeurs  Données avant modification
+     * @param  array|null  $nouvellesValeurs  Données après modification
+     * @param  int|null  $userId  Identifiant de l'utilisateur (défaut: auth()->id())
      */
     public function log(
         string $action,
@@ -33,12 +32,12 @@ class JournalActiviteService
     ): ?JournalActivite {
         $effectiveUserId = $userId ?? auth()->id();
 
-        if (!$effectiveUserId) {
+        if (! $effectiveUserId) {
             $user = User::first();
             $effectiveUserId = $user ? $user->id : null;
         }
 
-        if (!$effectiveUserId) {
+        if (! $effectiveUserId) {
             return null;
         }
 

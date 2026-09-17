@@ -22,6 +22,7 @@ test('peut créer une nouvelle prestation', function () {
     $patient = Patient::create([
         'nom' => 'Kouassi',
         'prenom' => 'Jean',
+        'sexe' => 'M',
         'statut' => 'assure',
     ]);
 
@@ -58,7 +59,7 @@ test('peut créer une nouvelle prestation', function () {
 
     $response = $this->post(route('prestations.store'), $prestationData);
 
-    $response->assertRedirect(route('prestations.index'));
+    $response->assertRedirect(route('tickets.print', 1));
     $this->assertDatabaseHas('prestations', [
         'patient_id' => $patient->id,
         'service_id' => $service->id,
@@ -70,6 +71,7 @@ test('peut modifier une prestation existante', function () {
     $patient = Patient::create([
         'nom' => 'Traoré',
         'prenom' => 'Fatou',
+        'sexe' => 'F',
         'statut' => 'non_assure',
     ]);
 
@@ -117,6 +119,7 @@ test('peut supprimer une prestation', function () {
     $patient = Patient::create([
         'nom' => 'Sow',
         'prenom' => 'Moussa',
+        'sexe' => 'M',
         'statut' => 'assure',
     ]);
 

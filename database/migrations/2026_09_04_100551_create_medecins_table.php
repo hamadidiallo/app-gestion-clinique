@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('specialite')->nullable();
             $table->enum('type_remuneration', [
                 'salaire_fixe',
-                'pourcentage'
+                'pourcentage',
             ])->default('pourcentage');
             $table->decimal('pourcentage', 5, 2)->nullable();
             $table->boolean('statut')->default(true);

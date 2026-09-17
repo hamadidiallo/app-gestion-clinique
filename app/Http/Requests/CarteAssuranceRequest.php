@@ -34,7 +34,7 @@ class CarteAssuranceRequest extends FormRequest
             'assurance_id' => 'required|exists:assurances,id',
 
             // La référence de la carte est obligatoire, unique et limitée à 100 caractères
-            'reference' => 'required|string|max:100|unique:carte_assurances,reference,' . $carteId,
+            'reference' => 'required|string|max:100|unique:carte_assurances,reference,'.$carteId,
 
             // Le taux de couverture est obligatoire et doit être un nombre entre 0 et 100
             'taux_couverture' => 'required|numeric|min:0|max:100',
