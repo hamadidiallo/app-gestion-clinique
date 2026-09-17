@@ -10,14 +10,15 @@ use App\Models\Dette;
 use App\Models\Medecin;
 use App\Models\ModePaiement;
 use App\Models\Patient;
+use App\Models\Prestation;
 use App\Models\Recette;
 use App\Models\Role;
 use App\Models\Service;
-use App\Models\Tarif;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\CalculFacturationService;
 use App\Services\GestionCaisseService;
+use App\Services\PrestationService;
 use App\Services\TicketService;
 use App\Traits\HasPeriodFilter;
 use Carbon\Carbon;
@@ -29,7 +30,8 @@ class TicketController extends Controller
 
     public function __construct(
         protected CalculFacturationService $calculService,
-        protected TicketService $ticketService
+        protected TicketService $ticketService,
+        protected PrestationService $prestationService
     ) {}
 
     /**
@@ -224,15 +226,100 @@ class TicketController extends Controller
 
         $ticket = Ticket::create($ticketData);
 
-        // 2. Sauvegarde des lignes détaillées
+        // 2. Sauvegarde des lignes détaillées et génération automatique des Soins (Prestations)
+        $medecinId = $ticket->medecin_id;
+        $medecin = $medecinId ? Medecin::find($medecinId) : null;
+        $dateTicket = $ticket->date_ticket ?? Carbon::now();
+
         if (! empty($itemsToCreate)) {
             foreach ($itemsToCreate as $it) {
+                if ($it['type_item'] === 'acte' && empty($it['prestation_id'])) {
+                    $acte = Acte::where('nom', $it['designation'])
+                        ->orWhere('code', $it['designation'])
+                        ->first();
+
+                    $serviceId = $ticket->service_id
+                        ?? $acte?->service_id
+                        ?? Service::first()?->id;
+
+                    if ($serviceId) {
+                        $partage = $this->prestationService->obtenirPourcentagesPartage(
+                            $serviceId,
+                            $medecin,
+                            $dateTicket,
+                            $acte
+                        );
+
+                        $montantLigne = (float) $it['montant_total'];
+                        $partMedecin = round(($montantLigne * $partage['pourcentage_medecin']) / 100.0, 2);
+                        $partClinique = max(0.0, round($montantLigne - $partMedecin, 2));
+
+                        $prestation = Prestation::create([
+                            'patient_id' => $ticket->patient_id,
+                            'service_id' => $serviceId,
+                            'medecin_id' => $medecinId,
+                            'acte_id' => $acte?->id,
+                            'type' => $it['designation'],
+                            'montant' => $montantLigne,
+                            'taux_couverture' => (float) ($it['taux_couverture'] ?? 0),
+                            'montant_assurance' => (float) ($it['montant_assurance'] ?? 0),
+                            'montant_patient' => (float) ($it['montant_patient'] ?? $montantLigne),
+                            'pourcentage_medecin' => $partage['pourcentage_medecin'],
+                            'pourcentage_clinique' => $partage['pourcentage_clinique'],
+                            'part_medecin' => $partMedecin,
+                            'part_clinique' => $partClinique,
+                            'date_prestation' => $dateTicket,
+                            'description' => 'Soin généré automatiquement depuis Ticket #'.$ticket->reference,
+                            'statut' => true,
+                        ]);
+
+                        $it['prestation_id'] = $prestation->id;
+                    }
+                }
+
                 $ticket->details()->create($it);
             }
         } else {
             $service = isset($validated['service_id']) ? Service::find($validated['service_id']) : null;
+            $serviceId = $service?->id ?? Service::first()?->id;
             $libelleDefaut = $service ? 'Prestation - '.$service->nom : 'Consultation Médicale';
+
+            $prestationId = null;
+            if ($serviceId) {
+                $partage = $this->prestationService->obtenirPourcentagesPartage(
+                    $serviceId,
+                    $medecin,
+                    $dateTicket
+                );
+
+                $montantLigne = (float) $validated['montant_total'];
+                $partMedecin = round(($montantLigne * $partage['pourcentage_medecin']) / 100.0, 2);
+                $partClinique = max(0.0, round($montantLigne - $partMedecin, 2));
+
+                $prestation = Prestation::create([
+                    'patient_id' => $ticket->patient_id,
+                    'service_id' => $serviceId,
+                    'medecin_id' => $medecinId,
+                    'acte_id' => null,
+                    'type' => $libelleDefaut,
+                    'montant' => $montantLigne,
+                    'taux_couverture' => (float) $tauxAssurance,
+                    'montant_assurance' => (float) $validated['montant_assurance'],
+                    'montant_patient' => (float) $validated['montant_patient'],
+                    'pourcentage_medecin' => $partage['pourcentage_medecin'],
+                    'pourcentage_clinique' => $partage['pourcentage_clinique'],
+                    'part_medecin' => $partMedecin,
+                    'part_clinique' => $partClinique,
+                    'date_prestation' => $dateTicket,
+                    'description' => 'Soin généré automatiquement depuis Ticket #'.$ticket->reference,
+                    'statut' => true,
+                ]);
+
+                $prestationId = $prestation->id;
+            }
+
             $ticket->details()->create([
+                'prestation_id' => $prestationId,
                 'designation' => $libelleDefaut,
                 'type_item' => 'acte',
                 'quantite' => 1,

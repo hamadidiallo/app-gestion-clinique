@@ -1,14 +1,18 @@
 <?php
 
+use App\Models\Acte;
 use App\Models\Assurance;
 use App\Models\Caisse;
 use App\Models\Dette;
+use App\Models\Medecin;
 use App\Models\ModePaiement;
 use App\Models\MouvementCaisse;
 use App\Models\Paiement;
 use App\Models\Patient;
+use App\Models\Prestation;
 use App\Models\Recette;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\TicketDetail;
 use App\Models\User;
@@ -313,4 +317,60 @@ test('patient create and edit interfaces render successfully with new design sys
     $resEdit = $this->actingAs($user)->get(route('patients.edit', $patient));
     $resEdit->assertStatus(200);
     $resEdit->assertSee('Modifier Dossier : Ousmane Coulibaly');
+});
+
+test('un ticket cree avec un medecin et un acte genere automatiquement une prestation et alimente la remuneration', function () {
+    $user = getTestAdminUser();
+    $service = Service::create(['nom' => 'Médecine Générale', 'code' => 'SERV-MG-99', 'statut' => true]);
+    $medecin = Medecin::create([
+        'nom' => 'DrKonate',
+        'prenom' => 'Sekou',
+        'specialite' => 'Généraliste',
+        'type_remuneration' => 'pourcentage',
+        'pourcentage' => 50,
+        'statut' => true,
+    ]);
+    $acte = Acte::create([
+        'service_id' => $service->id,
+        'code' => 'ACT-CGEN-99',
+        'nom' => 'Consultation Médecine Générale',
+        'tarif_normal' => 10000,
+        'statut' => true,
+    ]);
+    $patient = Patient::create([
+        'nom' => 'Traore',
+        'prenom' => 'Bakary',
+        'sexe' => 'M',
+        'statut' => 'non_assure',
+    ]);
+
+    $postData = [
+        'patient_id' => $patient->id,
+        'service_id' => $service->id,
+        'medecin_id' => $medecin->id,
+        'date_ticket' => now()->format('Y-m-d H:i:s'),
+        'montant_total' => 10000,
+        'montant_patient' => 10000,
+        'montant_paye' => 10000,
+        'statut' => 'paye',
+        'items' => [
+            [
+                'type_item' => 'acte',
+                'designation' => 'Consultation Médecine Générale',
+                'quantite' => 1,
+                'prix_unitaire' => 10000,
+                'montant_total' => 10000,
+            ],
+        ],
+    ];
+
+    $response = $this->actingAs($user)->post(route('tickets.store'), $postData);
+    $response->assertRedirect();
+
+    // Vérifier que la prestation a été automatiquement créée
+    $prestation = Prestation::where('patient_id', $patient->id)->where('medecin_id', $medecin->id)->first();
+    expect($prestation)->not->toBeNull()
+        ->and((float) $prestation->montant)->toBe(10000.0)
+        ->and((float) $prestation->part_medecin)->toBe(5000.0)
+        ->and((float) $prestation->part_clinique)->toBe(5000.0);
 });

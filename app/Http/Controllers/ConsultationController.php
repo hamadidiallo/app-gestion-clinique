@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConsultationRequest;
+use App\Models\Acte;
 use App\Models\Consultation;
 use App\Models\DossierMedical;
 use App\Models\Medecin;
 use App\Models\Ordonnance;
 use App\Models\OrdonnanceLigne;
 use App\Models\Patient;
+use App\Models\Prestation;
+use App\Models\Service;
 use App\Models\Ticket;
+use App\Services\PrestationService;
 use App\Traits\HasPeriodFilter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -142,6 +146,49 @@ class ConsultationController extends Controller
             'conduite_a_tenir' => $validated['conduite_a_tenir'] ?? null,
             'statut' => $validated['statut'] ?? 'terminee',
         ]);
+
+        // Création automatique du soin (prestation) si consultation directe sans ticket
+        if (empty($validated['ticket_id']) && ! empty($validated['medecin_id'])) {
+            $acte = Acte::where('categorie', 'consultation')->first()
+                ?? Acte::first();
+            $service = $acte?->service ?? Service::first();
+            $serviceId = $service?->id;
+
+            if ($serviceId) {
+                $medecin = Medecin::find($validated['medecin_id']);
+                $datePrestation = $consultation->date_consultation ?? Carbon::now();
+                $montant = $acte ? (float) $acte->tarif_normal : 5000.0;
+
+                $partage = app(PrestationService::class)->obtenirPourcentagesPartage(
+                    $serviceId,
+                    $medecin,
+                    $datePrestation,
+                    $acte
+                );
+
+                $partMedecin = round(($montant * $partage['pourcentage_medecin']) / 100.0, 2);
+                $partClinique = max(0.0, round($montant - $partMedecin, 2));
+
+                Prestation::create([
+                    'patient_id' => $consultation->patient_id,
+                    'service_id' => $serviceId,
+                    'medecin_id' => $consultation->medecin_id,
+                    'acte_id' => $acte?->id,
+                    'type' => 'Consultation Médicale',
+                    'montant' => $montant,
+                    'taux_couverture' => 0,
+                    'montant_assurance' => 0,
+                    'montant_patient' => $montant,
+                    'pourcentage_medecin' => $partage['pourcentage_medecin'],
+                    'pourcentage_clinique' => $partage['pourcentage_clinique'],
+                    'part_medecin' => $partMedecin,
+                    'part_clinique' => $partClinique,
+                    'date_prestation' => $datePrestation,
+                    'description' => 'Soin généré depuis Consultation '.$consultation->reference,
+                    'statut' => true,
+                ]);
+            }
+        }
 
         // 4. Création de l'ordonnance si des médicaments sont prescrits
         $prescriptions = array_filter($validated['prescriptions'] ?? [], function ($item) {
