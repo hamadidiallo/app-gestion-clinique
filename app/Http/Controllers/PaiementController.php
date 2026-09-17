@@ -49,13 +49,25 @@ class PaiementController extends Controller
     }
 
     /**
-     * Formulaire de saisie d'un nouveau paiement / règlement.
+     * Formulaire de saisie d'un nouveau paiement / règlement de reliquat.
      */
     public function create()
     {
-        $tickets = Ticket::where('statut', '!=', 'paye')->with('patient')->latest()->get();
+        $selectedTicketId = request('ticket_id');
+        $selectedTicket = null;
+        if ($selectedTicketId) {
+            $selectedTicket = Ticket::with(['patient', 'assurance'])->find($selectedTicketId);
+        }
+
+        // Seuls les tickets ayant un reliquat/reste à payer > 0
+        $tickets = Ticket::where('reste_a_payer', '>', 0)
+            ->orWhere('statut', '!=', 'paye')
+            ->with(['patient', 'assurance'])
+            ->latest()
+            ->get();
+
         $users = User::orderBy('nom')->get();
-        $assurances = Assurance::orderBy('nom')->get();
+        $assurances = Assurance::where('statut', true)->orderBy('nom')->get();
         $modePaiements = ModePaiement::where('statut', true)->orderBy('nom')->get();
 
         $statuts = [
@@ -67,7 +79,7 @@ class PaiementController extends Controller
 
         $defaultReference = 'PAY-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
-        return view('paiements.create', compact('tickets', 'users', 'assurances', 'modePaiements', 'statuts', 'defaultReference'));
+        return view('paiements.create', compact('tickets', 'users', 'assurances', 'modePaiements', 'statuts', 'defaultReference', 'selectedTicket', 'selectedTicketId'));
     }
 
     /**

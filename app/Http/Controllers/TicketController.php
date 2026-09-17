@@ -84,7 +84,6 @@ class TicketController extends Controller
         $services = Service::where('statut', true)->orderBy('nom')->get();
         $medecins = Medecin::where('statut', true)->orderBy('nom')->get();
         $modesPaiement = ModePaiement::where('statut', true)->get();
-        $tarifs = Tarif::with('service')->where('statut', true)->get();
         $actes = Acte::with('service')->where('statut', true)->orderBy('nom')->get();
 
         $selectedPatient = null;
@@ -108,7 +107,7 @@ class TicketController extends Controller
 
         $defaultReference = $this->ticketService->genererReferenceTicket();
 
-        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'selectedActe', 'modesPaiement', 'tarifs', 'actes'));
+        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'selectedActe', 'modesPaiement', 'actes'));
     }
 
     /**

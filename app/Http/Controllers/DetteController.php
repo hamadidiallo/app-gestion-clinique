@@ -72,11 +72,11 @@ class DetteController extends Controller
     }
 
     /**
-     * Affiche les détails d'une dette.
+     * Affiche les détails complets d'une dette et son historique de recouvrement.
      */
     public function show(Dette $dette)
     {
-        $dette->load(['ticket', 'patient', 'user']);
+        $dette->load(['ticket.details', 'ticket.paiements.modePaiement', 'patient', 'user']);
 
         return view('dettes.show', compact('dette'));
     }

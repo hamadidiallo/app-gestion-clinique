@@ -32,6 +32,12 @@ function getTestAdminUser(): User
     );
 }
 
+test('ticket create page loads successfully', function () {
+    $user = getTestAdminUser();
+    $response = $this->actingAs($user)->get(route('tickets.create'));
+    $response->assertStatus(200);
+});
+
 test('can create a ticket with multi-items (acte, medicament, hospitalisation)', function () {
     $user = getTestAdminUser();
     $assurance = Assurance::firstOrCreate(

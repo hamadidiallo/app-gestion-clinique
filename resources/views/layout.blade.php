@@ -542,10 +542,6 @@
                         <i data-lucide="plus" class="lucide-sm"></i>
                         <span>Nouveau Ticket</span>
                     </a>
-                    <a href="{{ route('paiements.create') }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
-                        <i data-lucide="credit-card" class="lucide-sm"></i>
-                        <span>Nouveau Paiement</span>
-                    </a>
                     <a href="{{ route('patient.create') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
                         <i data-lucide="user-plus" class="lucide-sm"></i>
                         <span>Nouveau Patient</span>

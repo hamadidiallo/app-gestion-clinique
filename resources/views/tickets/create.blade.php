@@ -52,8 +52,8 @@
                     $initAssuranceId = $selectedPatient->assurance_id ?? ($initCarte ? $initCarte->assurance_id : '');
                     $initTaux = $selectedPatient->taux_couverture ?? ($initCarte ? (float)$initCarte->taux_couverture : 0);
 
-                    $initActeDesignation = isset($selectedActe) ? $selectedActe->nom : 'Consultation Médicale Générale';
-                    $initActePrix = isset($selectedActe) ? (int)$selectedActe->tarif_normal : 5000;
+                    $initActeDesignation = isset($selectedActe) ? $selectedActe->nom : '';
+                    $initActePrix = isset($selectedActe) ? (int)$selectedActe->tarif_normal : 0;
                     $initServiceId = isset($selectedActe) ? $selectedActe->service_id : old('service_id');
                 @endphp
                 <div class="col-lg-5 position-relative">
@@ -230,7 +230,7 @@
                         
                         <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                             <span class="text-muted">Total Brut des Prestations :</span>
-                            <span class="font-mono fs-5 mb-0 fw-bold text-dark" id="display_total_brut">5 000 FCFA</span>
+                            <span class="font-mono fs-5 mb-0 fw-bold text-dark" id="display_total_brut">{{ number_format($initActePrix, 0, ',', ' ') }} FCFA</span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom text-success">
@@ -240,13 +240,13 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-3 pt-1">
                             <span class="h6 mb-0 fw-bold text-dark">Net à Payer par le Patient :</span>
-                            <span class="font-mono fs-4 mb-0 fw-bold" style="color: var(--primary-color);" id="display_net_patient">5 000 FCFA</span>
+                            <span class="font-mono fs-4 mb-0 fw-bold" style="color: var(--primary-color);" id="display_net_patient">{{ number_format($initActePrix, 0, ',', ' ') }} FCFA</span>
                         </div>
 
                         {{-- Champs cachés transmis au serveur --}}
-                        <input type="hidden" name="montant_total" id="montant_total" value="5000">
+                        <input type="hidden" name="montant_total" id="montant_total" value="{{ $initActePrix }}">
                         <input type="hidden" name="montant_assurance" id="montant_assurance" value="0">
-                        <input type="hidden" name="montant_patient" id="montant_patient" value="5000">
+                        <input type="hidden" name="montant_patient" id="montant_patient" value="{{ $initActePrix }}">
 
                         <div class="mt-auto">
                             <label for="description" class="form-label small fw-bold text-muted mb-1">Motif / Observations complémentaires</label>
@@ -295,7 +295,7 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1" id="row_reste_payer">
                                 <span class="small text-danger fw-semibold">Reste à payer (Dette) :</span>
-                                <strong class="font-mono text-danger" id="display_reste_payer">5 000 FCFA</strong>
+                                <strong class="font-mono text-danger" id="display_reste_payer">{{ number_format($initActePrix, 0, ',', ' ') }} FCFA</strong>
                             </div>
                             <div class="d-flex justify-content-between align-items-center text-success d-none" id="row_monnaie_rendue">
                                 <span class="small fw-semibold">Monnaie à rendre :</span>
@@ -492,10 +492,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Attacher les événements sur les lignes existantes
     tableBody.querySelectorAll('.item-row').forEach(row => attachRowEvents(row));
 
-    // Boutons d'ajout de ligne
-    document.getElementById('btn_add_acte').addEventListener('click', () => ajouterLigne('acte', 'Soin / Consultation', 5000));
-    document.getElementById('btn_add_medicament').addEventListener('click', () => ajouterLigne('medicament', 'Médicament', 1500));
-    document.getElementById('btn_add_hospitalisation').addEventListener('click', () => ajouterLigne('hospitalisation', 'Hospitalisation (1 Jour)', 15000));
+    // Bouton d'ajout de ligne
+    const btnAddRow = document.getElementById('btn_add_row');
+    if (btnAddRow) {
+        btnAddRow.addEventListener('click', () => ajouterLigne('acte', '', 0));
+    }
 
     // Boutons d'ajout rapide
     document.querySelectorAll('.quick-add').forEach(btn => {

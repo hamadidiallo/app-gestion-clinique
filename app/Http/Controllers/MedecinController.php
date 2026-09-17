@@ -59,13 +59,29 @@ class MedecinController extends Controller
     }
 
     /**
-     * Affiche les détails spécifiques d'un médecin donné.
+     * Affiche les détails spécifiques d'un médecin donné avec statistiques et historique.
      */
     public function show(Medecin $medecin)
     {
-        $medecin->load(['prestations', 'remunerations']);
+        $medecin->load([
+            'prestations' => function ($q) {
+                $q->with(['patient', 'acte', 'service'])->latest('date_prestation');
+            },
+            'remunerations' => function ($q) {
+                $q->latest('created_at');
+            },
+            'consultations' => function ($q) {
+                $q->with('patient')->latest('date_consultation');
+            },
+        ]);
 
-        return view('medecins.show', compact('medecin'));
+        $totalActes = $medecin->prestations->count();
+        $totalChiffreAffaires = (float) $medecin->prestations->sum('montant');
+        $totalPartMedecin = (float) $medecin->prestations->sum('part_medecin');
+        $totalPaye = (float) $medecin->remunerations->where('statut', 'paye')->sum('montant_medecin');
+        $soldeDu = max(0, $totalPartMedecin - $totalPaye);
+
+        return view('medecins.show', compact('medecin', 'totalActes', 'totalChiffreAffaires', 'totalPartMedecin', 'totalPaye', 'soldeDu'));
     }
 
     /**
