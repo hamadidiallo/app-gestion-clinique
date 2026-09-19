@@ -150,7 +150,7 @@
                     <tbody>
                         @forelse($remunerations as $remun)
                             <tr>
-                                <td class="ps-3 font-mono text-muted small">#{{ $remun->id }}</td>
+                                <td class="ps-3 font-mono fw-semibold text-dark small">{{ $remun->reference ?? ('#'.$remun->id) }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="bg-teal-subtle text-teal rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 13px;">

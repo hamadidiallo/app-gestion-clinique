@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assurance extends Model
 {
+    use BelongsToClinique;
+
     /**
      * Les attributs qui sont assignables en masse.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'clinique_id',
         'nom',
         'code',
         'taux_par_defaut',
@@ -58,5 +62,23 @@ class Assurance extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * Utiliser le code assurance dans les URLs au lieu de l'ID numérique.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
+
+    /**
+     * Résolution de liaison de modèle par code avec fallback sur l'ID numérique.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('code', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }

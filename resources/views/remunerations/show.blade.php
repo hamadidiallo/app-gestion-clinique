@@ -12,7 +12,7 @@
                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Retour au registre des paies
                 </a>
                 <span class="text-muted small">|</span>
-                <span class="badge bg-light text-dark border small font-mono">Fiche #{{ $remuneration->id }}</span>
+                <span class="badge bg-light text-dark border small font-mono">{{ $remuneration->reference }}</span>
             </div>
             <h1 class="h3 font-weight-bold text-dark mb-1 d-flex align-items-center gap-2">
                 <i data-lucide="file-check-2" class="text-teal"></i>
@@ -229,7 +229,7 @@
                 </div>
                 <div class="col-md-4">
                     <span class="text-muted small d-block">Identifiant fiche</span>
-                    <span class="font-mono text-muted small">REC-REM-{{ str_pad($remuneration->id, 5, '0', STR_PAD_LEFT) }}</span>
+                    <span class="font-mono text-muted small">{{ $remuneration->reference }}</span>
                 </div>
                 @if($remuneration->description)
                     <div class="col-12 mt-2 pt-2 border-top">

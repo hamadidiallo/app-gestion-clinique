@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #eef1f4; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1e2a32; -webkit-font-smoothing: antialiased; }
+  a { color: #0f766e; text-decoration: none; }
+  a:hover { color: #0b5a54; text-decoration: underline; }
+  ::selection { background: #cfeae6; }
+  input::placeholder { color: #93a1ab; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); background: #eef1f4;">
+
+  <!-- PANNEAU MARQUE -->
+  <div style="background: #0c2b2a; color: #cfe0dc; padding: 44px 48px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; border-radius: 12px; background: #58c0a8; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#06221f" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0; line-height: 1.2;">
+        <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Sabati</div>
+        <div style="font-size: 11.5px; color: #7fa39d;">Gestion de clinique</div>
+      </div>
+    </div>
+
+    <div style="max-width: 400px;">
+      <h1 style="margin: 0 0 18px; font-size: 30px; font-weight: 700; line-height: 1.25; color: #ffffff; letter-spacing: -0.01em; text-wrap: pretty;">La caisse, les dossiers et l'assurance dans un seul outil.</h1>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #a8c6c1; text-wrap: pretty;">Suivi des prestations, encaissement multi-guichets, rapprochement de caisse et bordereaux AMO / INPS. Conçu pour les policliniques d'Afrique de l'Ouest.</p>
+      <div style="display: flex; flex-direction: column; gap: 13px; margin-top: 26px;">
+        <sc-for list="{{ atouts }}" as="a" hint-placeholder-count="3">
+          <span style="display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: #cfe0dc;">
+            <span style="width: 24px; height: 24px; border-radius: 7px; background: #123b39; color: #58c0a8; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            </span>
+            {{ a.texte }}
+          </span>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="font-size: 12px; color: #6c8f89;">© 2026 Sabati · Bamako, Mali · Franc CFA</div>
+  </div>
+
+  <!-- PANNEAU FORMULAIRE -->
+  <div style="display: flex; flex-direction: column; padding: 30px 40px; min-width: 0; overflow: auto;">
+
+    <div style="display: flex; flex-wrap: wrap; gap: 6px; align-self: flex-end; padding: 4px; border-radius: 12px; background: #ffffff; border: 1px solid #e3e8ee;">
+      <sc-for list="{{ onglets }}" as="o" hint-placeholder-count="3">
+        <button onClick="{{ o.select }}" style="{{ o.style }}">{{ o.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 0;">
+      <div style="width: 100%; max-width: 396px;">
+
+        <!-- CONNEXION -->
+        <sc-if value="{{ estConnexion }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <h2 style="margin: 0 0 7px; font-size: 24px; font-weight: 700; letter-spacing: -0.01em;">Connexion</h2>
+            <p style="margin: 0 0 26px; font-size: 13.5px; color: #6b7a85;">Accédez à votre espace clinique.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Identifiant ou e-mail</span>
+                <input placeholder="s.konate ou nom@clinique.ml" style="{{ inputStyle }}" />
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; color: #4a5a57;">Mot de passe <a href="#" style="font-size: 12px; font-weight: 500;">Oublié ?</a></span>
+                <span style="position: relative; display: flex; align-items: center;">
+                  <input type="password" placeholder="••••••••" style="{{ inputStyle }}" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93a1ab" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: 13px;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7zM12 15a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                </span>
+              </label>
+
+              <label style="display: flex; align-items: center; gap: 9px; font-size: 13px; color: #4a5a57; cursor: pointer;">
+                <span style="width: 18px; height: 18px; border-radius: 5px; border: 1px solid #0f766e; background: #0f766e; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                </span>
+                Rester connecté sur ce poste
+              </label>
+
+              <button style="{{ primaireStyle }}">Se connecter</button>
+            </div>
+
+            <div style="margin-top: 22px; padding: 14px 16px; border-radius: 11px; background: #ffffff; border: 1px solid #e3e8ee; display: flex; align-items: center; gap: 12px;">
+              <span style="width: 34px; height: 34px; border-radius: 9px; background: #e2f1ef; color: #0f766e; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </span>
+              <span style="font-size: 12.5px; color: #6b7a85; line-height: 1.5; text-wrap: pretty;">Vos accès dépendent de votre rôle : caisse, médecin, accueil ou administration.</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- CRÉER UNE CLINIQUE -->
+        <sc-if value="{{ estClinique }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h2 style="margin: 0 0 7px; font-size: 24px; font-weight: 700; letter-spacing: -0.01em;">Créer une clinique</h2>
+            <p style="margin: 0 0 22px; font-size: 13.5px; color: #6b7a85; text-wrap: pretty;">Vous ouvrez un nouvel établissement. Vous en serez l'administrateur.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Nom de la clinique</span>
+                <input placeholder="Policlinique Sabati" style="{{ inputStyle }}" />
+              </label>
+              <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <label style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Ville</span>
+                  <input placeholder="Bamako" style="{{ inputStyle }}" />
+                </label>
+                <label style="flex: 1 1 130px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Téléphone</span>
+                  <input placeholder="20 XX XX XX" style="{{ inputStyle }}" />
+                </label>
+              </div>
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Type d'établissement</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <sc-for list="{{ types }}" as="t" hint-placeholder-count="3">
+                    <button onClick="{{ t.select }}" style="{{ t.style }}">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+              </label>
+
+              <div style="height: 1px; background: #e3e8ee; margin: 4px 0;"></div>
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #93a1ab;">Compte administrateur</span>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <label style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Nom complet</span>
+                  <input placeholder="Aminata Traoré" style="{{ inputStyle }}" />
+                </label>
+                <label style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">E-mail</span>
+                  <input placeholder="admin@clinique.ml" style="{{ inputStyle }}" />
+                </label>
+              </div>
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Mot de passe</span>
+                <input type="password" placeholder="8 caractères minimum" style="{{ inputStyle }}" />
+              </label>
+
+              <button style="{{ primaireStyle }}">Créer la clinique</button>
+              <p style="margin: 0; font-size: 11.5px; color: #6b7a85; line-height: 1.5; text-align: center; text-wrap: pretty;">En continuant, vous acceptez les conditions d'utilisation de Sabati.</p>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- REJOINDRE AVEC CODE -->
+        <sc-if value="{{ estRejoindre }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h2 style="margin: 0 0 7px; font-size: 24px; font-weight: 700; letter-spacing: -0.01em;">Rejoindre une clinique</h2>
+            <p style="margin: 0 0 22px; font-size: 13.5px; color: #6b7a85; text-wrap: pretty;">Saisissez le code d'invitation partagé par votre clinique.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Code d'invitation</span>
+              <div style="display: flex; gap: 8px;">
+                <sc-for list="{{ codeCases }}" as="c" hint-placeholder-count="6">
+                  <input value="{{ c.val }}" onChange="{{ c.onChange }}" maxlength="1" style="{{ c.style }}" />
+                </sc-for>
+              </div>
+              <span style="{{ codeNoteStyle }}">{{ codeNote }}</span>
+            </div>
+
+            <sc-if value="{{ codeValide }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 11px; background: #e3f3ee; border: 1px solid #cfe6e2; margin-bottom: 18px;">
+                <span style="width: 38px; height: 38px; border-radius: 10px; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">PS</span>
+                <span style="min-width: 0;">
+                  <span style="display: block; font-size: 13.5px; font-weight: 700; color: #0f6b5f;">Policlinique Sabati</span>
+                  <span style="display: block; font-size: 12px; color: #4a5a57; margin-top: 2px;">Bamako · rôle proposé : Caisse</span>
+                </span>
+              </div>
+            </sc-if>
+
+            <div style="{{ formRejoindreStyle }}">
+              <div style="height: 1px; background: #e3e8ee; margin: 2px 0 14px;"></div>
+              <div style="display: flex; flex-direction: column; gap: 15px;">
+                <label style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Nom complet</span>
+                  <input placeholder="Salimata Konaté" style="{{ inputStyle }}" />
+                </label>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                  <label style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                    <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Téléphone</span>
+                    <input placeholder="76 XX XX XX" style="{{ inputStyle }}" />
+                  </label>
+                  <label style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                    <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Identifiant</span>
+                    <input placeholder="s.konate" style="{{ inputStyle }}" />
+                  </label>
+                </div>
+                <label style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 12px; font-weight: 600; color: #4a5a57;">Mot de passe</span>
+                  <input type="password" placeholder="8 caractères minimum" style="{{ inputStyle }}" />
+                </label>
+                <button style="{{ primaireStyle }}">Rejoindre la clinique</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:760}}">
+class Component extends DCLogic {
+  state = { vue: "Connexion", type: "Policlinique", code: ["S", "B", "T", "2", "6", ""] };
+
+  renderVals() {
+    const accent = "#0f766e", soft = "#e2f1ef", muted = "#6b7a85";
+
+    const inputStyle = "width:100%;padding:11px 13px;border:1px solid #e0e6eb;border-radius:10px;background:#ffffff;font-family:inherit;font-size:14px;color:#1e2a32;outline:none;";
+    const primaireStyle = "width:100%;margin-top:6px;padding:13px;border-radius:11px;border:none;background:" + accent + ";color:#ffffff;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;";
+
+    const tabs = [
+      { key: "Connexion", label: "Connexion" },
+      { key: "Clinique", label: "Nouvelle clinique" },
+      { key: "Rejoindre", label: "Code d'invitation" }
+    ];
+    const onglets = tabs.map(t => {
+      const active = t.key === this.state.vue;
+      return {
+        label: t.label,
+        select: () => this.setState({ vue: t.key }),
+        style: "padding:9px 15px;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" +
+          (active ? "background:" + accent + ";color:#fff;" : "background:transparent;color:" + muted + ";")
+      };
+    });
+
+    const types = ["Policlinique", "Cabinet", "Centre de santé"].map(label => {
+      const active = label === this.state.type;
+      return {
+        label,
+        select: () => this.setState({ type: label }),
+        style: "padding:9px 14px;border-radius:999px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;" +
+          (active ? "border:1px solid " + accent + ";background:" + accent + ";color:#fff;" : "border:1px solid #e0e6eb;background:#fff;color:" + muted + ";")
+      };
+    });
+
+    const codeCases = this.state.code.map((val, i) => ({
+      val,
+      onChange: e => this.setState(s => {
+        const c = [...s.code];
+        c[i] = (e.target.value || "").slice(-1).toUpperCase();
+        return { code: c };
+      }),
+      style: "width:100%;flex:1 1 0;min-width:0;aspect-ratio:1;padding:0;text-align:center;border:1px solid " +
+        (val ? accent : "#e0e6eb") + ";border-radius:10px;background:" + (val ? soft : "#fff") +
+        ";font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:#1e2a32;outline:none;text-transform:uppercase;"
+    }));
+
+    const rempli = this.state.code.filter(c => c).length;
+    const codeValide = rempli === 6;
+
+    return {
+      inputStyle, primaireStyle, onglets, types, codeCases,
+      estConnexion: this.state.vue === "Connexion",
+      estClinique: this.state.vue === "Clinique",
+      estRejoindre: this.state.vue === "Rejoindre",
+      atouts: [
+        { texte: "Encaissement espèces, mobile money et crédit" },
+        { texte: "Rapprochement et Z de caisse par guichet" },
+        { texte: "Bordereaux de remboursement AMO / INPS" }
+      ],
+      codeValide,
+      codeNote: codeValide ? "Clinique reconnue." : "6 caractères — ex. SBT-26.",
+      codeNoteStyle: "font-size:12px;color:" + (codeValide ? "#0f6b5f" : muted) + ";",
+      formRejoindreStyle: codeValide ? "display:block;" : "display:none;"
+    };
+  }
+}
+</script>
+</body>
+</html>

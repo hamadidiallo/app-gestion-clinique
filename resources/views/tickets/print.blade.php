@@ -132,9 +132,13 @@
     <div class="ticket-receipt">
         {{-- En-tête de la Clinique --}}
         <div class="ticket-header">
-            <h2>CLINIQUE GAHAMBANI</h2>
-            <small>CLINGEST - Gestion Médicale</small><br>
-            <small>Mali - Kati</small>
+            @if(!empty($ticket->clinique->logo))
+                <div class="mb-1 text-center">
+                    <img src="{{ asset('storage/' . $ticket->clinique->logo) }}" alt="Logo" style="max-height: 40px; max-width: 140px; object-fit: contain; filter: grayscale(100%);">
+                </div>
+            @endif
+            <h2>{{ strtoupper($ticket->clinique->nom ?? 'CLINIQUE GAHAMBANI') }}</h2>
+            <small>{{ $ticket->clinique->ville ?? 'Mali' }} · {{ $ticket->clinique->telephone ?? '' }}</small>
         </div>
 
         @php

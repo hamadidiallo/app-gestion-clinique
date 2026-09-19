@@ -92,7 +92,7 @@ class PaiementController extends Controller
         try {
             $paiement = $this->paiementService->enregistrerPaiement($validated);
 
-            return to_route('paiements.index')->with('alert', 'Règlement #'.$paiement->id.' enregistré avec succès. Recette, mouvement de caisse et solde du ticket mis à jour automatiquement.');
+            return to_route('paiements.show', $paiement)->with('alert', 'Règlement #'.$paiement->reference.' enregistré avec succès. Vous pouvez imprimer le reçu ci-dessous.');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['montant_recu' => $e->getMessage()]);
         }
@@ -103,9 +103,19 @@ class PaiementController extends Controller
      */
     public function show(Paiement $paiement)
     {
-        $paiement->load(['ticket.patient', 'user', 'assurance', 'modePaiement', 'recette']);
+        $paiement->load(['ticket.patient', 'ticket.details', 'user', 'assurance', 'modePaiement', 'recette']);
 
         return view('paiements.show', compact('paiement'));
+    }
+
+    /**
+     * Génère la vue imprimable du reçu de caisse (Ticket thermique 80mm).
+     */
+    public function print(Paiement $paiement)
+    {
+        $paiement->load(['ticket.patient', 'ticket.details', 'user', 'assurance', 'modePaiement']);
+
+        return view('paiements.print', compact('paiement'));
     }
 
     /**

@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Dette extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
+        'reference',
         'ticket_id',
         'patient_id',
         'user_id',
@@ -19,6 +24,19 @@ class Dette extends Model
         'date_reglement',
         'description',
     ];
+
+    /**
+     * Auto-génération de la référence unique de dette à la création
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Dette $dette) {
+            if (empty($dette->reference)) {
+                $maxId = (int) (static::max('id') ?? 0);
+                $dette->reference = 'DET-'.str_pad((string) ($maxId + 1), 5, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 
     protected $casts = [
         'montant_initial' => 'decimal:2',
@@ -44,5 +62,23 @@ class Dette extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Utiliser la référence de dette (ex: DET-00001) dans les URLs.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }

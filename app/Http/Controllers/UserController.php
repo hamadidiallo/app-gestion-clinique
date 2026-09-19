@@ -13,11 +13,35 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Récupère les utilisateurs avec leur rôle associé (chargement anxieux pour optimiser les requêtes SQL)
-        $users = User::with('role')->latest()->get();
+        $roleId = request('role_id');
+        $search = request('search');
 
-        // Retourne la vue de liste des utilisateurs
-        return view('users.index', compact('users'));
+        $query = User::with('role')->latest();
+
+        if ($roleId) {
+            $query->where('role_id', $roleId);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                    ->orWhere('prenom', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->get();
+        $roles = Role::withCount('users')->orderBy('nom')->get();
+
+        $stats = [
+            'total' => User::count(),
+            'admins' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Admin%'))->count(),
+            'medecins' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Medecin%')->orWhere('nom', 'like', '%Médecin%'))->count(),
+            'caisse_accueil' => User::whereHas('role', fn ($q) => $q->whereIn('nom', ['Caissier', 'Réceptionniste', 'Receptionniste']))->count(),
+            'comptables' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Comptable%'))->count(),
+        ];
+
+        return view('users.index', compact('users', 'roles', 'stats', 'roleId', 'search'));
     }
 
     /**
@@ -26,7 +50,7 @@ class UserController extends Controller
     public function create()
     {
         // Récupère tous les rôles sous forme de tableau associatif [id => nom] pour remplir le select
-        $roles = Role::pluck('nom', 'id');
+        $roles = Role::pluck('nom', 'id')->toArray();
 
         // Retourne la vue de création en lui passant la liste des rôles
         return view('users.create', compact('roles'));
@@ -65,7 +89,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         // Récupère la liste des rôles pour la liste déroulante
-        $roles = Role::pluck('nom', 'id');
+        $roles = Role::pluck('nom', 'id')->toArray();
 
         // Retourne la vue d'édition pré-remplie avec l'utilisateur et les rôles
         return view('users.edit', compact('user', 'roles'));

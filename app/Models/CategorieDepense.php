@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CategorieDepense extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
         'nom',
         'code',
         'description',

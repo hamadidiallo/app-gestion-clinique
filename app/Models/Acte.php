@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,9 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Acte extends Model
 {
-    use HasFactory;
+    use BelongsToClinique, HasFactory;
 
     protected $fillable = [
+        'clinique_id',
         'service_id',
         'code',
         'nom',
@@ -59,5 +61,23 @@ class Acte extends Model
             'maternite' => 'Maternité / Accouchement',
             default => ucfirst($this->categorie),
         };
+    }
+
+    /**
+     * Utiliser le code de l'acte dans les URLs.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
+
+    /**
+     * Résolution de liaison de modèle par code avec fallback sur l'ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('code', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }

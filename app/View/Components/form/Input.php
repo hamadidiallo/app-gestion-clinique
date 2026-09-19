@@ -4,6 +4,7 @@ namespace App\View\Components\form;
 
 use Closure;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 
 class Input extends Component
@@ -20,7 +21,7 @@ class Input extends Component
         public ?string $icon = null,
         public ?string $prefix = null,
         public ?string $suffix = null,
-        public array $options = [],
+        public array|Collection $options = [],
         public bool $required = false,
         public bool $readonly = false,
         public bool $disabled = false,
@@ -32,7 +33,9 @@ class Input extends Component
         public ?string $id = null,
         public string $containerClass = 'mb-3',
     ) {
-        //
+        if ($this->options instanceof Collection) {
+            $this->options = $this->options->toArray();
+        }
     }
 
     /**

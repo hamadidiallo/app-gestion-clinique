@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Ticket extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
         'patient_id',
         'assurance_id',
         'service_id',
@@ -73,6 +77,11 @@ class Ticket extends Model
         return $this->hasMany(TicketDetail::class);
     }
 
+    public function ticketDetails(): HasMany
+    {
+        return $this->hasMany(TicketDetail::class);
+    }
+
     // RELATION Ticket ---> Paiement
     public function paiements(): HasMany
     {
@@ -113,5 +122,23 @@ class Ticket extends Model
     public function hospitalisations(): HasMany
     {
         return $this->hasMany(TicketDetail::class)->where('type_item', 'hospitalisation');
+    }
+
+    /**
+     * Utiliser la référence métier dans les URLs au lieu de l'ID numérique.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }

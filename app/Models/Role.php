@@ -14,4 +14,14 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Résolution de liaison de modèle par nom ou par ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('nom', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
+    }
 }

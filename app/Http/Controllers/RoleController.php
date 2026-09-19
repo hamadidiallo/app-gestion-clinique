@@ -4,19 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
 use App\Models\Role;
+use App\Models\User;
 
 class RoleController extends Controller
 {
     /**
-     * Affiche la liste des rôles enregistrés.
+     * Affiche la liste des rôles enregistrés et leurs métriques.
      */
     public function index()
     {
-        // Récupère tous les rôles en les triant du plus récent au plus ancien
-        $roles = Role::latest()->get();
+        // Récupère tous les rôles avec le nombre d'utilisateurs affectés
+        $roles = Role::withCount('users')->orderBy('id')->get();
+        $totalRoles = $roles->count();
+        $totalUsers = User::count();
+        $protectedRoles = ['Administrateur', 'Médecin', 'Caissier', 'Comptable', 'Réceptionniste'];
 
-        // Transmet la liste des rôles à la vue roles.index
-        return view('roles.index', compact('roles'));
+        // Transmet la liste des rôles et les métriques à la vue roles.index
+        return view('roles.index', compact('roles', 'totalRoles', 'totalUsers', 'protectedRoles'));
     }
 
     /**

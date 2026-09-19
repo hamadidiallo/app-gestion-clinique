@@ -14,17 +14,51 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminRole = Role::where('nom', 'Administrateur')->first();
+        $roles = Role::all()->keyBy('nom');
 
-        if ($adminRole) {
+        $users = [
+            [
+                'nom' => 'Admin',
+                'prenom' => 'Principal',
+                'email' => 'admin@clinique.local',
+                'role' => 'Administrateur',
+            ],
+            [
+                'nom' => 'Diallo',
+                'prenom' => 'Dr Alpha',
+                'email' => 'medecin@clinique.local',
+                'role' => 'Médecin',
+            ],
+            [
+                'nom' => 'Traoré',
+                'prenom' => 'Fatou',
+                'email' => 'caissier@clinique.local',
+                'role' => 'Caissier',
+            ],
+            [
+                'nom' => 'Coulibaly',
+                'prenom' => 'Awa',
+                'email' => 'reception@clinique.local',
+                'role' => 'Réceptionniste',
+            ],
+            [
+                'nom' => 'Keita',
+                'prenom' => 'Moussa',
+                'email' => 'comptable@clinique.local',
+                'role' => 'Comptable',
+            ],
+        ];
+
+        foreach ($users as $userData) {
+            $roleModel = $roles->get($userData['role']);
+
             User::updateOrCreate(
-                ['email' => 'admin@clinique.local'],
+                ['email' => $userData['email']],
                 [
-                    'nom' => 'Admin',
-                    'prenom' => 'Principal',
-                    'email' => 'admin@clinique.local',
+                    'nom' => $userData['nom'],
+                    'prenom' => $userData['prenom'],
                     'password' => Hash::make('password'),
-                    'role_id' => $adminRole->id,
+                    'role_id' => $roleModel?->id,
                 ]
             );
         }

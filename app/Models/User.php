@@ -21,6 +21,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'clinique_id',
         'prenom',
         'nom',
         'email',
@@ -61,11 +62,72 @@ class User extends Authenticatable
     }
 
     /**
+     * Relation vers la clinique de rattachement de l'utilisateur.
+     */
+    public function clinique(): BelongsTo
+    {
+        return $this->belongsTo(Clinique::class);
+    }
+
+    /**
      * Relation de bidirectionnalité : un utilisateur appartient à un rôle.
      */
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Vérifie si l'utilisateur possède l'un des rôles spécifiés.
+     *
+     * @param  string|array<string>  $roles
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        if (! $this->role) {
+            return false;
+        }
+
+        $userRole = mb_strtolower(trim($this->role->nom));
+        $normalizedUserRole = str_replace(['é', 'è', 'ê'], 'e', $userRole);
+
+        $rolesList = is_array($roles) ? $roles : explode(',', $roles);
+
+        foreach ($rolesList as $role) {
+            $check = mb_strtolower(trim($role));
+            $normalizedCheck = str_replace(['é', 'è', 'ê'], 'e', $check);
+
+            if ($userRole === $check || $normalizedUserRole === $normalizedCheck) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(['Administrateur', 'Admin']);
+    }
+
+    public function isMedecin(): bool
+    {
+        return $this->hasRole(['Médecin', 'Medecin']);
+    }
+
+    public function isCaissier(): bool
+    {
+        return $this->hasRole('Caissier');
+    }
+
+    public function isReceptionniste(): bool
+    {
+        return $this->hasRole(['Réceptionniste', 'Receptionniste']);
+    }
+
+    public function isComptable(): bool
+    {
+        return $this->hasRole('Comptable');
     }
 
     // Relation USER ---> Tickets

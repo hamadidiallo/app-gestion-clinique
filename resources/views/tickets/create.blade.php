@@ -200,7 +200,7 @@
                 {{-- Datalist pour autocomplétion intelligente des actes du catalogue --}}
                 <datalist id="actes_datalist">
                     @foreach($actes as $a)
-                        <option value="{{ $a->nom }}" data-prix="{{ (int)$a->tarif_normal }}" data-prix-amo="{{ (int)($a->tarif_amo ?? $a->tarif_normal) }}" data-code="{{ $a->code }}">
+                        <option value="{{ $a->nom }}" data-prix="{{ (int)$a->tarif_normal }}" data-prix-amo="{{ (int)($a->tarif_amo ?? $a->tarif_normal) }}" data-code="{{ $a->code }}" data-service-id="{{ $a->service_id }}">
                             [{{ $a->code }}] {{ $a->nom }} ({{ number_format($a->tarif_normal, 0, ',', ' ') }} FCFA)
                         </option>
                     @endforeach
@@ -460,22 +460,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputPu = row.querySelector('.item-pu');
 
         if (inputDesignation && inputPu) {
-            inputDesignation.addEventListener('input', function() {
-                const val = this.value.trim();
+            function updateFromDatalist(input) {
+                const val = input.value.trim();
                 const option = document.querySelector(`#actes_datalist option[value="${CSS.escape(val)}"]`);
-                if (option && option.dataset.prix) {
-                    inputPu.value = option.dataset.prix;
-                    recalculerTotaux();
+                if (option) {
+                    if (option.dataset.prix) {
+                        inputPu.value = option.dataset.prix;
+                        recalculerTotaux();
+                    }
+                    const selectService = document.getElementById('service_id');
+                    if (selectService && !selectService.value && option.dataset.serviceId) {
+                        selectService.value = option.dataset.serviceId;
+                    }
                 }
-            });
-            inputDesignation.addEventListener('change', function() {
-                const val = this.value.trim();
-                const option = document.querySelector(`#actes_datalist option[value="${CSS.escape(val)}"]`);
-                if (option && option.dataset.prix) {
-                    inputPu.value = option.dataset.prix;
-                    recalculerTotaux();
-                }
-            });
+            }
+
+            inputDesignation.addEventListener('input', function() { updateFromDatalist(this); });
+            inputDesignation.addEventListener('change', function() { updateFromDatalist(this); });
         }
 
         const btnRemove = row.querySelector('.btn-remove-row');

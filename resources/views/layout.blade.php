@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'CLINGEST - Clinique Gahambani')</title>
+    <title>@yield('title', (auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom . ' - CLINGEST' : 'CLINGEST Santé'))</title>
 
     {{-- Google Fonts : IBM Plex Sans & IBM Plex Mono (de doc/Clinique.dc.html) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,12 +39,13 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
             background-color: var(--app-bg);
             color: var(--text-main);
-            min-height: 100vh;
-            margin: 0;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -65,17 +66,20 @@
         .lucide-sm { width: 0.95rem; height: 0.95rem; }
         .lucide-lg { width: 1.35rem; height: 1.35rem; }
 
-        /* Responsive Layout Grid */
+        /* Responsive Layout Grid - Full App Shell */
         .app-wrapper {
             display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
             background-color: var(--app-bg);
         }
 
         /* Sidebar Styling (Blanc médical, propre et épuré) */
         .app-sidebar {
             width: var(--sidebar-width);
+            height: 100vh;
+            max-height: 100vh;
             background-color: var(--sidebar-bg);
             color: var(--sidebar-text);
             border-right: 1px solid var(--sidebar-border);
@@ -83,14 +87,11 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
-            position: sticky;
-            top: 0;
-            height: 100vh;
             overflow: hidden;
         }
 
         .sidebar-brand {
-            padding: 1.25rem 1.15rem;
+            padding: 1.1rem 1.15rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -126,24 +127,34 @@
         }
 
         .sidebar-menu {
-            padding: 0.75rem 0.65rem;
+            padding: 0.5rem 0.65rem 2.25rem;
             overflow-y: auto;
-            flex-grow: 1;
+            overflow-x: hidden;
+            flex: 1 1 0%;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
         }
 
         .sidebar-menu::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
+        }
+        .sidebar-menu::-webkit-scrollbar-track {
+            background: #f8fafc;
         }
         .sidebar-menu::-webkit-scrollbar-thumb {
             background: #cbd5e1;
-            border-radius: 4px;
+            border-radius: 6px;
+        }
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .menu-header {
-            padding: 0.75rem 0.65rem 0.25rem;
-            font-size: 0.68rem;
+            padding: 0.65rem 0.65rem 0.2rem;
+            font-size: 0.66rem;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.06em;
             color: #94a3b8;
             font-weight: 700;
         }
@@ -151,19 +162,27 @@
         .nav-link-custom {
             display: flex;
             align-items: center;
-            gap: 0.7rem;
-            padding: 0.5rem 0.75rem;
+            gap: 0.65rem;
+            padding: 0.42rem 0.7rem;
             color: var(--sidebar-text);
             text-decoration: none;
-            font-size: 0.84rem;
+            font-size: 0.825rem;
             font-weight: 500;
-            border-radius: 9px;
+            border-radius: 8px;
             margin-bottom: 2px;
             transition: all 0.15s ease;
         }
 
+        .nav-link-custom [data-lucide],
+        .nav-link-custom svg {
+            width: 17px;
+            height: 17px;
+            stroke-width: 1.9;
+            flex-shrink: 0;
+        }
+
         .nav-link-custom:hover {
-            background-color: #f5f7f9;
+            background-color: #f1f5f9;
             color: var(--text-main);
         }
 
@@ -174,7 +193,7 @@
         }
 
         .sidebar-user-footer {
-            padding: 0.85rem 1rem;
+            padding: 0.75rem 0.85rem;
             border-top: 1px solid var(--sidebar-border);
             background-color: #ffffff;
             flex-shrink: 0;
@@ -183,32 +202,34 @@
         .sidebar-user-card {
             display: flex;
             align-items: center;
-            gap: 0.7rem;
-            padding: 0.65rem 0.75rem;
-            border-radius: 9px;
+            gap: 0.65rem;
+            padding: 0.5rem 0.65rem;
+            border-radius: 8px;
             background-color: var(--primary-soft);
         }
 
         .sidebar-user-card .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
             background-color: var(--primary-color);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             flex-shrink: 0;
         }
 
         /* Main Content Container */
         .app-main {
-            flex-grow: 1;
+            flex: 1 1 0%;
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Topbar Header */
@@ -219,14 +240,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
+            flex-shrink: 0;
             z-index: 90;
         }
 
         .app-content {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
             padding: 1.5rem 1.75rem;
-            flex-grow: 1;
         }
 
         /* Cards & Components Styling */
@@ -339,7 +362,9 @@
             .app-sidebar, .app-topbar, .no-print {
                 display: none !important;
             }
-            .app-wrapper, .app-main, .app-content {
+            html, body, .app-wrapper, .app-main, .app-content {
+                height: auto !important;
+                overflow: visible !important;
                 display: block !important;
                 padding: 0 !important;
                 margin: 0 !important;
@@ -356,26 +381,34 @@
         <aside class="app-sidebar no-print">
             {{-- En-tête de la Sidebar --}}
             <div class="sidebar-brand">
-                <div class="brand-icon">
-                    <i data-lucide="cross"></i>
-                </div>
+                @if(auth()->check() && auth()->user()->clinique && auth()->user()->clinique->logo)
+                    <div class="brand-icon p-1 bg-white border" style="width: 36px; height: 36px; border-radius: 9px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ asset('storage/' . auth()->user()->clinique->logo) }}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
+                @else
+                    <div class="brand-icon">
+                        <i data-lucide="cross"></i>
+                    </div>
+                @endif
                 <div class="min-w-0">
-                    <div class="brand-title">CLINGEST</div>
-                    <div class="brand-sub">Clinique Gahambani · Bamako</div>
+                    <div class="brand-title">{{ auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom : 'CLINGEST' }}</div>
+                    <div class="brand-sub">{{ auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->ville . ' · ' . auth()->user()->clinique->pays : 'Plateforme Médicale SaaS' }}</div>
                 </div>
             </div>
 
-            {{-- Bouton d'action rapide : Nouveau Ticket --}}
-            <div class="px-3 my-3">
-                <a href="{{ route('tickets.create') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm fw-bold">
+            {{-- Bouton d'action rapide : Nouveau Ticket (Réception, Caisse, Admin) --}}
+            @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Réceptionniste', 'Caissier']))
+            <div class="px-3 pt-2 pb-1 flex-shrink-0">
+                <a href="{{ route('tickets.create') }}" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm fw-bold" style="font-size: 0.82rem; border-radius: 8px;">
                     <i data-lucide="plus-circle" class="lucide-sm"></i>
                     <span>Nouveau Ticket</span>
                 </a>
             </div>
+            @endif
 
-            {{-- Navigation par modules avec Lucide Icons --}}
+            {{-- Navigation par modules avec Lucide Icons et Filtrage RBAC --}}
             <div class="sidebar-menu">
-                {{-- Dashboard --}}
+                {{-- Dashboard (Visible pour tous) --}}
                 <a href="{{ route('dashboard') }}" class="nav-link-custom {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Tableau de bord</span>
@@ -387,37 +420,39 @@
                     <i data-lucide="users"></i>
                     <span>Gestion Patients</span>
                 </a>
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Médecin', 'Réceptionniste']))
                 <a href="{{ route('consultations.index') }}" class="nav-link-custom {{ request()->routeIs('consultations.*') ? 'active' : '' }}">
                     <i data-lucide="activity"></i>
                     <span>Consultations & Constantes</span>
                 </a>
+                @endif
 
-                {{-- MODULE 2: CAISSE & FACTURATION --}}
+                {{-- MODULE 2: CAISSE & FACTURATION (Caissier, Comptable, Réceptionniste, Admin) --}}
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Caissier', 'Comptable', 'Réceptionniste']))
                 <div class="menu-header">Caisse & Facturation</div>
                 <a href="{{ route('tickets.index') }}" class="nav-link-custom {{ request()->routeIs('tickets.*', 'ticket.*') ? 'active' : '' }}">
                     <i data-lucide="receipt"></i>
                     <span>Tickets / Factures</span>
                 </a>
+                @if(auth()->user()->hasRole(['Administrateur', 'Caissier', 'Comptable']))
                 <a href="{{ route('paiements.index') }}" class="nav-link-custom {{ request()->routeIs('paiements.*', 'paiement.*') ? 'active' : '' }}">
                     <i data-lucide="credit-card"></i>
-                    <span>Gestion Paiements</span>
-                </a>
-                <a href="{{ route('modepaiements.index') }}" class="nav-link-custom {{ request()->routeIs('modepaiements.*', 'modepaiement.*') ? 'active' : '' }}">
-                    <i data-lucide="wallet"></i>
-                    <span>Modes de Paiement</span>
+                    <span>Journal des Encaissements</span>
                 </a>
                 <a href="{{ route('dettes.index') }}" class="nav-link-custom {{ request()->routeIs('dettes.*', 'dette.*') ? 'active' : '' }}">
                     <i data-lucide="alert-triangle"></i>
                     <span>Dettes & Impayés</span>
                 </a>
-                <a href="{{ route('caisses.index') }}" class="nav-link-custom {{ request()->routeIs('caisses.*', 'caisse.*') ? 'active' : '' }}">
+                <a href="{{ route('caisses.index') }}" class="nav-link-custom {{ request()->routeIs('caisses.*', 'caisse.*', 'mouvementcaisses.*') ? 'active' : '' }}">
                     <i data-lucide="banknote"></i>
-                    <span>Session de Caisse</span>
+                    <span>Caisse & Clôture Journalière</span>
                 </a>
-                <a href="{{ route('mouvementcaisses.index') }}" class="nav-link-custom {{ request()->routeIs('mouvementcaisses.*') ? 'active' : '' }}">
-                    <i data-lucide="arrow-left-right"></i>
-                    <span>Mouvements Espèces</span>
+                <a href="{{ route('modepaiements.index') }}" class="nav-link-custom {{ request()->routeIs('modepaiements.*', 'modepaiement.*') ? 'active' : '' }}">
+                    <i data-lucide="wallet"></i>
+                    <span>Modes de Paiement</span>
                 </a>
+                @endif
+                @endif
 
                 {{-- MODULE 3: SERVICES & SOINS MÉDICAUX --}}
                 <div class="menu-header">Soins & Corps Médical</div>
@@ -433,6 +468,7 @@
                     <i data-lucide="building-2"></i>
                     <span>Services Médicaux</span>
                 </a>
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Médecin', 'Comptable']))
                 <a href="{{ route('medecins.index') }}" class="nav-link-custom {{ request()->routeIs('medecins.*', 'medecin.*') ? 'active' : '' }}">
                     <i data-lucide="user-check"></i>
                     <span>Médecins Praticiens</span>
@@ -441,8 +477,10 @@
                     <i data-lucide="calculator"></i>
                     <span>Rémunérations & Paies</span>
                 </a>
+                @endif
 
-                {{-- MODULE 4: COMPTABILITÉ & FINANCES --}}
+                {{-- MODULE 4: COMPTABILITÉ & FINANCES (Comptable & Admin uniquement) --}}
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Comptable']))
                 <div class="menu-header">Comptabilité</div>
                 <a href="{{ route('recettes.index') }}" class="nav-link-custom {{ request()->routeIs('recettes.*') ? 'active' : '' }}">
                     <i data-lucide="trending-up"></i>
@@ -452,30 +490,40 @@
                     <i data-lucide="trending-down"></i>
                     <span>Dépenses & Charges</span>
                 </a>
+                @endif
 
                 {{-- MODULE 5: ASSURANCES & TIERS PAYANT --}}
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Comptable', 'Caissier', 'Réceptionniste']))
                 <div class="menu-header">Assurances</div>
                 <a href="{{ route('assurances.index') }}" class="nav-link-custom {{ request()->routeIs('assurances.*') ? 'active' : '' }}">
                     <i data-lucide="shield-check"></i>
                     <span>Organismes Assurance</span>
                 </a>
+                @if(auth()->user()->hasRole(['Administrateur', 'Comptable']))
                 <a href="{{ route('rapports.assurances') }}" class="nav-link-custom {{ request()->routeIs('rapports.assurances') ? 'active' : '' }}">
                     <i data-lucide="file-spreadsheet"></i>
                     <span>Relevé Tiers Payant</span>
                 </a>
+                @endif
+                @endif
 
                 {{-- MODULE 6: RAPPORTS & AUDIT --}}
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Comptable', 'Médecin']))
                 <div class="menu-header">Rapports & Audit</div>
                 <a href="{{ route('rapports.index') }}" class="nav-link-custom {{ request()->routeIs('rapports.index', 'rapports.medecins') ? 'active' : '' }}">
                     <i data-lucide="bar-chart-3"></i>
                     <span>Centre de Rapports</span>
                 </a>
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('journalactivites.index') }}" class="nav-link-custom {{ request()->routeIs('journalactivites.*') ? 'active' : '' }}">
                     <i data-lucide="history"></i>
                     <span>Journal d'Activité</span>
                 </a>
+                @endif
+                @endif
 
-                {{-- MODULE 7: ADMINISTRATION --}}
+                {{-- MODULE 7: ADMINISTRATION (Administrateur uniquement) --}}
+                @if(auth()->check() && auth()->user()->isAdmin())
                 <div class="menu-header">Administration</div>
                 <a href="{{ route('users.index') }}" class="nav-link-custom {{ request()->routeIs('users.*', 'user.*') ? 'active' : '' }}">
                     <i data-lucide="user-cog"></i>
@@ -485,11 +533,17 @@
                     <i data-lucide="key-round"></i>
                     <span>Rôles & Accès</span>
                 </a>
-                <a href="{{ route('employes.index') }}" class="nav-link-custom {{ request()->routeIs('employes.*') ? 'active' : '' }}">
-                    <i data-lucide="contact-2"></i>
-                    <span>Personnel / Employés</span>
+                <a href="{{ route('abonnement.index') }}" class="nav-link-custom {{ request()->routeIs('abonnement.*') ? 'active' : '' }}">
+                    <i data-lucide="sparkles"></i>
+                    <span>Abonnement & Licence</span>
                 </a>
+                <a href="{{ route('parametres.index') }}" class="nav-link-custom {{ request()->routeIs('parametres.*') ? 'active' : '' }}">
+                    <i data-lucide="settings"></i>
+                    <span>Paramètres Clinique</span>
+                </a>
+                @endif
             </div>
+
 
             {{-- Profil Utilisateur en bas de Sidebar (Style doc/Clinique.dc.html) --}}
             @auth
@@ -500,7 +554,12 @@
                     </div>
                     <div class="min-w-0" style="flex: 1;">
                         <div class="fw-bold text-truncate" style="font-size: 0.82rem;">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
-                        <div class="text-muted text-truncate" style="font-size: 0.7rem;">{{ auth()->user()->role->nom ?? 'Comptabilité / Caisse' }}</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.7rem;">
+                            {{ auth()->user()->role->nom ?? 'Personnel' }}
+                            @if(auth()->user()->clinique)
+                                · <strong class="text-teal font-mono">{{ auth()->user()->clinique->code }}</strong>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -519,7 +578,7 @@
                         <a href="{{ route('caisses.show', $topbarCaisse) }}" class="text-decoration-none">
                             <span class="badge badge-success-pill px-3 py-2 d-inline-flex align-items-center gap-2">
                                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #12a594; display: inline-block;"></span>
-                                <span>Caisse Ouverte : <strong class="font-mono fw-bold">{{ number_format($topbarCaisse->solde_actuel, 0, ',', ' ') }} FCFA</strong></span>
+                                <span>Caisse Ouverte : <strong class="font-mono fw-bold">{{ number_format($topbarCaisse->solde_actuel ?? 0, 0, ',', ' ') }} FCFA</strong></span>
                             </span>
                         </a>
                     @else
@@ -594,11 +653,15 @@
     <script src="{{ asset('js/patient-autocomplete.js') }}"></script>
     <script src="{{ asset('js/service-autocomplete.js') }}"></script>
 
-    {{-- Initialisation Globale des Icônes Lucide --}}
+    {{-- Initialisation Globale des Icônes Lucide et Maintien de l'élément Actif du Menu en vue --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (window.lucide) {
                 window.lucide.createIcons();
+            }
+            var activeNav = document.querySelector('.sidebar-menu .nav-link-custom.active');
+            if (activeNav) {
+                activeNav.scrollIntoView({ block: 'nearest', inline: 'nearest' });
             }
         });
     </script>

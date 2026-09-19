@@ -59,7 +59,7 @@
                         @php
                             $paiementOptions = [];
                             foreach($paiements as $paiement) {
-                                $paiementOptions[$paiement->id] = $paiement->reference . ' (' . number_format($paiement->montant_impute, 0, ',', ' ') . ' FBU)';
+                                $paiementOptions[$paiement->id] = $paiement->reference . ' (' . number_format($paiement->montant_impute, 0, ',', ' ') . ' FCFA)';
                             }
                         @endphp
                         <x-form.input 
@@ -78,7 +78,7 @@
                             name="montant" 
                             label="Montant Recette" 
                             icon="bi-currency-exchange" 
-                            suffix="FBU"
+                            suffix="FCFA"
                             step="1"
                             min="0"
                             placeholder="Ex: 100000" 

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             ModePaiementSeeder::class,
             CategorieDepenseSeeder::class,
             ActeSeeder::class,
+            SaaSMigrationSeeder::class,
         ]);
     }
 }

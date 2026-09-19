@@ -7,6 +7,7 @@ use App\Models\Caisse;
 use App\Models\User;
 use App\Services\GestionCaisseService;
 use App\Traits\HasPeriodFilter;
+use Illuminate\Http\Request;
 
 class CaisseController extends Controller
 {
@@ -131,5 +132,37 @@ class CaisseController extends Controller
         $caiss->delete();
 
         return to_route('caisses.index')->with('alert', 'Session de caisse supprimée avec succès.');
+    }
+
+    /**
+     * Clôture directe de session de caisse avec comptage physique et calcul d'écart.
+     */
+    public function cloturer(Request $request, Caisse $caiss)
+    {
+        $request->validate([
+            'solde_physique' => 'required|numeric|min:0',
+            'observation' => 'nullable|string',
+        ]);
+
+        try {
+            $soldePhysique = (float) $request->input('solde_physique');
+            $observation = $request->input('observation');
+
+            $this->caisseService->fermerCaisse($caiss, $soldePhysique, $observation);
+
+            return to_route('caisses.show', $caiss)->with('alert', 'Session de caisse #'.$caiss->id.' clôturée avec succès. Bilan disponible pour impression.');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['solde_physique' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Impression du Rapport Z de Clôture Journalière (Ticket thermique 80mm).
+     */
+    public function print(Caisse $caiss)
+    {
+        $caiss->load(['user', 'mouvements.user']);
+
+        return view('caisses.print', ['caisse' => $caiss]);
     }
 }

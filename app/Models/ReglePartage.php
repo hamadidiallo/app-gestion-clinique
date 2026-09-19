@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReglePartage extends Model
 {
+    use BelongsToClinique;
+
     protected $table = 'regles_partage';
 
     protected $fillable = [
+        'clinique_id',
         'service_id',
         'pourcentage_medecin',
         'pourcentage_clinique',

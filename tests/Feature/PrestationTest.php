@@ -5,6 +5,7 @@ use App\Models\Medecin;
 use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\Service;
+use App\Models\Ticket;
 
 test('peut afficher la liste des prestations', function () {
     $response = $this->get(route('prestations.index'));
@@ -61,7 +62,8 @@ test('peut créer une nouvelle prestation', function () {
 
     $response = $this->post(route('prestations.store'), $prestationData);
 
-    $response->assertRedirect(route('tickets.print', 1));
+    $ticket = Ticket::first();
+    $response->assertRedirect(route('tickets.print', $ticket));
     $this->assertDatabaseHas('prestations', [
         'patient_id' => $patient->id,
         'service_id' => $service->id,

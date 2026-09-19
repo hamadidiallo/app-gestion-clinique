@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Prestation extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
+        'reference',
         'patient_id',
         'service_id',
         'medecin_id',
@@ -26,6 +31,33 @@ class Prestation extends Model
         'description',
         'statut',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($prestation) {
+            if (empty($prestation->reference)) {
+                $prestation->reference = 'SOIN-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -5));
+            }
+        });
+    }
+
+    /**
+     * Utiliser la référence métier dans les URLs au lieu de l'ID numérique.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID numérique.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
+    }
 
     protected $casts = [
         'montant' => 'decimal:2',

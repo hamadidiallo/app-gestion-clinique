@@ -1,6 +1,6 @@
 <?php
 
-// Importation des contrôleurs existants
+use App\Http\Controllers\AbonnementController;
 use App\Http\Controllers\ActeController;
 use App\Http\Controllers\AssuranceController;
 use App\Http\Controllers\AuthController;
@@ -12,12 +12,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepenseController;
 // Importation des 15 nouveaux contrôleurs
 use App\Http\Controllers\DetteController;
-use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\JournalActiviteController;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\ModePaiementController;
 use App\Http\Controllers\MouvementCaisseController;
 use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\ParametreController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrestationController;
 use App\Http\Controllers\RapportController;
@@ -49,6 +49,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login');
     Route::get('/register', 'showRegisterForm')->name('register');
     Route::post('/register', 'register');
+    Route::get('/auth/verifier-code/{code}', 'verifierCodeInvitation')->name('auth.verifier-code');
 });
 
 // GROUPE SÉCURISÉ : TOUTES LES ROUTES DE L'APPLICATION PROTÉGÉES PAR LE MIDDLEWARE AUTH
@@ -72,280 +73,321 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // Groupe de routes web gérant la consultation des Rapports et Statistiques
-    Route::controller(RapportController::class)->group(function () {
-        Route::get('/rapports/index', 'index')->name('rapports.index');
-        Route::get('/rapports/assurances', 'assurances')->name('rapports.assurances');
-        Route::get('/rapports/medecins', 'medecins')->name('rapports.medecins');
+    // =========================================================================
+    // ZONE 1 : ADMINISTRATION & SÉCURITÉ (Administrateur uniquement)
+    // =========================================================================
+    Route::middleware(['role:Administrateur'])->group(function () {
+        // Rôles & Permissions
+        Route::controller(RoleController::class)->group(function () {
+            Route::get('/role/index', 'index')->name('roles.index');
+            Route::get('/create/role', 'create')->name('role.create');
+            Route::post('/create/role', 'store')->name('roles.store');
+            Route::get('/roles/{role}', 'show')->name('roles.show');
+            Route::get('/roles/{role}/edit', 'edit')->name('roles.edit');
+            Route::put('/roles/{role}', 'update')->name('roles.update');
+            Route::delete('/roles/{role}', 'destroy')->name('roles.destroy');
+        });
+
+        // Gestion des Utilisateurs & Comptes
+        Route::controller(UserController::class)->group(function () {
+            Route::get('/user/index', 'index')->name('users.index');
+            Route::get('/create/user', 'create')->name('user.create');
+            Route::post('/create/user', 'store')->name('users.store');
+            Route::get('/users/{user}', 'show')->name('users.show');
+            Route::get('/users/{user}/edit', 'edit')->name('users.edit');
+            Route::put('/users/{user}', 'update')->name('users.update');
+            Route::delete('/users/{user}', 'destroy')->name('users.destroy');
+        });
+
+        // Journal d'Activité / Audit
+        Route::controller(JournalActiviteController::class)->group(function () {
+            Route::get('/journalactivite/index', 'index')->name('journalactivites.index');
+            Route::get('/journalactivites/{journalactivite}', 'show')->name('journalactivites.show');
+        });
+
+        // Abonnement & Formules de Licence
+        Route::get('/abonnement', [AbonnementController::class, 'index'])->name('abonnement.index');
+
+        // Paramètres de la Clinique
+        Route::controller(ParametreController::class)->group(function () {
+            Route::get('/parametres', 'index')->name('parametres.index');
+            Route::put('/parametres', 'update')->name('parametres.update');
+            Route::post('/parametres/regenerer-code', 'regenererCodeInvitation')->name('parametres.regenerer-code');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux rôles
-    Route::controller(RoleController::class)->group(function () {
-        Route::get('/role/index', 'index')->name('roles.index');
-        Route::get('/create/role', 'create')->name('role.create');
-        Route::post('/create/role', 'store')->name('roles.store');
-        Route::get('/roles/{role}', 'show')->name('roles.show');
-        Route::get('/roles/{role}/edit', 'edit')->name('roles.edit');
-        Route::put('/roles/{role}', 'update')->name('roles.update');
-        Route::delete('/roles/{role}', 'destroy')->name('roles.destroy');
+    // =========================================================================
+    // ZONE 2 : COMPTABILITÉ & FINANCES (Administrateur, Comptable)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Comptable'])->group(function () {
+        // Recettes
+        Route::controller(RecetteController::class)->group(function () {
+            Route::get('/recette/index', 'index')->name('recettes.index');
+            Route::get('/create/recette', 'create')->name('recettes.create');
+            Route::post('/create/recette', 'store')->name('recettes.store');
+            Route::get('/recettes/{recette}', 'show')->name('recettes.show');
+            Route::get('/recettes/{recette}/edit', 'edit')->name('recettes.edit');
+            Route::put('/recettes/{recette}', 'update')->name('recettes.update');
+            Route::delete('/recettes/{recette}', 'destroy')->name('recettes.destroy');
+        });
+
+        // Dépenses & Catégories
+        Route::controller(DepenseController::class)->group(function () {
+            Route::get('/depense/index', 'index')->name('depenses.index');
+            Route::get('/create/depense', 'create')->name('depenses.create');
+            Route::post('/create/depense', 'store')->name('depenses.store');
+            Route::get('/depenses/{depense}', 'show')->name('depenses.show');
+            Route::get('/depenses/{depense}/edit', 'edit')->name('depenses.edit');
+            Route::put('/depenses/{depense}', 'update')->name('depenses.update');
+            Route::delete('/depenses/{depense}', 'destroy')->name('depenses.destroy');
+        });
+
+        Route::controller(CategorieDepenseController::class)->group(function () {
+            Route::get('/categoriedepense/index', 'index')->name('categoriedepenses.index');
+            Route::get('/create/categoriedepense', 'create')->name('categoriedepenses.create');
+            Route::post('/create/categoriedepense', 'store')->name('categoriedepenses.store');
+            Route::get('/categoriedepenses/{categoriedepense}', 'show')->name('categoriedepenses.show');
+            Route::get('/categoriedepenses/{categoriedepense}/edit', 'edit')->name('categoriedepenses.edit');
+            Route::put('/categoriedepenses/{categoriedepense}', 'update')->name('categoriedepenses.update');
+            Route::delete('/categoriedepenses/{categoriedepense}', 'destroy')->name('categoriedepenses.destroy');
+        });
+
+        // Règles de Partage
+        Route::controller(ReglePartageController::class)->group(function () {
+            Route::get('/reglepartage/index', 'index')->name('reglespartage.index');
+            Route::get('/create/reglepartage', 'create')->name('reglespartage.create');
+            Route::post('/create/reglepartage', 'store')->name('reglespartage.store');
+            Route::get('/reglespartage/{reglespartage}', 'show')->name('reglespartage.show');
+            Route::get('/reglespartage/{reglespartage}/edit', 'edit')->name('reglespartage.edit');
+            Route::put('/reglespartage/{reglespartage}', 'update')->name('reglespartage.update');
+            Route::delete('/reglespartage/{reglespartage}', 'destroy')->name('reglespartage.destroy');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux utilisateurs
-    Route::controller(UserController::class)->group(function () {
-        Route::get('/user/index', 'index')->name('users.index');
-        Route::get('/create/user', 'create')->name('user.create');
-        Route::post('/create/user', 'store')->name('users.store');
-        Route::get('/users/{user}', 'show')->name('users.show');
-        Route::get('/users/{user}/edit', 'edit')->name('users.edit');
-        Route::put('/users/{user}', 'update')->name('users.update');
-        Route::delete('/users/{user}', 'destroy')->name('users.destroy');
+    // =========================================================================
+    // ZONE 3 : RÉMUNÉRATIONS & RAPPORTS (Admin, Comptable, Médecin)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Comptable,Médecin'])->group(function () {
+        Route::controller(RemunerationController::class)->group(function () {
+            Route::get('/remuneration/index', 'index')->name('remunerations.index');
+            Route::get('/create/remuneration', 'create')->name('remunerations.create');
+            Route::post('/create/remuneration', 'store')->name('remunerations.store');
+            Route::get('/remuneration/preview', 'previewCalcul')->name('remunerations.preview');
+            Route::get('/remunerations/{remuneration}', 'show')->name('remunerations.show');
+            Route::get('/remunerations/{remuneration}/edit', 'edit')->name('remunerations.edit');
+            Route::put('/remunerations/{remuneration}', 'update')->name('remunerations.update');
+            Route::post('/remunerations/{remuneration}/payer', 'validerPaiement')->name('remunerations.payer');
+            Route::delete('/remunerations/{remuneration}', 'destroy')->name('remunerations.destroy');
+        });
+
+        Route::controller(RapportController::class)->group(function () {
+            Route::get('/rapports/index', 'index')->name('rapports.index');
+            Route::get('/rapports/assurances', 'assurances')->name('rapports.assurances');
+            Route::get('/rapports/assurances/bordereau', 'bordereau')->name('rapports.assurances.bordereau');
+            Route::get('/rapports/medecins', 'medecins')->name('rapports.medecins');
+            Route::get('/rapports/medecins/bordereau', 'bordereauMedecins')->name('rapports.medecins.bordereau');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux patients
-    Route::controller(PatientController::class)->group(function () {
-        Route::get('/patient/index', 'index')->name('patients.index');
-        Route::get('/create/patient', 'create')->name('patients.create');
-        Route::get('/patients/create', 'create')->name('patient.create');
-        Route::post('/create/patient', 'store')->name('patients.store');
-        Route::get('/patients/search', 'search')->name('patients.search');
-        Route::get('/patients/{patient}', 'show')->name('patients.show');
-        Route::post('/patients/{patient}/dossier-medical', 'updateDossierMedical')->name('patients.dossier-medical.update');
-        Route::get('/patients/{patient}/edit', 'edit')->name('patients.edit');
-        Route::put('/patients/{patient}', 'update')->name('patients.update');
-        Route::delete('/patients/{patient}', 'destroy')->name('patients.destroy');
+    // =========================================================================
+    // ZONE 4 : CAISSE, PAIEMENTS & DETTES (Admin, Caissier, Comptable)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Caissier,Comptable'])->group(function () {
+        // Sessions de Caisses
+        Route::controller(CaisseController::class)->group(function () {
+            Route::get('/caisse/index', 'index')->name('caisses.index');
+            Route::get('/create/caisse', 'create')->name('caisses.create');
+            Route::post('/create/caisse', 'store')->name('caisses.store');
+            Route::get('/caisses/{caiss}', 'show')->name('caisses.show');
+            Route::get('/caisses/{caiss}/print', 'print')->name('caisses.print');
+            Route::get('/caisses/{caiss}/edit', 'edit')->name('caisses.edit');
+            Route::put('/caisses/{caiss}', 'update')->name('caisses.update');
+            Route::post('/caisses/{caiss}/cloturer', 'cloturer')->name('caisses.cloturer');
+            Route::delete('/caisses/{caiss}', 'destroy')->name('caisses.destroy');
+        });
+
+        // Mouvements d'espèces
+        Route::controller(MouvementCaisseController::class)->group(function () {
+            Route::get('/mouvementcaisse/index', 'index')->name('mouvementcaisses.index');
+            Route::get('/create/mouvementcaisse', 'create')->name('mouvementcaisses.create');
+            Route::post('/create/mouvementcaisse', 'store')->name('mouvementcaisses.store');
+            Route::get('/mouvementcaisses/{mouvementcaiss}', 'show')->name('mouvementcaisses.show');
+            Route::get('/mouvementcaisses/{mouvementcaiss}/edit', 'edit')->name('mouvementcaisses.edit');
+            Route::put('/mouvementcaisses/{mouvementcaiss}', 'update')->name('mouvementcaisses.update');
+            Route::delete('/mouvementcaisses/{mouvementcaiss}', 'destroy')->name('mouvementcaisses.destroy');
+        });
+
+        // Enregistrement des Paiements
+        Route::controller(PaiementController::class)->group(function () {
+            Route::get('/paiement/index', 'index')->name('paiements.index');
+            Route::get('/create/paiement', 'create')->name('paiements.create');
+            Route::post('/create/paiement', 'store')->name('paiements.store');
+            Route::get('/paiements/{paiement}', 'show')->name('paiements.show');
+            Route::get('/paiements/{paiement}/print', 'print')->name('paiements.print');
+            Route::get('/paiements/{paiement}/edit', 'edit')->name('paiements.edit');
+            Route::put('/paiements/{paiement}', 'update')->name('paiements.update');
+            Route::delete('/paiements/{paiement}', 'destroy')->name('paiements.destroy');
+        });
+
+        // Dettes & Impayés
+        Route::controller(DetteController::class)->group(function () {
+            Route::get('/dette/index', 'index')->name('dettes.index');
+            Route::get('/create/dette', 'create')->name('dettes.create');
+            Route::post('/create/dette', 'store')->name('dettes.store');
+            Route::get('/dettes/{dette}', 'show')->name('dettes.show');
+            Route::get('/dettes/{dette}/edit', 'edit')->name('dettes.edit');
+            Route::put('/dettes/{dette}', 'update')->name('dettes.update');
+            Route::delete('/dettes/{dette}', 'destroy')->name('dettes.destroy');
+        });
+
+        // Modes de Paiement
+        Route::controller(ModePaiementController::class)->group(function () {
+            Route::get('/modepaiement/index', 'index')->name('modepaiements.index');
+            Route::get('/create/modepaiement', 'create')->name('modepaiements.create');
+            Route::post('/create/modepaiement', 'store')->name('modepaiements.store');
+            Route::get('/modepaiements/{modepaiement}', 'show')->name('modepaiements.show');
+            Route::get('/modepaiements/{modepaiement}/edit', 'edit')->name('modepaiements.edit');
+            Route::put('/modepaiements/{modepaiement}', 'update')->name('modepaiements.update');
+            Route::delete('/modepaiements/{modepaiement}', 'destroy')->name('modepaiements.destroy');
+        });
     });
 
-    // Groupe de routes pour le Dossier Médical et les Consultations
-    Route::controller(ConsultationController::class)->group(function () {
-        Route::get('/consultations', 'index')->name('consultations.index');
-        Route::get('/consultations/create', 'create')->name('consultations.create');
-        Route::post('/consultations', 'store')->name('consultations.store');
-        Route::get('/consultations/{consultation}', 'show')->name('consultations.show');
-        Route::get('/consultations/{consultation}/edit', 'edit')->name('consultations.edit');
-        Route::put('/consultations/{consultation}', 'update')->name('consultations.update');
-        Route::delete('/consultations/{consultation}', 'destroy')->name('consultations.destroy');
-        Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
+    // =========================================================================
+    // ZONE 5 : TICKETS DE CONSULTATION & FACTURES (Admin, Réceptionniste, Caissier, Comptable)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Réceptionniste,Caissier,Comptable'])->group(function () {
+        Route::controller(TicketController::class)->group(function () {
+            Route::get('/ticket/index', 'index')->name('tickets.index');
+            Route::get('/create/ticket', 'create')->name('tickets.create');
+            Route::post('/create/ticket', 'store')->name('tickets.store');
+            Route::get('/tickets/{ticket}', 'show')->name('tickets.show');
+            Route::get('/tickets/{ticket}/print', 'print')->name('tickets.print');
+            Route::get('/tickets/{ticket}/edit', 'edit')->name('tickets.edit');
+            Route::put('/tickets/{ticket}', 'update')->name('tickets.update');
+            Route::delete('/tickets/{ticket}', 'destroy')->name('tickets.destroy');
+        });
+
+        Route::controller(TicketDetailController::class)->group(function () {
+            Route::get('/ticketdetail/index', 'index')->name('ticketdetails.index');
+            Route::get('/create/ticketdetail', 'create')->name('ticketdetails.create');
+            Route::post('/create/ticketdetail', 'store')->name('ticketdetails.store');
+            Route::get('/ticketdetails/{ticketdetail}', 'show')->name('ticketdetails.show');
+            Route::get('/ticketdetails/{ticketdetail}/edit', 'edit')->name('ticketdetails.edit');
+            Route::put('/ticketdetails/{ticketdetail}', 'update')->name('ticketdetails.update');
+            Route::delete('/ticketdetails/{ticketdetail}', 'destroy')->name('ticketdetails.destroy');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux assurances
-    Route::controller(AssuranceController::class)->group(function () {
-        Route::get('/assurance/index', 'index')->name('assurances.index');
-        Route::get('/create/assurance', 'create')->name('assurance.create');
-        Route::post('/create/assurance', 'store')->name('assurances.store');
-        Route::get('/assurances/{assurance}', 'show')->name('assurances.show');
-        Route::get('/assurances/{assurance}/edit', 'edit')->name('assurances.edit');
-        Route::put('/assurances/{assurance}', 'update')->name('assurances.update');
-        Route::delete('/assurances/{assurance}', 'destroy')->name('assurances.destroy');
+    // =========================================================================
+    // ZONE 6 : PATIENTS & DOSSIERS (Admin, Réceptionniste, Médecin, Caissier, Comptable)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Réceptionniste,Médecin,Caissier,Comptable'])->group(function () {
+        Route::controller(PatientController::class)->group(function () {
+            Route::get('/patient/index', 'index')->name('patients.index');
+            Route::get('/create/patient', 'create')->name('patients.create');
+            Route::get('/patients/create', 'create')->name('patient.create');
+            Route::post('/create/patient', 'store')->name('patients.store');
+            Route::get('/patients/search', 'search')->name('patients.search');
+            Route::get('/patients/{patient}', 'show')->name('patients.show');
+            Route::post('/patients/{patient}/dossier-medical', 'updateDossierMedical')->name('patients.dossier-medical.update');
+            Route::get('/patients/{patient}/edit', 'edit')->name('patients.edit');
+            Route::put('/patients/{patient}', 'update')->name('patients.update');
+            Route::delete('/patients/{patient}', 'destroy')->name('patients.destroy');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux cartes d'assurance
-    Route::controller(CarteAssuranceController::class)->group(function () {
-        Route::get('/carteassurance/index', 'index')->name('cartesassurances.index');
-        Route::get('/create/carteassurance', 'create')->name('carteassurance.create');
-        Route::post('/create/carteassurance', 'store')->name('cartesassurances.store');
-        Route::get('/cartesassurances/{carteassurance}', 'show')->name('cartesassurances.show');
-        Route::get('/cartesassurances/{carteassurance}/edit', 'edit')->name('cartesassurances.edit');
-        Route::put('/cartesassurances/{carteassurance}', 'update')->name('cartesassurances.update');
-        Route::delete('/cartesassurances/{carteassurance}', 'destroy')->name('cartesassurances.destroy');
+    // =========================================================================
+    // ZONE 7 : MÉDICAL & CONSULTATIONS (Admin, Médecin, Réceptionniste)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Médecin,Réceptionniste'])->group(function () {
+        Route::controller(ConsultationController::class)->group(function () {
+            Route::get('/consultations', 'index')->name('consultations.index');
+            Route::get('/consultations/create', 'create')->name('consultations.create');
+            Route::post('/consultations', 'store')->name('consultations.store');
+            Route::get('/consultations/{consultation}', 'show')->name('consultations.show');
+            Route::get('/consultations/{consultation}/edit', 'edit')->name('consultations.edit');
+            Route::put('/consultations/{consultation}', 'update')->name('consultations.update');
+            Route::delete('/consultations/{consultation}', 'destroy')->name('consultations.destroy');
+            Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux services médicaux
-    Route::controller(ServiceController::class)->group(function () {
-        Route::get('/service/index', 'index')->name('services.index');
-        Route::get('/create/service', 'create')->name('service.create');
-        Route::post('/create/service', 'store')->name('services.store');
-        Route::get('/services/search', 'search')->name('services.search');
-        Route::get('/services/{service}', 'show')->name('services.show');
-        Route::get('/services/{service}/edit', 'edit')->name('services.edit');
-        Route::put('/services/{service}', 'update')->name('services.update');
-        Route::delete('/services/{service}', 'destroy')->name('services.destroy');
+    // =========================================================================
+    // ZONE 8 : SOINS, SERVICES, ACTES, ASSURANCES & MÉDECINS (Accessible personnel clinique)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Médecin,Réceptionniste,Caissier,Comptable'])->group(function () {
+        // Prestations & Soins
+        Route::controller(PrestationController::class)->group(function () {
+            Route::get('/prestation/index', 'index')->name('prestations.index');
+            Route::get('/create/prestation', 'create')->name('prestation.create');
+            Route::post('/create/prestation', 'store')->name('prestations.store');
+            Route::post('/prestations/preview-calculs', 'previewCalculs')->name('prestations.preview');
+            Route::get('/prestations/{prestation}', 'show')->name('prestations.show');
+            Route::get('/prestations/{prestation}/edit', 'edit')->name('prestations.edit');
+            Route::put('/prestations/{prestation}', 'update')->name('prestations.update');
+            Route::delete('/prestations/{prestation}', 'destroy')->name('prestations.destroy');
+        });
+
+        // Actes Médicaux
+        Route::controller(ActeController::class)->group(function () {
+            Route::get('/actes', 'index')->name('actes.index');
+            Route::get('/actes/create', 'create')->name('actes.create');
+            Route::post('/actes', 'store')->name('actes.store');
+            Route::get('/actes/search', 'search')->name('actes.search');
+            Route::get('/actes/{acte}', 'show')->name('actes.show');
+            Route::get('/actes/{acte}/edit', 'edit')->name('actes.edit');
+            Route::put('/actes/{acte}', 'update')->name('actes.update');
+            Route::delete('/actes/{acte}', 'destroy')->name('actes.destroy');
+        });
+
+        // Services
+        Route::controller(ServiceController::class)->group(function () {
+            Route::get('/service/index', 'index')->name('services.index');
+            Route::get('/create/service', 'create')->name('service.create');
+            Route::post('/create/service', 'store')->name('services.store');
+            Route::get('/services/search', 'search')->name('services.search');
+            Route::get('/services/{service}', 'show')->name('services.show');
+            Route::get('/services/{service}/edit', 'edit')->name('services.edit');
+            Route::put('/services/{service}', 'update')->name('services.update');
+            Route::delete('/services/{service}', 'destroy')->name('services.destroy');
+        });
+
+        // Médecins
+        Route::controller(MedecinController::class)->group(function () {
+            Route::get('/medecin/index', 'index')->name('medecins.index');
+            Route::get('/create/medecin', 'create')->name('medecins.create');
+            Route::post('/create/medecin', 'store')->name('medecins.store');
+            Route::get('/medecins/{medecin}', 'show')->name('medecins.show');
+            Route::get('/medecins/{medecin}/edit', 'edit')->name('medecins.edit');
+            Route::put('/medecins/{medecin}', 'update')->name('medecins.update');
+            Route::delete('/medecins/{medecin}', 'destroy')->name('medecins.destroy');
+        });
+
+        // Assurances & Cartes
+        Route::controller(AssuranceController::class)->group(function () {
+            Route::get('/assurance/index', 'index')->name('assurances.index');
+            Route::get('/create/assurance', 'create')->name('assurance.create');
+            Route::post('/create/assurance', 'store')->name('assurances.store');
+            Route::get('/assurances/{assurance}', 'show')->name('assurances.show');
+            Route::get('/assurances/{assurance}/edit', 'edit')->name('assurances.edit');
+            Route::put('/assurances/{assurance}', 'update')->name('assurances.update');
+            Route::delete('/assurances/{assurance}', 'destroy')->name('assurances.destroy');
+        });
+
+        Route::controller(CarteAssuranceController::class)->group(function () {
+            Route::get('/carteassurance/index', 'index')->name('cartesassurances.index');
+            Route::get('/create/carteassurance', 'create')->name('carteassurance.create');
+            Route::post('/create/carteassurance', 'store')->name('cartesassurances.store');
+            Route::get('/cartesassurances/{carteassurance}', 'show')->name('cartesassurances.show');
+            Route::get('/cartesassurances/{carteassurance}/edit', 'edit')->name('cartesassurances.edit');
+            Route::put('/cartesassurances/{carteassurance}', 'update')->name('cartesassurances.update');
+            Route::delete('/cartesassurances/{carteassurance}', 'destroy')->name('cartesassurances.destroy');
+        });
     });
 
-    // Groupe de routes web gérant toutes les opérations liées au catalogue des actes médicaux
-    Route::controller(ActeController::class)->group(function () {
-        Route::get('/actes', 'index')->name('actes.index');
-        Route::get('/actes/create', 'create')->name('actes.create');
-        Route::post('/actes', 'store')->name('actes.store');
-        Route::get('/actes/search', 'search')->name('actes.search');
-        Route::get('/actes/{acte}', 'show')->name('actes.show');
-        Route::get('/actes/{acte}/edit', 'edit')->name('actes.edit');
-        Route::put('/actes/{acte}', 'update')->name('actes.update');
-        Route::delete('/actes/{acte}', 'destroy')->name('actes.destroy');
-    });
-
-    // Groupe de routes web gérant toutes les opérations CRUD liées aux prestations
-    Route::controller(PrestationController::class)->group(function () {
-        Route::get('/prestation/index', 'index')->name('prestations.index');
-        Route::get('/create/prestation', 'create')->name('prestation.create');
-        Route::post('/create/prestation', 'store')->name('prestations.store');
-        Route::post('/prestations/preview-calculs', 'previewCalculs')->name('prestations.preview');
-        Route::get('/prestations/{prestation}', 'show')->name('prestations.show');
-        Route::get('/prestations/{prestation}/edit', 'edit')->name('prestations.edit');
-        Route::put('/prestations/{prestation}', 'update')->name('prestations.update');
-        Route::delete('/prestations/{prestation}', 'destroy')->name('prestations.destroy');
-    });
-
-    // Groupe de routes pour la gestion des Médecins
-    Route::controller(MedecinController::class)->group(function () {
-        Route::get('/medecin/index', 'index')->name('medecins.index');
-        Route::get('/create/medecin', 'create')->name('medecins.create');
-        Route::post('/create/medecin', 'store')->name('medecins.store');
-        Route::get('/medecins/{medecin}', 'show')->name('medecins.show');
-        Route::get('/medecins/{medecin}/edit', 'edit')->name('medecins.edit');
-        Route::put('/medecins/{medecin}', 'update')->name('medecins.update');
-        Route::delete('/medecins/{medecin}', 'destroy')->name('medecins.destroy');
-    });
-
-    // Groupe de routes pour la gestion des Employés
-    Route::controller(EmployeController::class)->group(function () {
-        Route::get('/employe/index', 'index')->name('employes.index');
-        Route::get('/create/employe', 'create')->name('employes.create');
-        Route::post('/create/employe', 'store')->name('employes.store');
-        Route::get('/employes/{employe}', 'show')->name('employes.show');
-        Route::get('/employes/{employe}/edit', 'edit')->name('employes.edit');
-        Route::put('/employes/{employe}', 'update')->name('employes.update');
-        Route::delete('/employes/{employe}', 'destroy')->name('employes.destroy');
-    });
-
-    // Groupe de routes pour la gestion des Tickets de caisse / factures
-    Route::controller(TicketController::class)->group(function () {
-        Route::get('/ticket/index', 'index')->name('tickets.index');
-        Route::get('/create/ticket', 'create')->name('tickets.create');
-        Route::post('/create/ticket', 'store')->name('tickets.store');
-        Route::get('/tickets/{ticket}', 'show')->name('tickets.show');
-        Route::get('/tickets/{ticket}/print', 'print')->name('tickets.print');
-        Route::get('/tickets/{ticket}/edit', 'edit')->name('tickets.edit');
-        Route::put('/tickets/{ticket}', 'update')->name('tickets.update');
-        Route::delete('/tickets/{ticket}', 'destroy')->name('tickets.destroy');
-    });
-
-    // Groupe de routes pour les détails de prestations par ticket
-    Route::controller(TicketDetailController::class)->group(function () {
-        Route::get('/ticketdetail/index', 'index')->name('ticketdetails.index');
-        Route::get('/create/ticketdetail', 'create')->name('ticketdetails.create');
-        Route::post('/create/ticketdetail', 'store')->name('ticketdetails.store');
-        Route::get('/ticketdetails/{ticketdetail}', 'show')->name('ticketdetails.show');
-        Route::get('/ticketdetails/{ticketdetail}/edit', 'edit')->name('ticketdetails.edit');
-        Route::put('/ticketdetails/{ticketdetail}', 'update')->name('ticketdetails.update');
-        Route::delete('/ticketdetails/{ticketdetail}', 'destroy')->name('ticketdetails.destroy');
-    });
-
-    // Groupe de routes pour les Modes de Paiement
-    Route::controller(ModePaiementController::class)->group(function () {
-        Route::get('/modepaiement/index', 'index')->name('modepaiements.index');
-        Route::get('/create/modepaiement', 'create')->name('modepaiements.create');
-        Route::post('/create/modepaiement', 'store')->name('modepaiements.store');
-        Route::get('/modepaiements/{modepaiement}', 'show')->name('modepaiements.show');
-        Route::get('/modepaiements/{modepaiement}/edit', 'edit')->name('modepaiements.edit');
-        Route::put('/modepaiements/{modepaiement}', 'update')->name('modepaiements.update');
-        Route::delete('/modepaiements/{modepaiement}', 'destroy')->name('modepaiements.destroy');
-    });
-
-    // Groupe de routes pour l'historique des Paiements
-    Route::controller(PaiementController::class)->group(function () {
-        Route::get('/paiement/index', 'index')->name('paiements.index');
-        Route::get('/create/paiement', 'create')->name('paiements.create');
-        Route::post('/create/paiement', 'store')->name('paiements.store');
-        Route::get('/paiements/{paiement}', 'show')->name('paiements.show');
-        Route::get('/paiements/{paiement}/edit', 'edit')->name('paiements.edit');
-        Route::put('/paiements/{paiement}', 'update')->name('paiements.update');
-        Route::delete('/paiements/{paiement}', 'destroy')->name('paiements.destroy');
-    });
-
-    // Groupe de routes pour le suivi des Dettes / Impayés
-    Route::controller(DetteController::class)->group(function () {
-        Route::get('/dette/index', 'index')->name('dettes.index');
-        Route::get('/create/dette', 'create')->name('dettes.create');
-        Route::post('/create/dette', 'store')->name('dettes.store');
-        Route::get('/dettes/{dette}', 'show')->name('dettes.show');
-        Route::get('/dettes/{dette}/edit', 'edit')->name('dettes.edit');
-        Route::put('/dettes/{dette}', 'update')->name('dettes.update');
-        Route::delete('/dettes/{dette}', 'destroy')->name('dettes.destroy');
-    });
-
-    // Groupe de routes pour les Règles de Partage d'honoraires
-    Route::controller(ReglePartageController::class)->group(function () {
-        Route::get('/reglepartage/index', 'index')->name('reglespartage.index');
-        Route::get('/create/reglepartage', 'create')->name('reglespartage.create');
-        Route::post('/create/reglepartage', 'store')->name('reglespartage.store');
-        Route::get('/reglespartage/{reglespartage}', 'show')->name('reglespartage.show');
-        Route::get('/reglespartage/{reglespartage}/edit', 'edit')->name('reglespartage.edit');
-        Route::put('/reglespartage/{reglespartage}', 'update')->name('reglespartage.update');
-        Route::delete('/reglespartage/{reglespartage}', 'destroy')->name('reglespartage.destroy');
-    });
-
-    // Groupe de routes pour les Rémunérations Médecins / Paies
-    Route::controller(RemunerationController::class)->group(function () {
-        Route::get('/remuneration/index', 'index')->name('remunerations.index');
-        Route::get('/create/remuneration', 'create')->name('remunerations.create');
-        Route::post('/create/remuneration', 'store')->name('remunerations.store');
-        Route::get('/remuneration/preview', 'previewCalcul')->name('remunerations.preview');
-        Route::get('/remunerations/{remuneration}', 'show')->name('remunerations.show');
-        Route::get('/remunerations/{remuneration}/edit', 'edit')->name('remunerations.edit');
-        Route::put('/remunerations/{remuneration}', 'update')->name('remunerations.update');
-        Route::post('/remunerations/{remuneration}/payer', 'validerPaiement')->name('remunerations.payer');
-        Route::delete('/remunerations/{remuneration}', 'destroy')->name('remunerations.destroy');
-    });
-
-    // Groupe de routes pour les Caisses & Guichets
-    Route::controller(CaisseController::class)->group(function () {
-        Route::get('/caisse/index', 'index')->name('caisses.index');
-        Route::get('/create/caisse', 'create')->name('caisses.create');
-        Route::post('/create/caisse', 'store')->name('caisses.store');
-        Route::get('/caisses/{caiss}', 'show')->name('caisses.show');
-        Route::get('/caisses/{caiss}/edit', 'edit')->name('caisses.edit');
-        Route::put('/caisses/{caiss}', 'update')->name('caisses.update');
-        Route::delete('/caisses/{caiss}', 'destroy')->name('caisses.destroy');
-    });
-
-    // Groupe de routes pour les Mouvements d'espèces en Caisse
-    Route::controller(MouvementCaisseController::class)->group(function () {
-        Route::get('/mouvementcaisse/index', 'index')->name('mouvementcaisses.index');
-        Route::get('/create/mouvementcaisse', 'create')->name('mouvementcaisses.create');
-        Route::post('/create/mouvementcaisse', 'store')->name('mouvementcaisses.store');
-        Route::get('/mouvementcaisses/{mouvementcaiss}', 'show')->name('mouvementcaisses.show');
-        Route::get('/mouvementcaisses/{mouvementcaiss}/edit', 'edit')->name('mouvementcaisses.edit');
-        Route::put('/mouvementcaisses/{mouvementcaiss}', 'update')->name('mouvementcaisses.update');
-        Route::delete('/mouvementcaisses/{mouvementcaiss}', 'destroy')->name('mouvementcaisses.destroy');
-    });
-
-    // Groupe de routes pour les Catégories de Dépenses
-    Route::controller(CategorieDepenseController::class)->group(function () {
-        Route::get('/categoriedepense/index', 'index')->name('categoriedepenses.index');
-        Route::get('/create/categoriedepense', 'create')->name('categoriedepenses.create');
-        Route::post('/create/categoriedepense', 'store')->name('categoriedepenses.store');
-        Route::get('/categoriedepenses/{categoriedepense}', 'show')->name('categoriedepenses.show');
-        Route::get('/categoriedepenses/{categoriedepense}/edit', 'edit')->name('categoriedepenses.edit');
-        Route::put('/categoriedepenses/{categoriedepense}', 'update')->name('categoriedepenses.update');
-        Route::delete('/categoriedepenses/{categoriedepense}', 'destroy')->name('categoriedepenses.destroy');
-    });
-
-    // Groupe de routes pour les Dépenses & Charges
-    Route::controller(DepenseController::class)->group(function () {
-        Route::get('/depense/index', 'index')->name('depenses.index');
-        Route::get('/create/depense', 'create')->name('depenses.create');
-        Route::post('/create/depense', 'store')->name('depenses.store');
-        Route::get('/depenses/{depense}', 'show')->name('depenses.show');
-        Route::get('/depenses/{depense}/edit', 'edit')->name('depenses.edit');
-        Route::put('/depenses/{depense}', 'update')->name('depenses.update');
-        Route::delete('/depenses/{depense}', 'destroy')->name('depenses.destroy');
-    });
-
-    // Groupe de routes pour les Recettes
-    Route::controller(RecetteController::class)->group(function () {
-        Route::get('/recette/index', 'index')->name('recettes.index');
-        Route::get('/create/recette', 'create')->name('recettes.create');
-        Route::post('/create/recette', 'store')->name('recettes.store');
-        Route::get('/recettes/{recette}', 'show')->name('recettes.show');
-        Route::get('/recettes/{recette}/edit', 'edit')->name('recettes.edit');
-        Route::put('/recettes/{recette}', 'update')->name('recettes.update');
-        Route::delete('/recettes/{recette}', 'destroy')->name('recettes.destroy');
-    });
-
-    // Groupe de routes pour le Journal d'Activité / Audit
-    Route::controller(JournalActiviteController::class)->group(function () {
-        Route::get('/journalactivite/index', 'index')->name('journalactivites.index');
-        Route::get('/journalactivites/{journalactivite}', 'show')->name('journalactivites.show');
-    });
+    // Page d'information en cas d'accès clinique suspendu
+    Route::get('/abonnement/suspendu', function () {
+        return view('abonnement.suspendu');
+    })->name('abonnement.suspendu');
 
 });

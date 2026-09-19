@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,12 +10,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Patient extends Model
 {
+    use BelongsToClinique;
+
     /**
      * Les attributs qui sont assignables en masse.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'clinique_id',
+        'reference',
         'prenom',
         'nom',
         'sexe',
@@ -24,6 +29,19 @@ class Patient extends Model
         'numero_assure',
         'taux_couverture',
     ];
+
+    /**
+     * Auto-génération de la référence unique à la création
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Patient $patient) {
+            if (empty($patient->reference)) {
+                $maxId = (int) (static::max('id') ?? 0);
+                $patient->reference = 'PAT-'.str_pad((string) ($maxId + 1), 5, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 
     /**
      * Les typages d'attributs.
@@ -80,5 +98,23 @@ class Patient extends Model
     public function consultations(): HasMany
     {
         return $this->hasMany(Consultation::class);
+    }
+
+    /**
+     * Utiliser la référence patient (ex: PAT-00001) dans les URLs au lieu de l'ID.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }

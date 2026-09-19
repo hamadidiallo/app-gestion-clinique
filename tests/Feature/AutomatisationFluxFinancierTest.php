@@ -355,4 +355,61 @@ class AutomatisationFluxFinancierTest extends TestCase
         $this->assertEquals(60000, $remunPct->montant_medecin);
         $this->assertEquals(40000, $remunPct->montant_clinique);
     }
+
+    /** TEST 15 : Route HTTP Clôture de Caisse et Impression Ticket Z */
+    public function test_caisse_route_cloturer_et_impression_ticket_z(): void
+    {
+        $caisse = app(GestionCaisseService::class)->ouvrirCaisse($this->user->id, 25000, 'Guichet 1');
+
+        $response = $this->post(route('caisses.cloturer', $caisse), [
+            'solde_physique' => 24000,
+            'observation' => 'Manquant 1000 FCFA pièces manquantes',
+        ]);
+
+        $response->assertRedirect(route('caisses.show', $caisse));
+
+        $caisse->refresh();
+        $this->assertEquals('fermee', $caisse->statut);
+        $this->assertEquals(24000, $caisse->solde_physique);
+        $this->assertEquals(-1000, $caisse->ecart);
+
+        // Test Impression Rapport Z
+        $printResponse = $this->get(route('caisses.print', $caisse));
+        $printResponse->assertStatus(200);
+        $printResponse->assertSee('BILAN DE CLÔTURE DE CAISSE');
+    }
+
+    /** TEST 16 : Route HTTP Impression Reçu de Paiement */
+    public function test_paiement_route_impression_recu(): void
+    {
+        $patient = Patient::create(['nom' => 'Kane', 'prenom' => 'Aissata', 'sexe' => 'F', 'statut' => 'non_assure']);
+        $ticket = Ticket::create([
+            'patient_id' => $patient->id,
+            'reference' => 'TCK-TEST-99',
+            'date_ticket' => now(),
+            'montant_total' => 15000,
+            'part_assurance' => 0,
+            'part_patient' => 15000,
+            'montant_paye' => 15000,
+            'reste_a_payer' => 0,
+            'statut_paiement' => 'paye',
+            'user_id' => $this->user->id,
+        ]);
+
+        $paiement = Paiement::create([
+            'ticket_id' => $ticket->id,
+            'mode_paiement_id' => $this->modeEspeces->id,
+            'montant_recu' => 15000,
+            'montant_impute' => 15000,
+            'montant_rendu' => 0,
+            'date_paiement' => now(),
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->get(route('paiements.print', $paiement));
+        $response->assertStatus(200);
+        $response->assertSee('QUITTANCE DE PAIEMENT');
+        $response->assertSee($paiement->reference);
+        $response->assertSee('15 000 FCFA');
+    }
 }

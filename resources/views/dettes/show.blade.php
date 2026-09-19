@@ -315,7 +315,8 @@
                                         <th>Reçu N°</th>
                                         <th>Date & Heure</th>
                                         <th>Mode</th>
-                                        <th class="text-end pe-3">Montant Encaissé</th>
+                                        <th class="text-end">Montant Encaissé</th>
+                                        <th class="text-center pe-3">Reçu</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -326,8 +327,13 @@
                                             <td>
                                                 <span class="badge bg-light text-dark border">{{ $p->modePaiement->nom ?? 'Espèces' }}</span>
                                             </td>
-                                            <td class="text-end font-mono fw-bold text-success pe-3">
+                                            <td class="text-end font-mono fw-bold text-success">
                                                 {{ number_format($p->montant_impute, 0, ',', ' ') }} FCFA
+                                            </td>
+                                            <td class="text-center pe-3">
+                                                <a href="{{ route('paiements.print', $p) }}" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small">
+                                                    <i data-lucide="printer" class="lucide-xs"></i> Imprimer
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach

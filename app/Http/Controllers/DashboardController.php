@@ -59,15 +59,47 @@ class DashboardController extends Controller
         $caissesOuvertes = Caisse::where('statut', 'ouverte')->with('user')->get();
 
         // 5. Synthèse des prestations par Service médical sur la période
-        $servicesStats = Service::withCount(['prestations'])
+        $servicesStats = Service::withCount([
+            'actes',
+            'prestations as prestations_periode_count' => function ($q) use ($debut, $fin) {
+                $q->whereBetween('date_prestation', [$debut, $fin]);
+            },
+        ])
             ->get()
             ->map(function ($service) use ($debut, $fin) {
-                // Total des recettes générées par le service via les tickets
-                $chiffreAffaires = Ticket::whereHas('details.prestation', function ($q) use ($service) {
-                    $q->where('service_id', $service->id);
-                })->whereBetween('date_ticket', [$debut, $fin])->sum('montant_total');
+                $actesNoms = $service->actes->pluck('nom')->filter()->toArray();
 
-                $service->chiffre_affaires = $chiffreAffaires;
+                // Recettes réelles encaissées au guichet sur la période pour ce service
+                $recettesEncaissees = (float) Recette::where('statut', true)
+                    ->whereBetween('date_recette', [$debut, $fin])
+                    ->whereHas('ticket', function ($qt) use ($service, $actesNoms) {
+                        $qt->where('service_id', $service->id)
+                            ->orWhereHas('details.prestation', fn ($qp) => $qp->where('service_id', $service->id))
+                            ->orWhereHas('details', function ($qd) use ($actesNoms) {
+                                if (! empty($actesNoms)) {
+                                    $qd->whereIn('designation', $actesNoms);
+                                }
+                            });
+                    })
+                    ->sum('montant');
+
+                // Montant des tickets facturés sur la période pour ce service
+                $montantFacture = (float) Ticket::where(function ($q) use ($service, $actesNoms) {
+                    $q->where('service_id', $service->id)
+                        ->orWhereHas('details.prestation', fn ($qp) => $qp->where('service_id', $service->id))
+                        ->orWhereHas('details', function ($qd) use ($actesNoms) {
+                            if (! empty($actesNoms)) {
+                                $qd->whereIn('designation', $actesNoms);
+                            }
+                        });
+                })
+                    ->whereBetween('date_ticket', [$debut, $fin])
+                    ->sum('montant_total');
+
+                // Chiffre d'Affaires du service : correspond aux encaissements réels (ou à la facturation si pas d'encaissement sur la période)
+                $service->chiffre_affaires = $recettesEncaissees > 0 ? $recettesEncaissees : $montantFacture;
+                $service->recettes_encaissees = $recettesEncaissees;
+                $service->montant_facture = $montantFacture;
 
                 return $service;
             });

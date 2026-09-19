@@ -169,9 +169,21 @@
                             <tr>
                                 <td><span class="font-mono text-muted small">{{ $service->code }}</span></td>
                                 <td><strong class="text-dark">{{ $service->nom }}</strong></td>
-                                <td><span class="text-muted">{{ $service->prestations_count }} prestation(s)</span></td>
+                                <td>
+                                    <span class="fw-semibold text-dark">{{ $service->actes_count }} acte(s)</span>
+                                    @if($service->prestations_periode_count > 0)
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1 font-mono" title="Prestations réalisées sur la période sélectionnée">
+                                            {{ $service->prestations_periode_count }} réalisée(s)
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="text-end font-mono fw-bold" style="color: var(--primary-color);">
-                                    {{ number_format($service->chiffre_affaires, 0, ',', ' ') }} FCFA
+                                    <div>{{ number_format($service->chiffre_affaires, 0, ',', ' ') }} FCFA</div>
+                                    @if($service->recettes_encaissees > 0 && $service->montant_facture != $service->recettes_encaissees)
+                                        <div class="small text-muted fw-normal" style="font-size: 0.75rem;">
+                                            Encaissé : {{ number_format($service->recettes_encaissees, 0, ',', ' ') }} F | Facturé : {{ number_format($service->montant_facture, 0, ',', ' ') }} F
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if($service->statut)

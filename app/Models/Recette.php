@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Recette extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
         'ticket_id',
         'paiement_id',
         'user_id',
@@ -42,10 +46,22 @@ class Recette extends Model
     {
         return $this->belongsTo(User::class);
     }
-    // RELATION BIDIRECTIONNELLE RECETTE ---> MODEPAIEMENT
-    // public function modePaiement(): BelongsTo
-    // {
-    //     return $this->belongsTo(ModePaiement::class);
-    // }
 
+    /**
+     * Utiliser la référence métier dans les URLs au lieu de l'ID numérique.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID numérique.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
+    }
 }

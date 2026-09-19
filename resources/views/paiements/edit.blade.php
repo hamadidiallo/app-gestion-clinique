@@ -87,7 +87,7 @@
                                         data-search="{{ $searchContent }}" 
                                         data-reste="{{ $ticket->reste_a_payer }}"
                                         {{ old('ticket_id', $paiement->ticket_id) == $ticket->id ? 'selected' : '' }}>
-                                    Ticket #{{ $ticket->reference }} — {{ trim("{$patientNom} {$patientPrenom}") }} (Tél: {{ $patientTel ?: 'N/A' }}) | Reste: {{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} FBU
+                                    Ticket #{{ $ticket->reference }} — {{ trim("{$patientNom} {$patientPrenom}") }} (Tél: {{ $patientTel ?: 'N/A' }}) | Reste: {{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} FCFA
                                 </option>
                             @endforeach
                         </select>
@@ -137,7 +137,7 @@
                         <label for="montant_recu" class="form-label fw-bold">1. Montant Donner / Reçu <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="number" step="1" min="0" name="montant_recu" id="montant_recu" class="form-control form-control-lg fw-bold text-dark @error('montant_recu') is-invalid @enderror" value="{{ old('montant_recu', round($paiement->montant_recu)) }}" required>
-                            <span class="input-group-text bg-light text-muted fw-bold">FBU</span>
+                            <span class="input-group-text bg-light text-muted fw-bold">FCFA</span>
                         </div>
                         @error('montant_recu')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
@@ -146,7 +146,7 @@
                         <label for="montant_impute" class="form-label fw-bold">2. Montant Imputé <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="number" step="1" min="0" name="montant_impute" id="montant_impute" class="form-control form-control-lg fw-bold text-success @error('montant_impute') is-invalid @enderror" value="{{ old('montant_impute', round($paiement->montant_impute)) }}" required>
-                            <span class="input-group-text bg-light text-success fw-bold">FBU</span>
+                            <span class="input-group-text bg-light text-success fw-bold">FCFA</span>
                         </div>
                         @error('montant_impute')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
@@ -155,7 +155,7 @@
                         <label for="montant_rendu" class="form-label fw-bold text-warning">3. Monnaie Rendue (Calcul Auto)</label>
                         <div class="input-group">
                             <input type="number" step="1" min="0" name="montant_rendu" id="montant_rendu" class="form-control form-control-lg fw-bold text-warning bg-light" value="{{ old('montant_rendu', round($paiement->montant_rendu)) }}" readonly>
-                            <span class="input-group-text bg-warning text-dark fw-bold">FBU</span>
+                            <span class="input-group-text bg-warning text-dark fw-bold">FCFA</span>
                         </div>
                         @error('montant_rendu')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>

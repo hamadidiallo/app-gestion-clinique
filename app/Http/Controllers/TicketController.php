@@ -216,6 +216,17 @@ class TicketController extends Controller
         $validated['reste_a_payer'] = $calculs['reste_a_payer'];
         $validated['statut'] = $validated['reste_a_payer'] <= 0 ? 'paye' : ($validated['montant_paye'] > 0 ? 'partiellement_paye' : 'en_attente');
 
+        // Auto-détection du service_id si non renseigné dans le formulaire mais présent dans les actes
+        if (empty($validated['service_id']) && ! empty($itemsToCreate)) {
+            foreach ($itemsToCreate as $item) {
+                $acte = Acte::where('nom', $item['designation'])->first();
+                if ($acte && $acte->service_id) {
+                    $validated['service_id'] = $acte->service_id;
+                    break;
+                }
+            }
+        }
+
         // Sécurité schéma : ignorer les colonnes si la migration n'a pas encore été exécutée en BDD
         if (! Schema::hasColumn('tickets', 'service_id')) {
             unset($validated['service_id']);

@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Consultation extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
         'patient_id',
         'medecin_id',
         'ticket_id',
@@ -61,5 +65,23 @@ class Consultation extends Model
     public function ordonnance(): HasOne
     {
         return $this->hasOne(Ordonnance::class);
+    }
+
+    /**
+     * Utiliser la référence de consultation dans les URLs au lieu de l'ID numérique.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
+    /**
+     * Résolution de liaison de modèle par référence avec fallback sur l'ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('reference', $value)
+            ->orWhere('id', is_numeric($value) ? (int) $value : 0)
+            ->firstOrFail();
     }
 }
