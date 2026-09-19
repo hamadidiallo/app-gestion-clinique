@@ -11,6 +11,7 @@ use App\Models\Paiement;
 use App\Models\Patient;
 use App\Models\Prestation;
 use App\Models\Recette;
+use App\Models\ReglePartage;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\Ticket;
@@ -379,4 +380,77 @@ test('un ticket cree avec un medecin et un acte genere automatiquement une prest
         ->and((float) $prestation->montant)->toBe(10000.0)
         ->and((float) $prestation->part_medecin)->toBe(5000.0)
         ->and((float) $prestation->part_clinique)->toBe(5000.0);
+});
+
+test('ticket creation respects ReglePartage with clinique multi-tenancy', function () {
+    $user = getTestAdminUser();
+    $caisse = Caisse::firstOrCreate(
+        ['nom' => 'Caisse Regle Test', 'user_id' => $user->id, 'statut' => 'ouverte'],
+        ['montant_initial' => 50000, 'solde_actuel' => 50000, 'date_ouverture' => now()]
+    );
+
+    $service = Service::create([
+        'nom' => 'Cardiologie Regle',
+        'code' => 'SERV-CARD-REG',
+        'statut' => true,
+    ]);
+
+    ReglePartage::create([
+        'service_id' => $service->id,
+        'pourcentage_medecin' => 70.0,
+        'pourcentage_clinique' => 30.0,
+        'date_debut' => now()->subDay(),
+        'statut' => true,
+    ]);
+
+    $medecin = Medecin::create([
+        'nom' => 'Diallo',
+        'prenom' => 'Ibrahim',
+        'specialite' => 'Cardiologue',
+        'statut' => 1,
+    ]);
+
+    $acte = Acte::create([
+        'service_id' => $service->id,
+        'code' => 'ACT-ECG-REG',
+        'nom' => 'Électrocardiogramme Regle',
+        'tarif_normal' => 20000,
+        'statut' => true,
+    ]);
+
+    $patient = Patient::create([
+        'nom' => 'Camara',
+        'prenom' => 'Sekou',
+        'sexe' => 'M',
+        'statut' => 'non_assure',
+    ]);
+
+    $postData = [
+        'patient_id' => $patient->id,
+        'service_id' => $service->id,
+        'medecin_id' => $medecin->id,
+        'date_ticket' => now()->format('Y-m-d H:i:s'),
+        'montant_total' => 20000,
+        'montant_patient' => 20000,
+        'montant_paye' => 20000,
+        'statut' => 'paye',
+        'items' => [
+            [
+                'type_item' => 'acte',
+                'designation' => 'Électrocardiogramme Regle',
+                'quantite' => 1,
+                'prix_unitaire' => 20000,
+                'montant_total' => 20000,
+            ],
+        ],
+    ];
+
+    $response = $this->actingAs($user)->post(route('tickets.store'), $postData);
+    $response->assertRedirect();
+
+    $prestation = Prestation::where('patient_id', $patient->id)->where('medecin_id', $medecin->id)->first();
+    expect($prestation)->not->toBeNull()
+        ->and((float) $prestation->montant)->toBe(20000.0)
+        ->and((float) $prestation->part_medecin)->toBe(14000.0)
+        ->and((float) $prestation->part_clinique)->toBe(6000.0);
 });
