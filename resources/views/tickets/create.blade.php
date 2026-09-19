@@ -57,19 +57,35 @@
                     $initServiceId = isset($selectedActe) ? $selectedActe->service_id : old('service_id');
                 @endphp
                 <div class="col-lg-5 position-relative">
-                    <label for="patient_search_input" class="form-label fw-bold text-dark d-flex align-items-center gap-1">
-                        <i data-lucide="user" class="lucide-sm text-primary"></i> Patient <span class="text-danger">*</span>
-                    </label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="patient_search_input" class="form-label fw-bold text-dark d-flex align-items-center gap-1 mb-0">
+                            <i data-lucide="user" class="lucide-sm text-primary"></i> Patient <span class="text-danger">*</span>
+                        </label>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none text-teal fw-semibold p-0 d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#quickPatientModal" id="btn_quick_patient_link" title="Créer un nouveau patient rapidement">
+                            <i data-lucide="user-plus" style="width: 14px; height: 14px;"></i>
+                            <span>+ Nouveau Patient</span>
+                        </button>
+                    </div>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted border-end-0">
                             <i data-lucide="search" class="lucide-sm"></i>
                         </span>
                         <input type="text" id="patient_search_input" class="form-control border-start-0 ps-1 @error('patient_id') is-invalid @enderror" placeholder="Tapez le nom, prénom ou téléphone..." data-url="{{ route('patients.search') }}" value="{{ old('patient_search_name', $initPatientName) }}" autocomplete="off" required>
+                        <button type="button" class="btn btn-teal fw-bold d-inline-flex align-items-center gap-1 shadow-sm px-3" style="background-color: #0f766e !important; border-color: #0f766e !important; color: #ffffff !important;" data-bs-toggle="modal" data-bs-target="#quickPatientModal" id="btn_open_quick_patient" title="Créer un nouveau patient sans quitter la caisse">
+                            <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+                            <span>Nouveau</span>
+                        </button>
                     </div>
                     <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id', $initPatientId) }}" required>
                     
+                    {{-- Message de confirmation après création rapide --}}
+                    <div id="quick_patient_success_badge" class="alert alert-success d-none py-1 px-2 small mt-1 mb-0 d-flex align-items-center gap-1 rounded-2">
+                        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                        <span id="quick_patient_success_text"></span>
+                    </div>
+
                     {{-- Liste d'autocomplétion dynamique --}}
-                    <div id="patient_results_list" class="list-group position-absolute w-100 shadow-lg rounded-3 mt-1" style="display: none; z-index: 1050; max-height: 260px; overflow-y: auto;"></div>
+                    <div id="patient_results_list" class="list-group position-absolute w-100 shadow-lg rounded-3 mt-1" style="display: none; z-index: 1050; max-height: 280px; overflow-y: auto;"></div>
                     
                     @error('patient_id')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -318,6 +334,102 @@
             </button>
         </div>
     </form>
+
+    <!-- Modale Création Rapide de Patient (Guichet / Caissière) -->
+    <div class="modal fade" id="quickPatientModal" tabindex="-1" aria-labelledby="quickPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header text-white py-3 px-4" style="background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-3 bg-white bg-opacity-20 p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <i data-lucide="user-plus" class="text-white" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0 text-white" id="quickPatientModalLabel">Création Rapide de Patient</h5>
+                            <small class="text-white text-opacity-75">Enregistrement express au guichet pour facturation immédiate</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+
+                <form id="quick_patient_form" action="{{ route('patients.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div id="quick_patient_alert" class="alert alert-danger d-none py-2 px-3 small rounded-3 mb-3"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="qp_prenom" class="form-label small fw-bold text-dark mb-1">Prénom <span class="text-danger">*</span></label>
+                                <input type="text" name="prenom" id="qp_prenom" class="form-control rounded-3" placeholder="Ex: Awa, Mamadou..." required autocomplete="off">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="qp_nom" class="form-label small fw-bold text-dark mb-1">Nom de famille <span class="text-danger">*</span></label>
+                                <input type="text" name="nom" id="qp_nom" class="form-control rounded-3" placeholder="Ex: Traoré, Keita..." required autocomplete="off">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="qp_sexe" class="form-label small fw-bold text-dark mb-1">Sexe <span class="text-danger">*</span></label>
+                                <select name="sexe" id="qp_sexe" class="form-select rounded-3" required>
+                                    <option value="M">Masculin (Homme)</option>
+                                    <option value="F">Féminin (Femme)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="qp_telephone" class="form-label small fw-bold text-dark mb-1">Téléphone</label>
+                                <input type="tel" name="telephone" id="qp_telephone" class="form-control rounded-3" placeholder="Ex: 70 12 34 56">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="qp_statut" class="form-label small fw-bold text-dark mb-1">Prise en charge <span class="text-danger">*</span></label>
+                                <select name="statut" id="qp_statut" class="form-select rounded-3" required>
+                                    <option value="non_assure">Non Assuré (Privé / 100%)</option>
+                                    <option value="assure">Assuré (Partiel / Mutuelle)</option>
+                                </select>
+                            </div>
+
+                            {{-- Champs spécifiques assurance (affichés seulement si statut == 'assure') --}}
+                            <div class="col-12 d-none" id="qp_assurance_fields">
+                                <div class="p-3 rounded-3 bg-light border border-teal-subtle">
+                                    <h6 class="fw-bold text-teal small mb-2 d-flex align-items-center gap-1">
+                                        <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                                        Couverture d'assurance du patient
+                                    </h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label for="qp_assurance_id" class="form-label small text-muted mb-1">Organisme Assurance</label>
+                                            <select name="assurance_id" id="qp_assurance_id" class="form-select form-select-sm rounded-2">
+                                                <option value="" data-taux="0">-- Sélectionner une assurance --</option>
+                                                @foreach($assurances as $assurance)
+                                                    <option value="{{ $assurance->id }}" data-taux="{{ $assurance->taux_par_defaut ?? 80 }}">
+                                                        {{ $assurance->nom }} (Défaut {{ $assurance->taux_par_defaut ?? 80 }}%)
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="qp_taux_couverture" class="form-label small text-muted mb-1">Taux (%)</label>
+                                            <input type="number" step="1" min="0" max="100" name="taux_couverture" id="qp_taux_couverture" class="form-control form-control-sm rounded-2" placeholder="80">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="qp_numero_assure" class="form-label small text-muted mb-1">N° Assuré / Carte</label>
+                                            <input type="text" name="numero_assure" id="qp_numero_assure" class="form-control form-control-sm rounded-2" placeholder="Ex: INPS-998811">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" id="btn_submit_quick_patient" class="btn btn-primary rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-2" style="background: #0f766e; border-color: #0f766e;">
+                            <span id="qp_spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <i data-lucide="check" class="lucide-sm" id="qp_btn_icon"></i>
+                            <span>Enregistrer & Sélectionner</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -523,6 +635,117 @@ document.addEventListener('DOMContentLoaded', function() {
         inputMontantPaye.value = hiddenPatient.value;
         recalculerTotaux();
     });
+
+    // ==========================================
+    // GESTION MODALE CRÉATION RAPIDE DE PATIENT
+    // ==========================================
+    const quickPatientModalEl = document.getElementById('quickPatientModal');
+    const quickPatientForm = document.getElementById('quick_patient_form');
+    const qpStatut = document.getElementById('qp_statut');
+    const qpAssuranceFields = document.getElementById('qp_assurance_fields');
+    const qpAssuranceSelect = document.getElementById('qp_assurance_id');
+    const qpTauxInput = document.getElementById('qp_taux_couverture');
+    const qpAlert = document.getElementById('quick_patient_alert');
+    const qpBtnSubmit = document.getElementById('btn_submit_quick_patient');
+    const qpSpinner = document.getElementById('qp_spinner');
+    const qpBtnIcon = document.getElementById('qp_btn_icon');
+
+    if (qpStatut && qpAssuranceFields) {
+        qpStatut.addEventListener('change', function() {
+            if (this.value === 'assure') {
+                qpAssuranceFields.classList.remove('d-none');
+            } else {
+                qpAssuranceFields.classList.add('d-none');
+            }
+        });
+    }
+
+    if (qpAssuranceSelect && qpTauxInput) {
+        qpAssuranceSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const taux = opt ? opt.getAttribute('data-taux') : 0;
+            qpTauxInput.value = taux || 80;
+        });
+    }
+
+    if (quickPatientForm) {
+        quickPatientForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (qpAlert) {
+                qpAlert.classList.add('d-none');
+                qpAlert.innerHTML = '';
+            }
+            if (qpBtnSubmit) qpBtnSubmit.disabled = true;
+            if (qpSpinner) qpSpinner.classList.remove('d-none');
+            if (qpBtnIcon) qpBtnIcon.classList.add('d-none');
+
+            const formData = new FormData(quickPatientForm);
+
+            fetch(quickPatientForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData,
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    let errMsg = data.message || 'Erreur lors de la création du patient.';
+                    if (data.errors) {
+                        const errList = Object.values(data.errors).flat().join('<br>');
+                        errMsg = `<strong>Erreur de validation :</strong><br>${errList}`;
+                    }
+                    throw new Error(errMsg);
+                }
+                return data;
+            })
+            .then(data => {
+                if (data.success && data.patient) {
+                    if (typeof window.selectPatientInForm === 'function') {
+                        window.selectPatientInForm(data.patient);
+                    }
+
+                    // Fermeture de la modale
+                    if (window.bootstrap && bootstrap.Modal) {
+                        const modal = bootstrap.Modal.getInstance(quickPatientModalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+
+                    // Message visuel sous le champ patient
+                    const badgeSuccess = document.getElementById('quick_patient_success_badge');
+                    const textSuccess = document.getElementById('quick_patient_success_text');
+                    if (badgeSuccess && textSuccess) {
+                        textSuccess.textContent = `Patient « ${data.patient.nom_complet} » enregistré et sélectionné avec succès !`;
+                        badgeSuccess.classList.remove('d-none');
+                        setTimeout(() => badgeSuccess.classList.add('d-none'), 6000);
+                    }
+
+                    quickPatientForm.reset();
+                    if (qpAssuranceFields) {
+                        qpAssuranceFields.classList.add('d-none');
+                    }
+                }
+            })
+            .catch(error => {
+                if (qpAlert) {
+                    qpAlert.innerHTML = error.message;
+                    qpAlert.classList.remove('d-none');
+                }
+            })
+            .finally(() => {
+                if (qpBtnSubmit) qpBtnSubmit.disabled = false;
+                if (qpSpinner) qpSpinner.classList.add('d-none');
+                if (qpBtnIcon) qpBtnIcon.classList.remove('d-none');
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        });
+    }
 
     // Initialisation
     recalculerTotaux();

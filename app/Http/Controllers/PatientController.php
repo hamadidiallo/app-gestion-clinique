@@ -189,6 +189,30 @@ class PatientController extends Controller
             );
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            $patient->load('assurance');
+            $assuranceNom = $patient->assurance ? $patient->assurance->nom : null;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Patient '.$patient->prenom.' '.$patient->nom.' créé avec succès.',
+                'patient' => [
+                    'id' => $patient->id,
+                    'nom_complet' => $patient->prenom.' '.$patient->nom,
+                    'prenom' => $patient->prenom,
+                    'nom' => $patient->nom,
+                    'sexe' => $patient->sexe,
+                    'telephone' => $patient->telephone ?? 'Sans téléphone',
+                    'statut' => $patient->statut,
+                    'assurance_id' => $assuranceId,
+                    'assurance_nom' => $assuranceNom,
+                    'numero_assure' => $numeroAssure,
+                    'carte_reference' => $numeroAssure,
+                    'taux_couverture' => (float) ($tauxCouverture ?? ($patient->assurance ? $patient->assurance->taux_par_defaut : 0)),
+                ],
+            ], 201);
+        }
+
         if ($request->input('action') === 'save_and_ticket') {
             return to_route('tickets.create', ['patient_id' => $patient->id])
                 ->with('alert', 'Patient '.$patient->prenom.' '.$patient->nom.' créé avec succès. Vous pouvez maintenant émettre son ticket.');

@@ -369,6 +369,30 @@
             border-color: #0f766e !important;
         }
 
+        .btn-teal {
+            background-color: #0f766e !important;
+            border-color: #0f766e !important;
+            color: #ffffff !important;
+        }
+
+        .btn-teal:hover, .btn-teal:focus {
+            background-color: #115e59 !important;
+            border-color: #115e59 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-outline-teal {
+            background-color: transparent !important;
+            border-color: #0f766e !important;
+            color: #0f766e !important;
+        }
+
+        .btn-outline-teal:hover, .btn-outline-teal:focus {
+            background-color: #0f766e !important;
+            border-color: #0f766e !important;
+            color: #ffffff !important;
+        }
+
         /* Print optimization */
         @media print {
             .app-sidebar, .app-topbar, .no-print {
