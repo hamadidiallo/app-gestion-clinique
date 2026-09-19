@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PaiementRequest;
 use App\Models\Assurance;
+use App\Models\Caisse;
 use App\Models\ModePaiement;
 use App\Models\Paiement;
 use App\Models\Ticket;
@@ -53,6 +54,14 @@ class PaiementController extends Controller
      */
     public function create()
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier')) {
+            $caisseOuverte = Caisse::where('user_id', $user->id)->where('statut', 'ouverte')->first();
+            if (! $caisseOuverte) {
+                return redirect()->route('caisses.create')->with('alert', 'Votre session de caisse est actuellement fermée. Vous devez impérativement ouvrir votre caisse avant d\'enregistrer un encaissement.');
+            }
+        }
+
         $selectedTicketId = request('ticket_id');
         $selectedTicket = null;
         if ($selectedTicketId) {

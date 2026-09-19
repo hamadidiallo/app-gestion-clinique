@@ -117,6 +117,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // =========================================================================
+    // =========================================================================
     // ZONE 2 : COMPTABILITÉ & FINANCES (Administrateur, Comptable)
     // =========================================================================
     Route::middleware(['role:Administrateur,Comptable'])->group(function () {
@@ -162,6 +163,25 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/reglespartage/{reglespartage}', 'update')->name('reglespartage.update');
             Route::delete('/reglespartage/{reglespartage}', 'destroy')->name('reglespartage.destroy');
         });
+
+        // Journal des Encaissements & Gestion Comptable des Paiements
+        Route::controller(PaiementController::class)->group(function () {
+            Route::get('/paiement/index', 'index')->name('paiements.index');
+            Route::get('/paiements/{paiement}/edit', 'edit')->name('paiements.edit');
+            Route::put('/paiements/{paiement}', 'update')->name('paiements.update');
+            Route::delete('/paiements/{paiement}', 'destroy')->name('paiements.destroy');
+        });
+
+        // Modes de Paiement (Configuration réservée Admin & Comptable)
+        Route::controller(ModePaiementController::class)->group(function () {
+            Route::get('/modepaiement/index', 'index')->name('modepaiements.index');
+            Route::get('/create/modepaiement', 'create')->name('modepaiements.create');
+            Route::post('/create/modepaiement', 'store')->name('modepaiements.store');
+            Route::get('/modepaiements/{modepaiement}', 'show')->name('modepaiements.show');
+            Route::get('/modepaiements/{modepaiement}/edit', 'edit')->name('modepaiements.edit');
+            Route::put('/modepaiements/{modepaiement}', 'update')->name('modepaiements.update');
+            Route::delete('/modepaiements/{modepaiement}', 'destroy')->name('modepaiements.destroy');
+        });
     });
 
     // =========================================================================
@@ -190,7 +210,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // =========================================================================
-    // ZONE 4 : CAISSE, PAIEMENTS & DETTES (Admin, Caissier, Comptable)
+    // ZONE 4 : CAISSE, GUICHET & ENCAISSEMENTS (Admin, Caissier, Comptable)
     // =========================================================================
     Route::middleware(['role:Administrateur,Caissier,Comptable'])->group(function () {
         // Sessions de Caisses
@@ -217,16 +237,12 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/mouvementcaisses/{mouvementcaiss}', 'destroy')->name('mouvementcaisses.destroy');
         });
 
-        // Enregistrement des Paiements
+        // Enregistrement des Paiements au Guichet (Prise de paiement & Reçus)
         Route::controller(PaiementController::class)->group(function () {
-            Route::get('/paiement/index', 'index')->name('paiements.index');
             Route::get('/create/paiement', 'create')->name('paiements.create');
             Route::post('/create/paiement', 'store')->name('paiements.store');
             Route::get('/paiements/{paiement}', 'show')->name('paiements.show');
             Route::get('/paiements/{paiement}/print', 'print')->name('paiements.print');
-            Route::get('/paiements/{paiement}/edit', 'edit')->name('paiements.edit');
-            Route::put('/paiements/{paiement}', 'update')->name('paiements.update');
-            Route::delete('/paiements/{paiement}', 'destroy')->name('paiements.destroy');
         });
 
         // Dettes & Impayés
@@ -238,17 +254,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dettes/{dette}/edit', 'edit')->name('dettes.edit');
             Route::put('/dettes/{dette}', 'update')->name('dettes.update');
             Route::delete('/dettes/{dette}', 'destroy')->name('dettes.destroy');
-        });
-
-        // Modes de Paiement
-        Route::controller(ModePaiementController::class)->group(function () {
-            Route::get('/modepaiement/index', 'index')->name('modepaiements.index');
-            Route::get('/create/modepaiement', 'create')->name('modepaiements.create');
-            Route::post('/create/modepaiement', 'store')->name('modepaiements.store');
-            Route::get('/modepaiements/{modepaiement}', 'show')->name('modepaiements.show');
-            Route::get('/modepaiements/{modepaiement}/edit', 'edit')->name('modepaiements.edit');
-            Route::put('/modepaiements/{modepaiement}', 'update')->name('modepaiements.update');
-            Route::delete('/modepaiements/{modepaiement}', 'destroy')->name('modepaiements.destroy');
         });
     });
 
@@ -313,7 +318,23 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // =========================================================================
-    // ZONE 8 : SOINS, SERVICES, ACTES, ASSURANCES & MÉDECINS (Accessible personnel clinique)
+    // ZONE 7B : SERVICES MÉDICAUX (Admin, Médecin uniquement)
+    // =========================================================================
+    Route::middleware(['role:Administrateur,Médecin'])->group(function () {
+        Route::controller(ServiceController::class)->group(function () {
+            Route::get('/service/index', 'index')->name('services.index');
+            Route::get('/create/service', 'create')->name('service.create');
+            Route::post('/create/service', 'store')->name('services.store');
+            Route::get('/services/search', 'search')->name('services.search');
+            Route::get('/services/{service}', 'show')->name('services.show');
+            Route::get('/services/{service}/edit', 'edit')->name('services.edit');
+            Route::put('/services/{service}', 'update')->name('services.update');
+            Route::delete('/services/{service}', 'destroy')->name('services.destroy');
+        });
+    });
+
+    // =========================================================================
+    // ZONE 8 : SOINS, ACTES, ASSURANCES & MÉDECINS (Accessible personnel clinique)
     // =========================================================================
     Route::middleware(['role:Administrateur,Médecin,Réceptionniste,Caissier,Comptable'])->group(function () {
         // Prestations & Soins
@@ -338,18 +359,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/actes/{acte}/edit', 'edit')->name('actes.edit');
             Route::put('/actes/{acte}', 'update')->name('actes.update');
             Route::delete('/actes/{acte}', 'destroy')->name('actes.destroy');
-        });
-
-        // Services
-        Route::controller(ServiceController::class)->group(function () {
-            Route::get('/service/index', 'index')->name('services.index');
-            Route::get('/create/service', 'create')->name('service.create');
-            Route::post('/create/service', 'store')->name('services.store');
-            Route::get('/services/search', 'search')->name('services.search');
-            Route::get('/services/{service}', 'show')->name('services.show');
-            Route::get('/services/{service}/edit', 'edit')->name('services.edit');
-            Route::put('/services/{service}', 'update')->name('services.update');
-            Route::delete('/services/{service}', 'destroy')->name('services.destroy');
         });
 
         // Médecins

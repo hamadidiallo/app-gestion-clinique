@@ -62,8 +62,13 @@ class PaiementService
                 ->first();
 
             if (! $caisseOuverte) {
-                // Essayer de trouver n'importe quelle caisse ouverte active dans le système
-                $caisseOuverte = Caisse::where('statut', 'ouverte')->first();
+                $user = User::find($effectiveUserId);
+                if ($user && $user->hasRole('Caissier')) {
+                    throw new \InvalidArgumentException('Votre session de caisse est actuellement fermée. Vous devez ouvrir votre caisse avant de percevoir un règlement.');
+                }
+
+                // Pour un administrateur ou comptable, rattacher à une caisse ouverte active
+                $caisseOuverte = Caisse::where('statut', 'ouverte')->lockForUpdate()->first();
             }
 
             if (! $caisseOuverte) {

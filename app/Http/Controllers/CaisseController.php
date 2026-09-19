@@ -18,7 +18,7 @@ class CaisseController extends Controller
     ) {}
 
     /**
-     * Affiche l'ensemble des sessions de caisses (Ouvertes & Fermées) filtrées par période.
+     * Affiche l'ensemble des sessions de caisses (filtrées par utilisateur pour les caissiers).
      */
     public function index()
     {
@@ -28,7 +28,15 @@ class CaisseController extends Controller
 
         $filter = $this->getPeriodDates($period, $customStart, $customEnd);
 
+        $user = auth()->user();
+        $isCaissier = $user && $user->hasRole('Caissier');
+
         $query = Caisse::with('user')->latest('date_ouverture');
+
+        // Isolation stricte : une caissière ne voit QUE ses propres caisses
+        if ($isCaissier) {
+            $query->where('user_id', $user->id);
+        }
 
         $this->applyDateFilter($query, $filter['start'], $filter['end'], 'date_ouverture');
 
@@ -36,7 +44,12 @@ class CaisseController extends Controller
         $currentPeriod = $filter['period'];
         $periodLabel = $filter['label'];
 
-        return view('caisses.index', compact('caisses', 'currentPeriod', 'periodLabel'));
+        // Caisse actuellement ouverte pour cet utilisateur
+        $activeCaisse = $isCaissier
+            ? Caisse::where('user_id', $user->id)->where('statut', 'ouverte')->latest('date_ouverture')->first()
+            : null;
+
+        return view('caisses.index', compact('caisses', 'currentPeriod', 'periodLabel', 'activeCaisse', 'isCaissier'));
     }
 
     /**
@@ -44,14 +57,18 @@ class CaisseController extends Controller
      */
     public function create()
     {
-        $users = User::orderBy('nom')->get();
+        $user = auth()->user();
+        $isCaissier = $user && $user->hasRole('Caissier');
+
+        // Un caissier ne peut ouvrir de caisse que pour lui-même
+        $users = $isCaissier ? User::where('id', $user->id)->get() : User::orderBy('nom')->get();
 
         $statuts = [
             'ouverte' => 'Ouverte',
             'fermee' => 'Fermée',
         ];
 
-        return view('caisses.create', compact('users', 'statuts'));
+        return view('caisses.create', compact('users', 'statuts', 'isCaissier'));
     }
 
     /**
@@ -60,15 +77,18 @@ class CaisseController extends Controller
     public function store(CaisseRequest $request)
     {
         $validated = $request->validated();
+        $user = auth()->user();
+        $isCaissier = $user && $user->hasRole('Caissier');
 
         try {
-            $userId = (int) ($validated['user_id'] ?? auth()->id());
+            // Pour un caissier, forcer l'attribution à son propre compte
+            $userId = $isCaissier ? $user->id : (int) ($validated['user_id'] ?? $user->id);
             $fondsInitial = (float) ($validated['fonds_initial'] ?? 0);
             $observation = $validated['observation'] ?? null;
 
             $caisse = $this->caisseService->ouvrirCaisse($userId, $fondsInitial, $observation);
 
-            return to_route('caisses.index')->with('alert', 'Session de caisse #'.$caisse->id.' ouverte avec succès.');
+            return to_route('caisses.show', $caisse)->with('alert', 'Session de caisse #'.$caisse->id.' ouverte avec succès. Votre guichet est prêt.');
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['user_id' => $e->getMessage()]);
         }
@@ -79,6 +99,11 @@ class CaisseController extends Controller
      */
     public function show(Caisse $caiss)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier') && $caiss->user_id !== $user->id) {
+            abort(403, 'Accès interdit : vous ne pouvez consulter que vos propres sessions de caisse.');
+        }
+
         $caiss->load(['user', 'mouvements.user']);
 
         return view('caisses.show', ['caisse' => $caiss]);
@@ -89,14 +114,20 @@ class CaisseController extends Controller
      */
     public function edit(Caisse $caiss)
     {
-        $users = User::orderBy('nom')->get();
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier') && $caiss->user_id !== $user->id) {
+            abort(403, 'Accès interdit : vous ne pouvez modifier que vos propres sessions de caisse.');
+        }
+
+        $isCaissier = $user && $user->hasRole('Caissier');
+        $users = $isCaissier ? User::where('id', $user->id)->get() : User::orderBy('nom')->get();
 
         $statuts = [
             'ouverte' => 'Ouverte',
             'fermee' => 'Fermée',
         ];
 
-        return view('caisses.edit', ['caisse' => $caiss, 'users' => $users, 'statuts' => $statuts]);
+        return view('caisses.edit', ['caisse' => $caiss, 'users' => $users, 'statuts' => $statuts, 'isCaissier' => $isCaissier]);
     }
 
     /**
@@ -104,6 +135,11 @@ class CaisseController extends Controller
      */
     public function update(CaisseRequest $request, Caisse $caiss)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier') && $caiss->user_id !== $user->id) {
+            abort(403, 'Accès interdit.');
+        }
+
         $validated = $request->validated();
 
         if (isset($validated['statut']) && $validated['statut'] === 'fermee' && $caiss->statut !== 'fermee') {
@@ -129,6 +165,11 @@ class CaisseController extends Controller
      */
     public function destroy(Caisse $caiss)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier')) {
+            abort(403, 'Seul un administrateur peut supprimer une session de caisse.');
+        }
+
         $caiss->delete();
 
         return to_route('caisses.index')->with('alert', 'Session de caisse supprimée avec succès.');
@@ -139,6 +180,11 @@ class CaisseController extends Controller
      */
     public function cloturer(Request $request, Caisse $caiss)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier') && $caiss->user_id !== $user->id) {
+            abort(403, 'Accès interdit.');
+        }
+
         $request->validate([
             'solde_physique' => 'required|numeric|min:0',
             'observation' => 'nullable|string',
@@ -161,6 +207,11 @@ class CaisseController extends Controller
      */
     public function print(Caisse $caiss)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Caissier') && $caiss->user_id !== $user->id) {
+            abort(403, 'Accès interdit.');
+        }
+
         $caiss->load(['user', 'mouvements.user']);
 
         return view('caisses.print', ['caisse' => $caiss]);

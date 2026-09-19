@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Caisse;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,22 +96,72 @@ class RbacAccessControlTest extends TestCase
         $this->get(route('consultations.index'))->assertStatus(200);
     }
 
-    /** Le Caissier a accès à la caisse et aux paiements, mais PAS à l'administration ni à la compta */
+    /** Le Caissier a accès à sa caisse, aux tickets et aux dettes, mais PAS au journal de paiement, aux modes de paiement, aux services médicaux, ni à l'administration/compta */
     public function test_caissier_access_permissions(): void
     {
         $this->actingAs($this->caissier);
 
         // Autorisé
         $this->get(route('caisses.index'))->assertStatus(200);
-        $this->get(route('paiements.index'))->assertStatus(200);
+        $this->get(route('caisses.create'))->assertStatus(200);
         $this->get(route('dettes.index'))->assertStatus(200);
+        $this->get(route('tickets.index'))->assertStatus(200);
+        $this->get(route('tickets.create'))->assertStatus(200);
 
         // Interdit (403 Forbidden)
+        $this->get(route('paiements.index'))->assertStatus(403);
+        $this->get(route('modepaiements.index'))->assertStatus(403);
+        $this->get(route('services.index'))->assertStatus(403);
         $this->get(route('users.index'))->assertStatus(403);
         $this->get(route('roles.index'))->assertStatus(403);
         $this->get(route('recettes.index'))->assertStatus(403);
         $this->get(route('depenses.index'))->assertStatus(403);
         $this->get(route('consultations.index'))->assertStatus(403);
+    }
+
+    /** Une caissière ne peut voir que ses propres sessions de caisse et ne peut pas accéder à la caisse d'un tiers */
+    public function test_caissier_caisse_isolation(): void
+    {
+        $adminCaisse = Caisse::create([
+            'user_id' => $this->admin->id,
+            'date_ouverture' => now(),
+            'fonds_initial' => 50000,
+            'statut' => 'ouverte',
+        ]);
+
+        $caissierCaisse = Caisse::create([
+            'user_id' => $this->caissier->id,
+            'date_ouverture' => now(),
+            'fonds_initial' => 20000,
+            'statut' => 'ouverte',
+        ]);
+
+        $this->actingAs($this->caissier);
+
+        // Accès à sa propre caisse autorisé
+        $this->get(route('caisses.show', $caissierCaisse))->assertStatus(200);
+
+        // Accès à la caisse d'un autre guichetier interdit (403)
+        $this->get(route('caisses.show', $adminCaisse))->assertStatus(403);
+
+        // Dans la liste index, la caissière ne voit que ses propres caisses
+        $response = $this->get(route('caisses.index'));
+        $response->assertStatus(200);
+        $response->assertSee('>#'.$caissierCaisse->id.'<', false);
+        $response->assertDontSee('>#'.$adminCaisse->id.'<', false);
+        $response->assertSee($this->caissier->nom);
+        $response->assertDontSee($this->admin->nom);
+    }
+
+    /** Une caissière ne peut pas enregistrer de paiement si sa caisse est fermée */
+    public function test_caissier_cannot_take_payment_when_caisse_is_closed(): void
+    {
+        $this->actingAs($this->caissier);
+
+        // Tentative d'accès au formulaire de paiement -> redirection vers caisses.create
+        $response = $this->get(route('paiements.create'));
+        $response->assertRedirect(route('caisses.create'));
+        $response->assertSessionHas('alert');
     }
 
     /** Le Médecin a accès aux consultations et patients, mais PAS à la caisse ni aux utilisateurs */

@@ -382,7 +382,24 @@ class TicketController extends Controller
                 'description' => 'Encaissement initial ticket '.$ticket->reference,
             ]);
 
-            $caisseOuverte = Caisse::where('statut', 'ouverte')->first();
+            // Résolution de la caisse ouverte pour l'encaissement immédiat
+            $caisseOuverte = Caisse::where('user_id', $ticket->user_id)
+                ->where('statut', 'ouverte')
+                ->latest('date_ouverture')
+                ->first();
+
+            if (! $caisseOuverte) {
+                if (auth()->check() && auth()->user()->hasRole('Caissier')) {
+                    DB::rollBack();
+
+                    return back()->withInput()->withErrors([
+                        'montant_paye' => 'Votre session de caisse est actuellement fermée. Veuillez ouvrir votre caisse avant de percevoir un paiement, ou laissez le montant payé à 0 pour émettre le ticket en attente.',
+                    ]);
+                }
+
+                $caisseOuverte = Caisse::where('statut', 'ouverte')->latest('date_ouverture')->first();
+            }
+
             if ($caisseOuverte) {
                 $refRecette = 'REC-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -4));
                 Recette::create([

@@ -8,23 +8,79 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <div class="small text-muted mb-1 d-flex align-items-center gap-1">
-                <span>Caisse & Rapprochement</span>
+                <span>{{ !empty($isCaissier) ? 'Mon Guichet' : 'Caisse & Rapprochement' }}</span>
                 <span class="opacity-50">/</span>
-                <span class="fw-semibold text-dark">Supervision Guichets</span>
+                <span class="fw-semibold text-dark">{{ !empty($isCaissier) ? 'Mes Sessions' : 'Supervision Guichets' }}</span>
             </div>
-            <h1 class="h3 fw-bold mb-0 text-dark">Sessions de Caisses</h1>
+            <h1 class="h3 fw-bold mb-0 text-dark">{{ !empty($isCaissier) ? 'Mes Sessions de Caisse' : 'Sessions de Caisses' }}</h1>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('caisses.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                <i data-lucide="plus-circle" class="lucide-sm"></i>
-                <span>Ouvrir une Caisse</span>
-            </a>
+            @if(empty($activeCaisse))
+                <a href="{{ route('caisses.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                    <i data-lucide="plus-circle" class="lucide-sm"></i>
+                    <span>{{ !empty($isCaissier) ? 'Ouvrir ma Caisse' : 'Ouvrir une Caisse' }}</span>
+                </a>
+            @else
+                <a href="{{ route('caisses.show', $activeCaisse) }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                    <i data-lucide="wallet" class="lucide-sm"></i>
+                    <span>Accéder à ma Caisse</span>
+                </a>
+            @endif
             <a href="{{ route('mouvementcaisses.create') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
                 <i data-lucide="arrow-left-right" class="lucide-sm"></i>
                 <span>Mouvement Espèces</span>
             </a>
         </div>
     </div>
+
+    {{-- Bandeau d'état personnalisé pour la Caissière --}}
+    @if(!empty($isCaissier))
+        @if(!$activeCaisse)
+            <div class="card border-0 shadow-sm p-4 mb-4 rounded-3" style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-left: 5px solid #d97706 !important;">
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: #fde68a; color: #92400e;">
+                            <i data-lucide="lock" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">Votre session de caisse est actuellement fermée</h5>
+                            <p class="text-muted mb-0 small">Pour pouvoir enregistrer les paiements de tickets et délivrer des reçus, vous devez ouvrir votre session journalière.</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('caisses.create') }}" class="btn btn-primary px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 text-nowrap shadow-sm">
+                        <i data-lucide="plus-circle" class="lucide-sm"></i>
+                        <span>Ouvrir ma caisse</span>
+                    </a>
+                </div>
+            </div>
+        @else
+            <div class="card border-0 shadow-sm p-4 mb-4 rounded-3" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-left: 5px solid #059669 !important;">
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: #a7f3d0; color: #065f46;">
+                            <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h5 class="fw-bold mb-0 text-dark">Session de Caisse #{{ $activeCaisse->id }} en cours</h5>
+                                <span class="badge badge-success-pill">Ouverte</span>
+                            </div>
+                            <p class="text-muted mb-0 small">
+                                Ouverte le {{ \Carbon\Carbon::parse($activeCaisse->date_ouverture)->locale('fr')->isoFormat('D MMMM YYYY à HH:mm') }} ·
+                                Solde actuel : <strong class="font-mono text-dark fw-bold">{{ number_format($activeCaisse->solde_actuel, 0, ',', ' ') }} FCFA</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('caisses.show', $activeCaisse) }}" class="btn btn-primary px-3 py-2 fw-bold d-inline-flex align-items-center gap-2 text-nowrap shadow-sm">
+                            <i data-lucide="layout-dashboard" class="lucide-sm"></i>
+                            <span>Gérer ma session</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endif
 
     {{-- Composant de Filtrage par Période --}}
     <x-period-filter :currentPeriod="$currentPeriod" :periodLabel="$periodLabel" />
@@ -37,10 +93,14 @@
                     <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: #e3f3ee; color: #0f6b5f;">
                         <i data-lucide="banknote" class="lucide"></i>
                     </div>
-                    <span class="badge badge-success-pill">En service</span>
+                    <span class="badge {{ !empty($activeCaisse) || $caisses->where('statut', 'ouverte')->count() > 0 ? 'badge-success-pill' : 'badge-warning-pill' }}">
+                        {{ !empty($isCaissier) ? (!empty($activeCaisse) ? 'Ouverte' : 'Fermée') : 'En service' }}
+                    </span>
                 </div>
-                <div class="font-mono fs-4 fw-bold text-dark mb-1">{{ $caisses->where('statut', 'ouverte')->count() }}</div>
-                <div class="small text-muted">Caisses actuellement ouvertes</div>
+                <div class="font-mono fs-4 fw-bold text-dark mb-1">
+                    {{ !empty($isCaissier) ? (!empty($activeCaisse) ? 'Ouverte' : 'Fermée') : $caisses->where('statut', 'ouverte')->count() }}
+                </div>
+                <div class="small text-muted">{{ !empty($isCaissier) ? 'Statut de ma caisse' : 'Caisses actuellement ouvertes' }}</div>
             </div>
         </div>
 
@@ -55,7 +115,7 @@
                 <div class="font-mono fs-4 fw-bold text-dark mb-1">
                     {{ number_format($caisses->sum('solde_theorique'), 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
                 </div>
-                <div class="small text-muted">Solde théorique cumulé</div>
+                <div class="small text-muted">{{ !empty($isCaissier) ? 'Mon solde théorique cumulé' : 'Solde théorique cumulé' }}</div>
             </div>
         </div>
 
@@ -70,7 +130,7 @@
                 <div class="font-mono fs-4 fw-bold text-dark mb-1">
                     {{ number_format($caisses->sum('total_entrees'), 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
                 </div>
-                <div class="small text-muted">Entrées d'espèces reçues</div>
+                <div class="small text-muted">{{ !empty($isCaissier) ? 'Mes entrées d\'espèces' : 'Entrées d\'espèces reçues' }}</div>
             </div>
         </div>
 
@@ -85,7 +145,7 @@
                 <div class="font-mono fs-4 fw-bold {{ $caisses->sum('ecart') != 0 ? 'text-danger' : 'text-dark' }} mb-1">
                     {{ number_format($caisses->sum('ecart'), 0, ',', ' ') }} <small class="fs-6 fw-normal text-muted">FCFA</small>
                 </div>
-                <div class="small text-muted">Écart de caisse global</div>
+                <div class="small text-muted">{{ !empty($isCaissier) ? 'Mon écart cumulé' : 'Écart de caisse global' }}</div>
             </div>
         </div>
     </div>
@@ -95,7 +155,7 @@
         <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="d-flex align-items-center gap-2">
                 <i data-lucide="history" class="lucide text-primary" style="color: var(--primary-color) !important;"></i>
-                <h5 class="card-title mb-0 fw-bold text-dark">Historique des Sessions & Guichets</h5>
+                <h5 class="card-title mb-0 fw-bold text-dark">{{ !empty($isCaissier) ? 'Historique de mes Sessions de Caisse' : 'Historique des Sessions & Guichets' }}</h5>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <x-export-buttons table-id="caissesTable" title="Historique des Sessions de Caisse" filename="sessions_caisse" />

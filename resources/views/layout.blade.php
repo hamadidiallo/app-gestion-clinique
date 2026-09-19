@@ -357,6 +357,18 @@
             border: 1px solid #cfe6e2;
         }
 
+        .text-teal {
+            color: #0f766e !important;
+        }
+
+        .bg-teal {
+            background-color: #0f766e !important;
+        }
+
+        .border-teal {
+            border-color: #0f766e !important;
+        }
+
         /* Print optimization */
         @media print {
             .app-sidebar, .app-topbar, .no-print {
@@ -434,19 +446,21 @@
                     <i data-lucide="receipt"></i>
                     <span>Tickets / Factures</span>
                 </a>
-                @if(auth()->user()->hasRole(['Administrateur', 'Caissier', 'Comptable']))
+                @if(auth()->user()->hasRole(['Administrateur', 'Comptable']))
                 <a href="{{ route('paiements.index') }}" class="nav-link-custom {{ request()->routeIs('paiements.*', 'paiement.*') ? 'active' : '' }}">
                     <i data-lucide="credit-card"></i>
                     <span>Journal des Encaissements</span>
                 </a>
+                @endif
                 <a href="{{ route('dettes.index') }}" class="nav-link-custom {{ request()->routeIs('dettes.*', 'dette.*') ? 'active' : '' }}">
                     <i data-lucide="alert-triangle"></i>
                     <span>Dettes & Impayés</span>
                 </a>
                 <a href="{{ route('caisses.index') }}" class="nav-link-custom {{ request()->routeIs('caisses.*', 'caisse.*', 'mouvementcaisses.*') ? 'active' : '' }}">
                     <i data-lucide="banknote"></i>
-                    <span>Caisse & Clôture Journalière</span>
+                    <span>{{ auth()->user()->hasRole('Caissier') ? 'Ma Caisse' : 'Caisse & Clôture Journalière' }}</span>
                 </a>
+                @if(auth()->user()->hasRole(['Administrateur', 'Comptable']))
                 <a href="{{ route('modepaiements.index') }}" class="nav-link-custom {{ request()->routeIs('modepaiements.*', 'modepaiement.*') ? 'active' : '' }}">
                     <i data-lucide="wallet"></i>
                     <span>Modes de Paiement</span>
@@ -464,10 +478,12 @@
                     <i data-lucide="activity"></i>
                     <span>Soins aux Patients</span>
                 </a>
+                @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Médecin']))
                 <a href="{{ route('services.index') }}" class="nav-link-custom {{ request()->routeIs('services.*', 'service.*') ? 'active' : '' }}">
                     <i data-lucide="building-2"></i>
                     <span>Services Médicaux</span>
                 </a>
+                @endif
                 @if(auth()->check() && auth()->user()->hasRole(['Administrateur', 'Médecin', 'Comptable']))
                 <a href="{{ route('medecins.index') }}" class="nav-link-custom {{ request()->routeIs('medecins.*', 'medecin.*') ? 'active' : '' }}">
                     <i data-lucide="user-check"></i>
@@ -571,23 +587,35 @@
             {{-- Topbar supérieure épurée --}}
             <header class="app-topbar no-print">
                 @php
-                    $topbarCaisse = \App\Models\Caisse::where('statut', 'ouverte')->first();
+                    $isCaissier = auth()->check() && auth()->user()->hasRole('Caissier');
+                    $topbarCaisse = $isCaissier
+                        ? \App\Models\Caisse::where('user_id', auth()->id())->where('statut', 'ouverte')->latest('date_ouverture')->first()
+                        : \App\Models\Caisse::where('statut', 'ouverte')->latest('date_ouverture')->first();
                 @endphp
                 <div class="d-flex align-items-center gap-3">
                     @if($topbarCaisse)
-                        <a href="{{ route('caisses.show', $topbarCaisse) }}" class="text-decoration-none">
+                        <a href="{{ route('caisses.show', $topbarCaisse) }}" class="text-decoration-none" title="Session #{{ $topbarCaisse->id }} ouverte">
                             <span class="badge badge-success-pill px-3 py-2 d-inline-flex align-items-center gap-2">
                                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #12a594; display: inline-block;"></span>
-                                <span>Caisse Ouverte : <strong class="font-mono fw-bold">{{ number_format($topbarCaisse->solde_actuel ?? 0, 0, ',', ' ') }} FCFA</strong></span>
+                                <span>{{ $isCaissier ? 'Ma Caisse : Ouverte' : 'Caisse Ouverte' }} : <strong class="font-mono fw-bold">{{ number_format($topbarCaisse->solde_actuel ?? 0, 0, ',', ' ') }} FCFA</strong></span>
                             </span>
                         </a>
                     @else
-                        <a href="{{ route('caisses.index') }}" class="text-decoration-none">
-                            <span class="badge badge-warning-pill px-3 py-2 d-inline-flex align-items-center gap-2">
-                                <i data-lucide="lock" class="lucide-sm"></i>
-                                <span>Caisse Fermée</span>
-                            </span>
-                        </a>
+                        @if($isCaissier)
+                            <a href="{{ route('caisses.create') }}" class="text-decoration-none" title="Votre caisse est fermée. Cliquez pour ouvrir votre session">
+                                <span class="badge badge-warning-pill px-3 py-2 d-inline-flex align-items-center gap-2">
+                                    <i data-lucide="lock" class="lucide-sm"></i>
+                                    <span>Ma Caisse : Fermée · <span class="text-decoration-underline fw-bold">Ouvrir</span></span>
+                                </span>
+                            </a>
+                        @else
+                            <a href="{{ route('caisses.index') }}" class="text-decoration-none">
+                                <span class="badge badge-warning-pill px-3 py-2 d-inline-flex align-items-center gap-2">
+                                    <i data-lucide="lock" class="lucide-sm"></i>
+                                    <span>Caisse Fermée</span>
+                                </span>
+                            </a>
+                        @endif
                     @endif
                     <span class="d-none d-lg-inline-flex align-items-center gap-2 text-muted small">
                         <span class="fw-semibold text-primary" style="color: var(--primary-color) !important;">Journée en cours</span>
