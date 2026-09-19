@@ -64,6 +64,14 @@ class Caisse extends Model
     }
 
     /**
+     * Accesseur pour le solde actuel théorique de la caisse.
+     */
+    public function getSoldeActuelAttribute(): float
+    {
+        return (float) ($this->solde_theorique ?? ($this->fonds_initial + $this->total_entrees - $this->total_sorties));
+    }
+
+    /**
      * Utiliser la référence de session (ex: SES-00001) dans les URLs.
      */
     public function getRouteKeyName(): string

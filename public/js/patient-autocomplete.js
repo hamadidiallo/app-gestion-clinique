@@ -46,6 +46,18 @@ window.selectPatientInForm = function (patient) {
         inputTauxAssurance.value = patient.taux_couverture !== undefined ? patient.taux_couverture : 0;
         inputTauxAssurance.dispatchEvent(new Event('input'));
     }
+
+    const badgeAssure = document.getElementById('ticket_patient_assure_badge');
+    const textNumAssure = document.getElementById('ticket_patient_assure_num');
+    const numAssure = patient.numero_assure || patient.carte_reference;
+    if (badgeAssure && textNumAssure) {
+        if (patient.statut === 'assure' && numAssure) {
+            textNumAssure.textContent = numAssure;
+            badgeAssure.classList.remove('d-none');
+        } else {
+            badgeAssure.classList.add('d-none');
+        }
+    }
 };
 
 window.openQuickPatientModal = function (query = '') {

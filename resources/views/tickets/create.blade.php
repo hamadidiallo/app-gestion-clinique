@@ -106,6 +106,14 @@
                         @endforeach
                     </select>
                     @error('assurance_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    
+                    @php
+                        $initNumAssure = $selectedPatient->numero_assure ?? ($initCarte ? $initCarte->reference : '');
+                    @endphp
+                    <div id="ticket_patient_assure_badge" class="small mt-1 text-teal fw-semibold {{ $initNumAssure ? '' : 'd-none' }}">
+                        <i data-lucide="credit-card" style="width: 13px; height: 13px;"></i>
+                        <span>N° Assuré : <strong id="ticket_patient_assure_num" class="font-mono text-dark">{{ $initNumAssure }}</strong></span>
+                    </div>
                 </div>
 
                 {{-- Taux de Prise en charge en % --}}
@@ -134,19 +142,37 @@
                     </select>
                 </div>
 
-                {{-- Médecin Traitant --}}
-                <div class="col-md-4">
-                    <label for="medecin_id" class="form-label fw-bold text-dark d-flex align-items-center gap-1">
-                        <i data-lucide="user-check" class="lucide-sm text-primary"></i> Médecin Référent
-                    </label>
-                    <select name="medecin_id" id="medecin_id" class="form-select fw-semibold @error('medecin_id') is-invalid @enderror">
-                        <option value="">-- Tout Médecin / Non assigné --</option>
-                        @foreach($medecins as $medecin)
-                            <option value="{{ $medecin->id }}" {{ old('medecin_id') == $medecin->id ? 'selected' : '' }}>
-                                Dr {{ $medecin->nom }} {{ $medecin->prenom }} ({{ $medecin->specialite ?? 'Généraliste' }})
-                            </option>
-                        @endforeach
-                    </select>
+                {{-- Médecin Traitant avec Recherche Rapide --}}
+                <div class="col-md-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="medecin_search_input" class="form-label fw-bold text-dark d-flex align-items-center gap-1 mb-0">
+                            <i data-lucide="user-check" class="lucide-sm text-primary"></i> Médecin Référent
+                        </label>
+                        @php
+                            $initMedecinId = old('medecin_id', $selectedMedecin->id ?? '');
+                            $initMedecinText = '';
+                            if ($initMedecinId && $medecins->find($initMedecinId)) {
+                                $mFound = $medecins->find($initMedecinId);
+                                $initMedecinText = 'Dr ' . $mFound->nom . ' ' . $mFound->prenom . ($mFound->specialite ? ' (' . $mFound->specialite . ')' : '');
+                            }
+                        @endphp
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none text-muted p-0 small" id="btn_clear_medecin" style="{{ $initMedecinId ? '' : 'display: none;' }}" title="Désassigner le médecin">
+                            ✕ Réinitialiser
+                        </button>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0">
+                            <i data-lucide="search" class="lucide-sm"></i>
+                        </span>
+                        <input type="text" id="medecin_search_input" class="form-control border-start-0 ps-1" placeholder="Tapez le nom ou la spécialité..." value="{{ $initMedecinText }}" autocomplete="off">
+                        <button type="button" class="btn btn-outline-secondary" id="btn_toggle_medecins_dropdown" title="Afficher tous les médecins">
+                            <i data-lucide="chevron-down" class="lucide-sm"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" name="medecin_id" id="medecin_id" value="{{ $initMedecinId }}">
+                    
+                    {{-- Liste dynamique des médecins filtrée --}}
+                    <div id="medecin_results_list" class="list-group position-absolute w-100 shadow-lg rounded-3 mt-1" style="display: none; z-index: 1050; max-height: 260px; overflow-y: auto;"></div>
                 </div>
 
                 {{-- Dates --}}
@@ -379,39 +405,62 @@
                                 <input type="tel" name="telephone" id="qp_telephone" class="form-control rounded-3" placeholder="Ex: 70 12 34 56">
                             </div>
                             <div class="col-md-4">
-                                <label for="qp_statut" class="form-label small fw-bold text-dark mb-1">Prise en charge <span class="text-danger">*</span></label>
-                                <select name="statut" id="qp_statut" class="form-select rounded-3" required>
-                                    <option value="non_assure">Non Assuré (Privé / 100%)</option>
-                                    <option value="assure">Assuré (Partiel / Mutuelle)</option>
-                                </select>
+                                <label class="form-label small fw-bold text-dark mb-1">Prise en charge <span class="text-danger">*</span></label>
+                                <div class="btn-group w-100" role="group" aria-label="Type de prise en charge">
+                                    <input type="radio" class="btn-check" name="statut" id="qp_statut_non_assure" value="non_assure" checked autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm fw-semibold d-flex align-items-center justify-content-center gap-1 py-2" for="qp_statut_non_assure">
+                                        <i data-lucide="user" style="width: 14px; height: 14px;"></i>
+                                        <span>Privé (Non Assuré)</span>
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="statut" id="qp_statut_assure" value="assure" autocomplete="off">
+                                    <label class="btn btn-outline-teal btn-sm fw-semibold d-flex align-items-center justify-content-center gap-1 py-2" for="qp_statut_assure">
+                                        <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                                        <span>Assuré (Mutuelle)</span>
+                                    </label>
+                                </div>
                             </div>
 
                             {{-- Champs spécifiques assurance (affichés seulement si statut == 'assure') --}}
                             <div class="col-12 d-none" id="qp_assurance_fields">
-                                <div class="p-3 rounded-3 bg-light border border-teal-subtle">
-                                    <h6 class="fw-bold text-teal small mb-2 d-flex align-items-center gap-1">
-                                        <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-                                        Couverture d'assurance du patient
-                                    </h6>
-                                    <div class="row g-2">
+                                <div class="p-3 rounded-3 bg-light border border-teal" style="background-color: #f0fdfa !important;">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold text-teal mb-0 d-flex align-items-center gap-2">
+                                            <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+                                            <span>Informations de l'Assurance du Patient</span>
+                                        </h6>
+                                        <span class="badge badge-info-pill">Tiers-payant</span>
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-md-5">
-                                            <label for="qp_assurance_id" class="form-label small text-muted mb-1">Organisme Assurance</label>
-                                            <select name="assurance_id" id="qp_assurance_id" class="form-select form-select-sm rounded-2">
+                                            <label for="qp_assurance_id" class="form-label small fw-bold text-dark mb-1">
+                                                Organisme d'Assurance <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="assurance_id" id="qp_assurance_id" class="form-select rounded-2">
                                                 <option value="" data-taux="0">-- Sélectionner une assurance --</option>
                                                 @foreach($assurances as $assurance)
                                                     <option value="{{ $assurance->id }}" data-taux="{{ $assurance->taux_par_defaut ?? 80 }}">
-                                                        {{ $assurance->nom }} (Défaut {{ $assurance->taux_par_defaut ?? 80 }}%)
+                                                        {{ $assurance->nom }} {{ $assurance->code ? '('.$assurance->code.')' : '' }} (Défaut: {{ number_format($assurance->taux_par_defaut ?? 80, 0) }}%)
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label for="qp_taux_couverture" class="form-label small text-muted mb-1">Taux (%)</label>
-                                            <input type="number" step="1" min="0" max="100" name="taux_couverture" id="qp_taux_couverture" class="form-control form-control-sm rounded-2" placeholder="80">
-                                        </div>
                                         <div class="col-md-4">
-                                            <label for="qp_numero_assure" class="form-label small text-muted mb-1">N° Assuré / Carte</label>
-                                            <input type="text" name="numero_assure" id="qp_numero_assure" class="form-control form-control-sm rounded-2" placeholder="Ex: INPS-998811">
+                                            <label for="qp_numero_assure" class="form-label small fw-bold text-dark mb-1 d-flex align-items-center gap-1">
+                                                <i data-lucide="credit-card" style="width: 14px; height: 14px;" class="text-teal"></i>
+                                                <span>Numéro d'Assuré / Matricule <span class="text-danger">*</span></span>
+                                            </label>
+                                            <input type="text" name="numero_assure" id="qp_numero_assure" class="form-control rounded-2 font-mono fw-semibold" placeholder="Ex: INPS-998811 ou CANAM-7788">
+                                            <small class="text-muted" style="font-size: 0.72rem;">N° de carte ou matricule de l'assuré</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="qp_taux_couverture" class="form-label small fw-bold text-dark mb-1">
+                                                Taux Prise en charge (%)
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" step="1" min="0" max="100" name="taux_couverture" id="qp_taux_couverture" class="form-control rounded-start-2 font-mono fw-bold text-success" placeholder="80">
+                                                <span class="input-group-text bg-success-subtle text-success fw-bold font-mono">%</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -637,27 +686,165 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ==========================================
+    // RECHERCHE DYNAMIQUE DES MÉDECINS
+    // ==========================================
+    const medecinSearchInput = document.getElementById('medecin_search_input');
+    const hiddenMedecinId = document.getElementById('medecin_id');
+    const medecinResultsList = document.getElementById('medecin_results_list');
+    const btnClearMedecin = document.getElementById('btn_clear_medecin');
+    const btnToggleMedecins = document.getElementById('btn_toggle_medecins_dropdown');
+
+@php
+    $medecinsJson = json_encode($medecins->map(function($m) {
+        return [
+            'id' => $m->id,
+            'nom' => $m->nom,
+            'prenom' => $m->prenom,
+            'nom_complet' => 'Dr ' . $m->nom . ' ' . $m->prenom,
+            'specialite' => $m->specialite ?: 'Généraliste',
+        ];
+    }));
+@endphp
+    const medecinsData = {!! $medecinsJson !!};
+
+    function escapeHtmlText(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function renderMedecins(filterText = '') {
+        if (!medecinResultsList) return;
+        medecinResultsList.innerHTML = '';
+        const term = (filterText || '').trim().toLowerCase();
+
+        // Option 0 : Tout Médecin / Non assigné
+        const itemNone = document.createElement('button');
+        itemNone.type = 'button';
+        itemNone.className = 'list-group-item list-group-item-action py-2 px-3 text-muted small fst-italic border-bottom';
+        itemNone.innerHTML = '<span>-- Tout Médecin / Non assigné --</span>';
+        itemNone.addEventListener('click', function() {
+            hiddenMedecinId.value = '';
+            medecinSearchInput.value = '';
+            if (btnClearMedecin) btnClearMedecin.style.display = 'none';
+            medecinResultsList.style.display = 'none';
+        });
+        medecinResultsList.appendChild(itemNone);
+
+        const filtered = medecinsData.filter(m => {
+            if (!term) return true;
+            return m.nom.toLowerCase().includes(term)
+                || m.prenom.toLowerCase().includes(term)
+                || m.nom_complet.toLowerCase().includes(term)
+                || m.specialite.toLowerCase().includes(term);
+        });
+
+        if (filtered.length === 0) {
+            const noRes = document.createElement('div');
+            noRes.className = 'list-group-item py-2 px-3 text-muted small';
+            noRes.textContent = 'Aucun médecin correspondant trouvé.';
+            medecinResultsList.appendChild(noRes);
+        } else {
+            filtered.forEach(m => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3';
+                item.innerHTML = `
+                    <div>
+                        <span class="fw-semibold text-dark">${escapeHtmlText(m.nom_complet)}</span>
+                    </div>
+                    <span class="badge badge-info-pill">${escapeHtmlText(m.specialite)}</span>
+                `;
+                item.addEventListener('click', function() {
+                    hiddenMedecinId.value = m.id;
+                    medecinSearchInput.value = `${m.nom_complet} (${m.specialite})`;
+                    if (btnClearMedecin) btnClearMedecin.style.display = 'inline-block';
+                    medecinResultsList.style.display = 'none';
+                });
+                medecinResultsList.appendChild(item);
+            });
+        }
+
+        medecinResultsList.style.display = 'block';
+    }
+
+    if (medecinSearchInput) {
+        medecinSearchInput.addEventListener('input', function() {
+            renderMedecins(this.value);
+            if (!this.value.trim()) {
+                hiddenMedecinId.value = '';
+                if (btnClearMedecin) btnClearMedecin.style.display = 'none';
+            }
+        });
+
+        medecinSearchInput.addEventListener('focus', function() {
+            renderMedecins(this.value);
+        });
+    }
+
+    if (btnToggleMedecins) {
+        btnToggleMedecins.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (medecinResultsList.style.display === 'block') {
+                medecinResultsList.style.display = 'none';
+            } else {
+                renderMedecins('');
+                medecinSearchInput.focus();
+            }
+        });
+    }
+
+    if (btnClearMedecin) {
+        btnClearMedecin.addEventListener('click', function() {
+            hiddenMedecinId.value = '';
+            medecinSearchInput.value = '';
+            this.style.display = 'none';
+            medecinResultsList.style.display = 'none';
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        if (medecinSearchInput && medecinResultsList) {
+            if (!medecinSearchInput.contains(event.target) && !medecinResultsList.contains(event.target) && (!btnToggleMedecins || !btnToggleMedecins.contains(event.target))) {
+                medecinResultsList.style.display = 'none';
+            }
+        }
+    });
+
+    // ==========================================
     // GESTION MODALE CRÉATION RAPIDE DE PATIENT
     // ==========================================
     const quickPatientModalEl = document.getElementById('quickPatientModal');
     const quickPatientForm = document.getElementById('quick_patient_form');
-    const qpStatut = document.getElementById('qp_statut');
+    const radioNonAssure = document.getElementById('qp_statut_non_assure');
+    const radioAssure = document.getElementById('qp_statut_assure');
     const qpAssuranceFields = document.getElementById('qp_assurance_fields');
     const qpAssuranceSelect = document.getElementById('qp_assurance_id');
+    const qpNumeroAssure = document.getElementById('qp_numero_assure');
     const qpTauxInput = document.getElementById('qp_taux_couverture');
     const qpAlert = document.getElementById('quick_patient_alert');
     const qpBtnSubmit = document.getElementById('btn_submit_quick_patient');
     const qpSpinner = document.getElementById('qp_spinner');
     const qpBtnIcon = document.getElementById('qp_btn_icon');
 
-    if (qpStatut && qpAssuranceFields) {
-        qpStatut.addEventListener('change', function() {
-            if (this.value === 'assure') {
-                qpAssuranceFields.classList.remove('d-none');
-            } else {
-                qpAssuranceFields.classList.add('d-none');
-            }
-        });
+    function updateModalAssuranceVisibility() {
+        if (radioAssure && radioAssure.checked) {
+            if (qpAssuranceFields) qpAssuranceFields.classList.remove('d-none');
+            if (qpNumeroAssure) qpNumeroAssure.setAttribute('required', 'required');
+            if (qpAssuranceSelect) qpAssuranceSelect.setAttribute('required', 'required');
+        } else {
+            if (qpAssuranceFields) qpAssuranceFields.classList.add('d-none');
+            if (qpNumeroAssure) qpNumeroAssure.removeAttribute('required');
+            if (qpAssuranceSelect) qpAssuranceSelect.removeAttribute('required');
+        }
+    }
+
+    if (radioNonAssure && radioAssure) {
+        radioNonAssure.addEventListener('change', updateModalAssuranceVisibility);
+        radioAssure.addEventListener('change', updateModalAssuranceVisibility);
     }
 
     if (qpAssuranceSelect && qpTauxInput) {
@@ -725,9 +912,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     quickPatientForm.reset();
-                    if (qpAssuranceFields) {
-                        qpAssuranceFields.classList.add('d-none');
+                    if (radioNonAssure) {
+                        radioNonAssure.checked = true;
                     }
+                    updateModalAssuranceVisibility();
                 }
             })
             .catch(error => {

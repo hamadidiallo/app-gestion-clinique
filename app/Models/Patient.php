@@ -53,6 +53,14 @@ class Patient extends Model
     ];
 
     /**
+     * Accesseur pour le nom complet du patient (Nom Prénom).
+     */
+    public function getNomCompletAttribute(): string
+    {
+        return trim(($this->nom ?? '').' '.($this->prenom ?? ''));
+    }
+
+    /**
      * Relation d'appartenance : Le patient appartient directement à un organisme d'assurance.
      */
     public function assurance(): BelongsTo

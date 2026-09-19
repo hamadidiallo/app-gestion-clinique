@@ -34,7 +34,78 @@ class DashboardController extends Controller
 
         $fin = Carbon::now()->endOfDay();
 
-        // 2. Indicateurs Financiers (KPIs)
+        $user = auth()->user();
+        $isCaissier = $user && $user->isCaissier() && ! $user->isAdmin() && ! $user->isComptable();
+
+        // Libellé clair de la période sélectionnée
+        $periodesLabels = [
+            'jour' => 'Aujourd\'hui',
+            'semaine' => 'Cette Semaine',
+            'mois' => 'Ce Mois',
+            'trimestre' => 'Ce Trimestre',
+            'semestre' => 'Ce Semestre',
+            'annee' => 'Cette Année',
+        ];
+
+        // Pour un caissier : Vue opérationnelle guichet (données financières globales et CA services strictement masqués)
+        if ($isCaissier) {
+            // Caisse active de l'utilisateur
+            $maCaisse = Caisse::where('user_id', $user->id)
+                ->where('statut', 'ouverte')
+                ->latest('date_ouverture')
+                ->first();
+
+            // Total encaissé par ce caissier sur la période
+            $mesEncaissements = (float) Recette::where('statut', true)
+                ->where('user_id', $user->id)
+                ->whereBetween('date_recette', [$debut, $fin])
+                ->sum('montant');
+
+            // Tickets émis par ce caissier sur la période
+            $mesTicketsCount = Ticket::where('user_id', $user->id)
+                ->whereBetween('date_ticket', [$debut, $fin])
+                ->count();
+
+            $mesTicketsMontant = (float) Ticket::where('user_id', $user->id)
+                ->whereBetween('date_ticket', [$debut, $fin])
+                ->sum('montant_total');
+
+            // Créances actives à recouvrer (visibilité utile pour relancer un patient au guichet)
+            $totalDettesRestantes = (float) Dette::whereIn('statut', ['en_cours', 'partiel'])
+                ->sum('reste_a_payer');
+
+            // Derniers tickets émis par ce caissier
+            $derniersTickets = Ticket::where('user_id', $user->id)
+                ->with(['patient', 'service'])
+                ->latest('date_ticket')
+                ->take(8)
+                ->get();
+
+            return view('dashboard.index', [
+                'periode' => $periode,
+                'periodesLabels' => $periodesLabels,
+                'debut' => $debut,
+                'fin' => $fin,
+                'isCaissier' => true,
+                'maCaisse' => $maCaisse,
+                'mesEncaissements' => $mesEncaissements,
+                'mesTicketsCount' => $mesTicketsCount,
+                'mesTicketsMontant' => $mesTicketsMontant,
+                'totalDettesRestantes' => $totalDettesRestantes,
+                'derniersTickets' => $derniersTickets,
+                // Données macro initialisées à zéro / collections vides pour prévenir toute fuite de données
+                'totalRecettes' => $mesEncaissements,
+                'totalDepenses' => 0,
+                'soldeNet' => 0,
+                'partsMedecinsDues' => 0,
+                'nombreTickets' => $mesTicketsCount,
+                'totalMontantTickets' => $mesTicketsMontant,
+                'caissesOuvertes' => collect(),
+                'servicesStats' => collect(),
+            ]);
+        }
+
+        // Pour les administrateurs & comptables : Vue macro complète
         $totalRecettes = Recette::where('statut', true)
             ->whereBetween('date_recette', [$debut, $fin])
             ->sum('montant');
@@ -51,14 +122,14 @@ class DashboardController extends Controller
         $partsMedecinsDues = Remuneration::where('statut', 'en_attente')
             ->sum('montant_medecin');
 
-        // 3. Compteurs d'actes & consultations
+        // Compteurs d'actes & consultations
         $nombreTickets = Ticket::whereBetween('date_ticket', [$debut, $fin])->count();
         $totalMontantTickets = Ticket::whereBetween('date_ticket', [$debut, $fin])->sum('montant_total');
 
-        // 4. Caisses Ouvertes actuellement
+        // Caisses Ouvertes actuellement
         $caissesOuvertes = Caisse::where('statut', 'ouverte')->with('user')->get();
 
-        // 5. Synthèse des prestations par Service médical sur la période
+        // Synthèse des prestations par Service médical sur la période
         $servicesStats = Service::withCount([
             'actes',
             'prestations as prestations_periode_count' => function ($q) use ($debut, $fin) {
@@ -104,30 +175,26 @@ class DashboardController extends Controller
                 return $service;
             });
 
-        // Libellé clair de la période sélectionnée
-        $periodesLabels = [
-            'jour' => 'Aujourd\'hui',
-            'semaine' => 'Cette Semaine',
-            'mois' => 'Ce Mois',
-            'trimestre' => 'Ce Trimestre',
-            'semestre' => 'Ce Semestre',
-            'annee' => 'Cette Année',
-        ];
-
-        return view('dashboard.index', compact(
-            'periode',
-            'periodesLabels',
-            'debut',
-            'fin',
-            'totalRecettes',
-            'totalDepenses',
-            'soldeNet',
-            'totalDettesRestantes',
-            'partsMedecinsDues',
-            'nombreTickets',
-            'totalMontantTickets',
-            'caissesOuvertes',
-            'servicesStats'
-        ));
+        return view('dashboard.index', [
+            'periode' => $periode,
+            'periodesLabels' => $periodesLabels,
+            'debut' => $debut,
+            'fin' => $fin,
+            'isCaissier' => false,
+            'maCaisse' => null,
+            'mesEncaissements' => 0,
+            'mesTicketsCount' => 0,
+            'mesTicketsMontant' => 0,
+            'totalRecettes' => $totalRecettes,
+            'totalDepenses' => $totalDepenses,
+            'soldeNet' => $soldeNet,
+            'totalDettesRestantes' => $totalDettesRestantes,
+            'partsMedecinsDues' => $partsMedecinsDues,
+            'nombreTickets' => $nombreTickets,
+            'totalMontantTickets' => $totalMontantTickets,
+            'caissesOuvertes' => $caissesOuvertes,
+            'servicesStats' => $servicesStats,
+            'derniersTickets' => collect(),
+        ]);
     }
 }

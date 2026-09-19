@@ -98,6 +98,11 @@ class TicketController extends Controller
             $selectedActe = Acte::with('service')->find(request()->get('acte_id'));
         }
 
+        $selectedMedecin = null;
+        if (request()->has('medecin_id')) {
+            $selectedMedecin = Medecin::find(request()->get('medecin_id'));
+        }
+
         $statuts = [
             'en_attente' => 'En attente de paiement',
             'partiellement_paye' => 'Partiellement payé',
@@ -107,7 +112,7 @@ class TicketController extends Controller
 
         $defaultReference = $this->ticketService->genererReferenceTicket();
 
-        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'selectedActe', 'modesPaiement', 'actes'));
+        return view('tickets.create', compact('patients', 'users', 'assurances', 'services', 'medecins', 'statuts', 'defaultReference', 'currentUser', 'selectedPatient', 'selectedActe', 'selectedMedecin', 'modesPaiement', 'actes'));
     }
 
     /**

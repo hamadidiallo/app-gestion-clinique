@@ -20,7 +20,7 @@ function getTestCaissierUser(): User
     );
 }
 
-test('caissier can view quick patient modal triggers on tickets create screen', function () {
+test('caissier can view quick patient modal triggers and doctor search on tickets create screen', function () {
     $caissier = getTestCaissierUser();
 
     $response = $this->actingAs($caissier)->get(route('tickets.create'));
@@ -28,7 +28,10 @@ test('caissier can view quick patient modal triggers on tickets create screen', 
     $response->assertStatus(200)
         ->assertSee('quickPatientModal')
         ->assertSee('Nouveau Patient')
-        ->assertSee('quick_patient_form');
+        ->assertSee('quick_patient_form')
+        ->assertSee('qp_numero_assure')
+        ->assertSee('qp_statut_assure')
+        ->assertSee('medecin_search_input');
 });
 
 test('caissier can quickly create a private patient via ajax and receive json', function () {
