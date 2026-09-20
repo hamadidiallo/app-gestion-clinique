@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Models\Invitation;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -41,7 +43,17 @@ class UserController extends Controller
             'comptables' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Comptable%'))->count(),
         ];
 
-        return view('users.index', compact('users', 'roles', 'stats', 'roleId', 'search'));
+        $invitations = Invitation::with('role')
+            ->where('clinique_id', auth()->user()?->clinique_id)
+            ->whereNull('utilise_le')
+            ->latest()
+            ->get();
+
+        $assignableRoles = Role::whereNotIn('nom', ['Super Administrateur', 'Admin'])
+            ->orderBy('nom')
+            ->get();
+
+        return view('users.index', compact('users', 'roles', 'stats', 'roleId', 'search', 'invitations', 'assignableRoles'));
     }
 
     /**
@@ -125,5 +137,61 @@ class UserController extends Controller
 
         // Redirige vers la liste des utilisateurs avec un message de confirmation
         return to_route('users.index')->with('alert', 'Suppression de l\'utilisateur réussie');
+    }
+
+    /**
+     * Génère une nouvelle invitation sécurisée avec rôle fixé (Option 1).
+     */
+    public function storeInvitation(Request $request)
+    {
+        $validated = $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'prenom' => 'nullable|string|max:100',
+            'nom' => 'nullable|string|max:100',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        $role = Role::findOrFail($validated['role_id']);
+        if (in_array($role->nom, ['Super Administrateur', 'Super Admin'])) {
+            return back()->with('error', 'Impossible de créer une invitation pour ce rôle.');
+        }
+
+        // Préfixe de 3 lettres significatives
+        $prefix = null;
+        if (! empty($validated['nom'])) {
+            $prefix = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['nom']), 0, 3));
+        } elseif (! empty($role->nom)) {
+            $prefix = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $role->nom), 0, 3));
+        }
+
+        do {
+            $code = ($prefix && strlen($prefix) >= 3 ? $prefix : 'INV').rand(100, 999);
+        } while (Invitation::where('code', $code)->exists());
+
+        Invitation::create([
+            'clinique_id' => auth()->user()->clinique_id,
+            'role_id' => $role->id,
+            'code' => $code,
+            'prenom' => $validated['prenom'] ?? null,
+            'nom' => $validated['nom'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'cree_par_user_id' => auth()->id(),
+        ]);
+
+        return back()->with('alert', "Invitation générée avec succès pour le rôle « {$role->nom} ». Code à transmettre : {$code}");
+    }
+
+    /**
+     * Révoque une invitation non encore utilisée.
+     */
+    public function destroyInvitation(Invitation $invitation)
+    {
+        if ($invitation->clinique_id !== auth()->user()->clinique_id) {
+            abort(403);
+        }
+
+        $invitation->delete();
+
+        return back()->with('alert', "L'invitation « {$invitation->code} » a été révoquée.");
     }
 }

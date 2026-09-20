@@ -97,6 +97,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/users/{user}/edit', 'edit')->name('users.edit');
             Route::put('/users/{user}', 'update')->name('users.update');
             Route::delete('/users/{user}', 'destroy')->name('users.destroy');
+            Route::post('/users/invitations', 'storeInvitation')->name('users.invitations.store');
+            Route::delete('/users/invitations/{invitation}', 'destroyInvitation')->name('users.invitations.destroy');
         });
 
         // Journal d'Activité / Audit

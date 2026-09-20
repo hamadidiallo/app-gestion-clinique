@@ -99,18 +99,100 @@
                         <span class="text-white-50 small">• {{ auth()->user()->clinique->nom }}</span>
                     </div>
                     <div class="small text-white-50" style="max-width: 580px;">
-                        Transmettez ce code unique à vos collaborateurs (médecins, caissiers, secrétaires). Ils pourront l'utiliser sur la page d'inscription pour rejoindre directement votre établissement.
+                        Transmettez un code d'invitation à vos collaborateurs. Vous pouvez utiliser le code général de l'établissement ou générer une invitation sécurisée avec un rôle pré-assigné (Médecin, Caissier, etc.).
                     </div>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2 bg-white rounded-3 p-2 px-3 text-dark shadow-sm">
-                <span class="font-mono fs-5 fw-bold letter-spacing-1 text-teal" id="invitationCodeText">{{ auth()->user()->clinique->code_invitation ?? 'NON-DÉFINI' }}</span>
-                <button type="button" class="btn btn-sm btn-light border d-inline-flex align-items-center gap-1 ms-2" onclick="copyInvitationCode()" id="copyCodeBtn" title="Copier le code">
-                    <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
-                    <span id="copyText" class="fw-semibold">Copier</span>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 bg-white rounded-3 p-2 px-3 text-dark shadow-sm">
+                    <span class="text-muted small me-1">Général :</span>
+                    <span class="font-mono fs-5 fw-bold letter-spacing-1 text-teal" id="invitationCodeText">{{ auth()->user()->clinique->code_invitation ?? 'NON-DÉFINI' }}</span>
+                    <button type="button" class="btn btn-sm btn-light border d-inline-flex align-items-center gap-1 ms-1" onclick="copyInvitationCode()" id="copyCodeBtn" title="Copier le code">
+                        <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                        <span id="copyText" class="fw-semibold">Copier</span>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-light fw-bold text-teal d-inline-flex align-items-center gap-1 shadow-sm py-2 px-3" data-bs-toggle="modal" data-bs-target="#modalNouvelleInvitation">
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                    <span>+ Invitation avec rôle fixé</span>
                 </button>
             </div>
         </div>
+
+        {{-- Tableau des invitations spécifiques en attente (Option 1) --}}
+        @if(isset($invitations) && $invitations->isNotEmpty())
+        <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
+            <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle bg-success-subtle text-success p-2 d-inline-flex">
+                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">Invitations nominatives en attente (Option 1 Sécurisée)</h6>
+                        <small class="text-muted">Ces codes verrouillent le rôle du soignant lors de son inscription sans qu'il puisse le modifier.</small>
+                    </div>
+                </div>
+                <span class="badge bg-success-subtle text-success fw-bold px-3 py-2 rounded-pill">
+                    {{ $invitations->count() }} en attente
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Code d'accès</th>
+                            <th>Rôle pré-attribué</th>
+                            <th>Destinataire</th>
+                            <th>Créée le</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($invitations as $inv)
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-dark font-mono px-3 py-2 fs-6 letter-spacing-1">{{ $inv->code }}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary p-1" onclick="copyCustomCode('{{ $inv->code }}', this)" title="Copier le code">
+                                        <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill">
+                                    {{ $inv->role->nom ?? 'Non défini' }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($inv->prenom || $inv->nom)
+                                    <strong class="text-dark">{{ $inv->prenom }} {{ $inv->nom }}</strong>
+                                    @if($inv->email)
+                                        <div class="text-muted small">{{ $inv->email }}</div>
+                                    @endif
+                                @else
+                                    <span class="text-muted fst-italic">Tous collaborateurs pour ce rôle</span>
+                                @endif
+                            </td>
+                            <td class="text-muted small">
+                                {{ $inv->created_at->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="text-end pe-4">
+                                <form action="{{ route('users.invitations.destroy', $inv) }}" method="POST" class="d-inline" onsubmit="return confirm('Révoquer ce code d\'invitation ?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                        <span>Révoquer</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
     </div>
     @endif
 
@@ -303,6 +385,79 @@
         </div>
     </div>
 </div>
+
+{{-- Modal : Générer une invitation sécurisée (Option 1) --}}
+<div class="modal fade" id="modalNouvelleInvitation" tabindex="-1" aria-labelledby="modalNouvelleInvitationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header bg-light border-bottom py-3 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle bg-teal text-white p-2 d-inline-flex" style="background: #047857;">
+                        <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="modalNouvelleInvitationLabel">Nouvelle invitation sécurisée</h5>
+                        <small class="text-muted">Rôle verrouillé par l'administration (Option 1)</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="{{ route('users.invitations.store') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    {{-- Notice explicative --}}
+                    <div class="alert alert-success d-flex align-items-start gap-2 py-2 px-3 mb-3 border-0 rounded-3" style="background: #F0FDF9; color: #065F46;">
+                        <i data-lucide="info" style="width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;"></i>
+                        <div class="small">
+                            Un code d'accès unique à <strong>6 caractères</strong> sera généré. Le rôle choisi ci-dessous sera <strong>verrouillé</strong> sans que le collaborateur ne puisse le changer.
+                        </div>
+                    </div>
+
+                    {{-- Sélection du rôle obligatoire --}}
+                    <div class="mb-3">
+                        <label for="invitation_role_id" class="form-label fw-bold small text-dark">
+                            Rôle attribué au collaborateur <span class="text-danger">*</span>
+                        </label>
+                        <select name="role_id" id="invitation_role_id" class="form-select form-select-lg fw-semibold" required>
+                            <option value="">Sélectionnez un rôle officiel...</option>
+                            @foreach($assignableRoles ?? [] as $role)
+                                <option value="{{ $role->id }}">{{ $role->nom }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Nom & Prénom optionnels --}}
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label for="invitation_prenom" class="form-label fw-semibold small text-muted">Prénom</label>
+                            <input type="text" name="prenom" id="invitation_prenom" class="form-control" placeholder="Ex: Aminata">
+                        </div>
+                        <div class="col-6">
+                            <label for="invitation_nom" class="form-label fw-semibold small text-muted">Nom</label>
+                            <input type="text" name="nom" id="invitation_nom" class="form-control text-uppercase" placeholder="Ex: TRAORÉ">
+                        </div>
+                    </div>
+
+                    {{-- Email optionnel --}}
+                    <div class="mb-2">
+                        <label for="invitation_email" class="form-label fw-semibold small text-muted">Adresse e-mail (Optionnel)</label>
+                        <input type="email" name="email" id="invitation_email" class="form-control" placeholder="ex: a.traore@clinique.ml">
+                        <div class="form-text extra-small">Si renseigné, ces informations seront pré-remplies automatiquement sur son écran de confirmation.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light border-top py-3 px-4">
+                    <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn text-white fw-bold px-4 d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #10B981, #047857);">
+                        <i data-lucide="key" style="width: 16px; height: 16px;"></i>
+                        <span>Générer le code d'accès</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -319,6 +474,21 @@
                 copyText.innerText = 'Copié !';
                 setTimeout(() => {
                     copyText.innerText = originalText;
+                }, 2000);
+            }
+        }).catch(err => {
+            console.error('Erreur lors de la copie :', err);
+        });
+    }
+
+    function copyCustomCode(code, btn) {
+        if (!code) return;
+        navigator.clipboard.writeText(code).then(() => {
+            if (btn) {
+                const oldHtml = btn.innerHTML;
+                btn.innerHTML = '<span class="text-success fw-bold" style="font-size: 11px;">Copié !</span>';
+                setTimeout(() => {
+                    btn.innerHTML = oldHtml;
                 }, 2000);
             }
         }).catch(err => {

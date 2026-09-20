@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Clinique;
+use App\Models\Invitation;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -164,4 +165,84 @@ test('l endpoint de verification de code retourne les informations de la cliniqu
         ->assertJson([
             'valide' => false,
         ]);
+});
+
+test('une invitation specifique liee a un role pre-defini force le role sans permettre lauto-selection', function () {
+    $invitation = Invitation::create([
+        'clinique_id' => $this->clinique->id,
+        'role_id' => $this->medecinRole->id,
+        'code' => 'MED-7788',
+        'prenom' => 'Dr Aminata',
+        'nom' => 'Traoré',
+        'email' => 'dr.traore@pasteur.ml',
+    ]);
+
+    // 1. Vérification API du code retourne le rôle fixé
+    $apiResponse = $this->getJson(route('auth.verifier-code', ['code' => 'MED-7788']));
+    $apiResponse->assertOk()
+        ->assertJson([
+            'valide' => true,
+            'nom' => 'Clinique Médico-Chirurgicale Pasteur',
+            'role_id' => $this->medecinRole->id,
+            'role_nom' => 'Médecin',
+            'prenom' => 'Dr Aminata',
+            'nom_famille' => 'Traoré',
+        ]);
+
+    // 2. Inscription avec le code MED-7788 attribue obligatoirement le rôle Médecin
+    $caissierRole = Role::firstOrCreate(['nom' => 'Caissier']);
+    $response = $this->post(route('register'), [
+        'action_type' => 'rejoindre',
+        'code_invitation' => 'MED-7788',
+        'prenom' => 'Dr Aminata',
+        'nom' => 'Traoré',
+        'email' => 'dr.traore@pasteur.ml',
+        'password' => 'secret123',
+        'password_confirmation' => 'secret123',
+        'role_id' => $caissierRole->id, // Même si un rôle différent est injecté
+    ]);
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticated();
+
+    $user = User::where('email', 'dr.traore@pasteur.ml')->first();
+    expect($user)->not->toBeNull()
+        ->and($user->role_id)->toBe($this->medecinRole->id); // Forcé par l'invitation !
+
+    $invitation->refresh();
+    expect($invitation->utilise_le)->not->toBeNull()
+        ->and($invitation->utilise_par_user_id)->toBe($user->id);
+});
+
+test('un administrateur peut generer et revoquer une invitation securisee pour son etablissement', function () {
+    $admin = User::create([
+        'clinique_id' => $this->clinique->id,
+        'role_id' => $this->adminRole->id,
+        'nom' => 'Kone',
+        'prenom' => 'Dr',
+        'email' => 'admin@pasteur.ml',
+        'password' => bcrypt('password123'),
+    ]);
+
+    $this->actingAs($admin);
+
+    // 1. Génération de l'invitation
+    $response = $this->post(route('users.invitations.store'), [
+        'role_id' => $this->medecinRole->id,
+        'prenom' => 'Dr Aminata',
+        'nom' => 'Traoré',
+        'email' => 'aminata.traore@clinique.ml',
+    ]);
+
+    $response->assertRedirect();
+    $invitation = Invitation::where('email', 'aminata.traore@clinique.ml')->first();
+    expect($invitation)->not->toBeNull()
+        ->and(strlen($invitation->code))->toBe(6)
+        ->and($invitation->role_id)->toBe($this->medecinRole->id)
+        ->and($invitation->clinique_id)->toBe($this->clinique->id);
+
+    // 2. Révocation de l'invitation
+    $deleteResponse = $this->delete(route('users.invitations.destroy', $invitation));
+    $deleteResponse->assertRedirect();
+    expect(Invitation::find($invitation->id))->toBeNull();
 });

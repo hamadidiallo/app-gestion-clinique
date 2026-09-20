@@ -1,1 +1,1 @@
-@include('auth.template', ['defaultTab' => 'Connexion'])
+@include('auth.template', ['defaultScreen' => 'M1', 'defaultTab' => 'Connexion'])

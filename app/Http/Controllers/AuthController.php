@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 // Importations des classes nécessaires pour l'authentification
 use App\Models\Clinique;
+use App\Models\Invitation;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -109,8 +110,10 @@ class AuthController extends Controller
             $activeTab = 'Rejoindre';
         } elseif ($tabParam === 'connexion' || $tabParam === 'login') {
             $activeTab = 'Connexion';
-        } else {
+        } elseif ($tabParam === 'clinique' || $tabParam === 'creer') {
             $activeTab = 'Clinique';
+        } else {
+            $activeTab = 'Bienvenue';
         }
 
         // Retourne la vue d'inscription
@@ -123,7 +126,22 @@ class AuthController extends Controller
     public function verifierCodeInvitation(string $code)
     {
         $codeClean = strtoupper(trim($code));
-        $clinique = Clinique::where('code_invitation', $codeClean)->first();
+
+        // 1. Recherche dans les invitations spécifiques créées par l'administrateur avec rôle attribué
+        $invitation = Invitation::with(['clinique', 'role'])
+            ->where('code', $codeClean)
+            ->whereNull('utilise_le')
+            ->first();
+
+        if ($invitation) {
+            $clinique = $invitation->clinique;
+            $role = $invitation->role;
+        } else {
+            // 2. Recherche dans le code d'équipe général de la clinique
+            $clinique = Clinique::where('code_invitation', $codeClean)->first();
+            $role = Role::whereIn('nom', ['Collaborateur', 'Réceptionniste'])->first()
+                ?? Role::whereNotIn('nom', ['Super Administrateur', 'Admin'])->first();
+        }
 
         if (! $clinique) {
             return response()->json([
@@ -144,6 +162,11 @@ class AuthController extends Controller
             'initiales' => $initiales ?: 'CL',
             'statut' => $clinique->statut,
             'est_active' => $clinique->estActive(),
+            'role_id' => $role?->id,
+            'role_nom' => $role?->nom ?? 'Collaborateur',
+            'prenom' => $invitation?->prenom,
+            'nom_famille' => $invitation?->nom,
+            'email' => $invitation?->email,
         ]);
     }
 
@@ -239,12 +262,26 @@ class AuthController extends Controller
         $codeClean = strtoupper(trim((string) $request->input('code_invitation', '')));
         $request->merge(['code_invitation' => $codeClean]);
 
-        // Si aucun rôle n'est spécifié, attribuer le premier rôle collaborateur disponible (ex: Caissier ou Réceptionniste)
-        if (! $request->filled('role_id')) {
-            $defaultRole = Role::whereIn('nom', ['Caissier', 'Réceptionniste', 'Médecin'])->first() ?? Role::whereNotIn('nom', ['Super Administrateur', 'Admin'])->first();
-            if ($defaultRole) {
-                $request->merge(['role_id' => $defaultRole->id]);
+        // Vérifier si une invitation spécifique avec rôle fixé existe
+        $invitation = Invitation::with(['clinique', 'role'])
+            ->where('code', $codeClean)
+            ->whereNull('utilise_le')
+            ->first();
+
+        if ($invitation) {
+            $clinique = $invitation->clinique;
+            $assignedRoleId = $invitation->role_id;
+            $request->merge(['role_id' => $assignedRoleId]);
+        } else {
+            $clinique = Clinique::where('code_invitation', $codeClean)->first();
+            if (! $request->filled('role_id')) {
+                $defaultRole = Role::whereIn('nom', ['Collaborateur', 'Réceptionniste'])->first()
+                    ?? Role::whereNotIn('nom', ['Super Administrateur', 'Admin'])->first();
+                if ($defaultRole) {
+                    $request->merge(['role_id' => $defaultRole->id]);
+                }
             }
+            $assignedRoleId = $request->input('role_id');
         }
 
         $validated = $request->validate([
@@ -263,10 +300,8 @@ class AuthController extends Controller
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
-            'role_id.required' => 'Veuillez sélectionner votre fonction ou rôle dans la clinique.',
+            'role_id.required' => 'Le rôle associé à votre invitation est obligatoire.',
         ]);
-
-        $clinique = Clinique::where('code_invitation', $codeClean)->first();
 
         if (! $clinique) {
             return back()->withInput()->withErrors([
@@ -280,18 +315,28 @@ class AuthController extends Controller
             ])->with('error_tab', 'Rejoindre');
         }
 
+        // Sécurité stricte : si invitation spécifique, le rôle est forcé depuis la base de données
+        $finalRoleId = $invitation ? $invitation->role_id : $validated['role_id'];
+
         $user = User::create([
             'clinique_id' => $clinique->id,
             'nom' => $validated['nom'],
             'prenom' => $validated['prenom'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role_id' => $validated['role_id'],
+            'role_id' => $finalRoleId,
         ]);
+
+        if ($invitation) {
+            $invitation->update([
+                'utilise_le' => now(),
+                'utilise_par_user_id' => $user->id,
+            ]);
+        }
 
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('alert', "Bienvenue dans l'équipe de « {$clinique->nom} » ! Votre compte a été activé.");
+        return redirect()->route('dashboard')->with('alert', "Bienvenue dans l'équipe de « {$clinique->nom} » ! Votre compte est activé avec le profil {$user->role->nom}.");
     }
 
     /**

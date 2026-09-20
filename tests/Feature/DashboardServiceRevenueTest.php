@@ -159,3 +159,78 @@ test('le tableau de bord affiche correctement la facturation et les encaissement
     $response->assertSee('15 000 FCFA');
     $response->assertSee('Pédiatrie');
 });
+
+test('le caissier a un tableau de bord dedie guichet et ne voit pas le chiffre daffaires des services ni les charges ni le solde net', function () {
+    $roleCaissier = Role::firstOrCreate(['nom' => 'Caissier']);
+    $caissier = User::create([
+        'nom' => 'Kone',
+        'prenom' => 'Fatou',
+        'email' => 'fatou.caissiere@clinique.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleCaissier->id,
+    ]);
+
+    $service = Service::create([
+        'code' => 'GYN',
+        'nom' => 'Gynécologie',
+        'statut' => true,
+    ]);
+
+    $patient = Patient::create([
+        'reference' => 'PAT-0099',
+        'nom' => 'Ouattara',
+        'prenom' => 'Awa',
+        'telephone' => '72000000',
+        'sexe' => 'F',
+        'age' => 28,
+    ]);
+
+    $ticket = Ticket::create([
+        'patient_id' => $patient->id,
+        'service_id' => $service->id,
+        'user_id' => $caissier->id,
+        'reference' => 'TCK-20260919-CAISSE-01',
+        'date_ticket' => Carbon::today(),
+        'montant_total' => 8000,
+        'montant_patient' => 8000,
+        'montant_paye' => 8000,
+        'reste_a_payer' => 0,
+        'statut' => 'paye',
+    ]);
+
+    $response = $this->actingAs($caissier)->get(route('dashboard'));
+
+    $response->assertOk();
+    // Données visibles par le caissier
+    $response->assertSee('Tableau de Bord Guichet');
+    $response->assertSee('Mes Encaissements');
+    $response->assertSee('Mes Tickets Émis');
+    $response->assertSee('Actions Rapides du Guichet');
+    $response->assertSee('Mes Derniers Tickets Émis');
+    $response->assertSee('TCK-20260919-CAISSE-01');
+
+    // Données confidentielles STRICTEMENT masquées pour le caissier
+    $response->assertDontSee("Chiffre d'Affaires par Service Médical", false);
+    $response->assertDontSee("Solde d'exploitation net", false);
+    $response->assertDontSee('Honoraires Praticiens');
+    $response->assertDontSee('Dépenses & charges');
+});
+
+test('le comptable a acces a la vue financiere globale et au chiffre daffaires par service', function () {
+    $roleComptable = Role::firstOrCreate(['nom' => 'Comptable']);
+    $comptable = User::create([
+        'nom' => 'Diallo',
+        'prenom' => 'Compta',
+        'email' => 'comptable@clinique.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleComptable->id,
+    ]);
+
+    $response = $this->actingAs($comptable)->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertSee("Chiffre d'Affaires par Service Médical", false);
+    $response->assertSee("Solde d'exploitation net", false);
+    $response->assertSee('Charges');
+    $response->assertSee('Honoraires Praticiens');
+});
