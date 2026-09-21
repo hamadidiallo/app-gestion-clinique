@@ -1,0 +1,40 @@
+# Dépendances reconstruites dans l'image
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Secrets et configuration locale : fournis par l'environnement, jamais dans l'image
+.env
+.env.*
+!.env.example
+!.env.production.example
+/auth.json
+
+# Données locales
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/pail
+/database/*.sqlite
+
+# Outillage de développement
+/.git
+/.github
+/.agents
+/.vscode
+/.idea
+/tests
+/doc
+/scratch
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache
+*.log
+_ide_helper.php
+
+# Caches generes localement : packages.php y reference les dependances de dev
+# (Laravel Boost), absentes de l'image construite avec --no-dev.
+/bootstrap/cache/*.php

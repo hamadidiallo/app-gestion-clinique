@@ -1,0 +1,42 @@
+# =============================================================================
+# Reverse proxy et terminaison TLS
+# Le certificat Let's Encrypt est obtenu et renouvele automatiquement par Caddy,
+# ce qui suppose que le port 80 reste joignable depuis l'exterieur.
+# =============================================================================
+
+medigest.dukani.tech {
+	# Volume partage avec le conteneur applicatif. Le chemin est identique des
+	# deux cotes : php-fpm resout SCRIPT_FILENAME dans son propre systeme de
+	# fichiers, il doit donc retrouver exactement ce chemin.
+	root * /var/www/html/public
+
+	encode zstd gzip
+
+	# Les requetes PHP partent vers php-fpm, le reste est servi en statique
+	php_fastcgi app:9000 {
+		trusted_proxies private_ranges
+	}
+
+	file_server
+
+	# Rien ne doit etre servi depuis storage/ ni .env, meme par erreur
+	@interdits {
+		path /.env* /storage/logs/* /vendor/* /composer.* 
+	}
+	respond @interdits 404
+
+	header {
+		# Force le HTTPS sur un an pour les navigateurs deja venus
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Masque la signature du serveur
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

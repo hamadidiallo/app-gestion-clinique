@@ -14,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // L'application est servie derrière un reverse proxy (Caddy) qui termine
+        // le TLS. Sans cette confiance, Laravel se croirait en HTTP : les URLs
+        // générées seraient en clair et les cookies « secure » ne partiraient pas.
+        // Le proxy est le seul point d'entrée et se trouve sur le réseau interne
+        // Docker, d'où la confiance accordée à l'ensemble des en-têtes transmis.
+        $middleware->trustProxies(at: '*');
+
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('dashboard'));
         $middleware->alias([
