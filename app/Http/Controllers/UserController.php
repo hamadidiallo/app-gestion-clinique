@@ -11,14 +11,41 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Affiche la liste de tous les utilisateurs enregistrés.
+     * Identifiant de la clinique de l'utilisateur connecté.
+     *
+     * Le modèle User ne porte pas de global scope (il est résolu par le garde
+     * d'authentification), le cloisonnement est donc appliqué explicitement ici.
+     */
+    private function cliniqueId(): ?int
+    {
+        return auth()->user()?->clinique_id;
+    }
+
+    /**
+     * Requête de base limitée aux comptes de la clinique courante.
+     */
+    private function utilisateursDeLaClinique()
+    {
+        return User::where('clinique_id', $this->cliniqueId());
+    }
+
+    /**
+     * Interdit l'accès à un compte rattaché à une autre clinique.
+     */
+    private function verifierAppartenance(User $user): void
+    {
+        abort_if($user->clinique_id !== $this->cliniqueId(), 404);
+    }
+
+    /**
+     * Affiche la liste des utilisateurs de la clinique courante.
      */
     public function index()
     {
         $roleId = request('role_id');
         $search = request('search');
 
-        $query = User::with('role')->latest();
+        $query = $this->utilisateursDeLaClinique()->with('role')->latest();
 
         if ($roleId) {
             $query->where('role_id', $roleId);
@@ -36,11 +63,11 @@ class UserController extends Controller
         $roles = Role::withCount('users')->orderBy('nom')->get();
 
         $stats = [
-            'total' => User::count(),
-            'admins' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Admin%'))->count(),
-            'medecins' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Medecin%')->orWhere('nom', 'like', '%Médecin%'))->count(),
-            'caisse_accueil' => User::whereHas('role', fn ($q) => $q->whereIn('nom', ['Caissier', 'Réceptionniste', 'Receptionniste']))->count(),
-            'comptables' => User::whereHas('role', fn ($q) => $q->where('nom', 'like', '%Comptable%'))->count(),
+            'total' => $this->utilisateursDeLaClinique()->count(),
+            'admins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Admin%'))->count(),
+            'medecins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Medecin%')->orWhere('nom', 'like', '%Médecin%'))->count(),
+            'caisse_accueil' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->whereIn('nom', ['Caissier', 'Réceptionniste', 'Receptionniste']))->count(),
+            'comptables' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Comptable%'))->count(),
         ];
 
         $invitations = Invitation::with('role')
@@ -76,6 +103,10 @@ class UserController extends Controller
         // Récupère uniquement les données validées par le UserRequest
         $validated = $request->validated();
 
+        // Rattache impérativement le compte à la clinique de l'administrateur connecté :
+        // un clinique_id nul contournerait le cloisonnement multi-clinique.
+        $validated['clinique_id'] = $this->cliniqueId();
+
         // Crée le nouvel utilisateur (le mot de passe est haché automatiquement via le cast du modèle User)
         User::create($validated);
 
@@ -88,6 +119,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        $this->verifierAppartenance($user);
+
         // Charge la relation avec le rôle associé
         $user->load('role');
 
@@ -100,6 +133,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        $this->verifierAppartenance($user);
+
         // Récupère la liste des rôles pour la liste déroulante
         $roles = Role::pluck('nom', 'id')->toArray();
 
@@ -112,6 +147,8 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user)
     {
+        $this->verifierAppartenance($user);
+
         // Récupère les données validées par la requête
         $validated = $request->validated();
 
@@ -132,6 +169,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->verifierAppartenance($user);
+
         // Supprime l'utilisateur spécifié
         $user->delete();
 

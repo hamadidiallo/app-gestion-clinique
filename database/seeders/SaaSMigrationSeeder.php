@@ -53,6 +53,9 @@ class SaaSMigrationSeeder extends Seeder
             'regle_partages',
             'consultations',
             'journal_activites',
+            'ticket_details',
+            'mouvement_caisses',
+            'carte_assurances',
         ];
 
         foreach ($tables as $table) {

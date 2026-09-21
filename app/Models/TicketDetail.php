@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TicketDetail extends Model
 {
+    use BelongsToClinique;
+
     protected $fillable = [
+        'clinique_id',
         'ticket_id',
         'prestation_id',
         'designation',

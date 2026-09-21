@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CarteAssurance extends Model
 {
+    use BelongsToClinique;
+
     /**
      * Les attributs qui sont assignables en masse.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'clinique_id',
         'patient_id',
         'assurance_id',
         'reference',
