@@ -42,17 +42,83 @@ class Clinique extends Model
     protected static function booted(): void
     {
         static::creating(function (Clinique $clinique) {
+            // slug et code sont uniques en base. Or beaucoup d'établissements
+            // partagent les mêmes premières lettres (« Clinique … », « Centre … ») :
+            // sans dé-duplication, la deuxième inscription échouerait en base.
             if (empty($clinique->slug)) {
-                $clinique->slug = Str::slug($clinique->nom);
+                $clinique->slug = static::valeurUnique('slug', Str::slug($clinique->nom) ?: 'clinique');
             }
+
             if (empty($clinique->code)) {
-                $clinique->code = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $clinique->nom), 0, 3));
+                $base = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $clinique->nom) ?? '', 0, 3)) ?: 'CLI';
+                $clinique->code = static::valeurUnique('code', $base, 10);
             }
+
             if (empty($clinique->code_invitation)) {
-                $prefix = strtoupper($clinique->code ?? substr(preg_replace('/[^A-Za-z0-9]/', '', $clinique->nom), 0, 3));
-                $clinique->code_invitation = $prefix.'-'.rand(1000, 9999);
+                $clinique->code_invitation = static::genererCodeInvitation($clinique->code);
             }
         });
+    }
+
+    /**
+     * Alphabet des codes dictés à l'oral : ni O/0 ni I/1, pour éviter les confusions.
+     */
+    private const ALPHABET_CODE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+    /**
+     * Génère un code d'invitation lisible mais non devinable.
+     *
+     * Ce code suffit à rejoindre la clinique et à y obtenir un compte : il doit donc
+     * résister à l'énumération. Un suffixe numérique à 4 chiffres n'offrait que
+     * 9 000 possibilités, soit quelques heures de tentatives automatisées. Les six
+     * caractères tirés ici portent l'espace à plus d'un milliard de combinaisons,
+     * tout en restant dictables par téléphone.
+     */
+    public static function genererCodeInvitation(?string $prefixe = null): string
+    {
+        $prefixe = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $prefixe) ?: 'CLI');
+        $prefixe = substr($prefixe, 0, 4);
+
+        do {
+            $suffixe = '';
+
+            for ($i = 0; $i < 6; $i++) {
+                $suffixe .= self::ALPHABET_CODE[random_int(0, strlen(self::ALPHABET_CODE) - 1)];
+            }
+
+            $code = $prefixe.'-'.$suffixe;
+        } while (static::where('code_invitation', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Retourne une valeur libre pour une colonne unique, en suffixant si nécessaire.
+     *
+     * @param  string  $colonne  la colonne unique concernée
+     * @param  string  $base  la valeur souhaitée
+     * @param  int|null  $longueurMax  longueur maximale de la colonne, le cas échéant
+     */
+    protected static function valeurUnique(string $colonne, string $base, ?int $longueurMax = null): string
+    {
+        $tronquer = function (string $valeur) use ($longueurMax): string {
+            return $longueurMax ? substr($valeur, 0, $longueurMax) : $valeur;
+        };
+
+        $candidat = $tronquer($base);
+        $suffixe = 1;
+
+        while (static::where($colonne, $candidat)->exists()) {
+            $suffixe++;
+            $marque = (string) $suffixe;
+
+            // Le suffixe doit tenir dans la longueur maximale de la colonne
+            $candidat = $longueurMax
+                ? substr($base, 0, max(1, $longueurMax - strlen($marque))).$marque
+                : $base.'-'.$marque;
+        }
+
+        return $candidat;
     }
 
     /**

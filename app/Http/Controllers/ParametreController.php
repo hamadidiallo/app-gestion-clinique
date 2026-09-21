@@ -96,12 +96,7 @@ class ParametreController extends Controller
             return back()->with('error', 'Clinique introuvable.');
         }
 
-        $codePrefix = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $clinique->nom), 0, 4)) ?: 'CLI';
-        $nouveauCode = $codePrefix.'-'.rand(1000, 9999);
-
-        while (Clinique::where('code_invitation', $nouveauCode)->where('id', '!=', $clinique->id)->exists()) {
-            $nouveauCode = $codePrefix.'-'.rand(1000, 9999);
-        }
+        $nouveauCode = Clinique::genererCodeInvitation($clinique->nom);
 
         $clinique->update(['code_invitation' => $nouveauCode]);
 

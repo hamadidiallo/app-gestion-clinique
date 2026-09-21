@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,20 +14,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Données de référence partagées par toute la plateforme, sans donnée fictive :
+        // les rôles et les modes de paiement ne sont pas rattachés à une clinique.
+        // Elles doivent exister aussi en production.
         $this->call([
             RoleSeeder::class,
-            UserSeeder::class,
-            AssuranceSeeder::class,
             ModePaiementSeeder::class,
-            CategorieDepenseSeeder::class,
-            ActeSeeder::class,
+        ]);
+
+        // Jeux de démonstration : comptes de test, clinique fictive et données d'exemple.
+        // Ils ne doivent JAMAIS être exécutés en production (comptes à mot de passe connu
+        // et rattachés à aucune clinique, donc non cloisonnés).
+        if (app()->environment('production')) {
+            $this->command?->warn('Environnement de production détecté : les seeders de démonstration ont été ignorés.');
+
+            return;
+        }
+
+        $this->call([
+            UserSeeder::class,
+            // Crée la clinique de démonstration et y rattache les données orphelines
             SaaSMigrationSeeder::class,
+            // Doit suivre la création de la clinique : le référentiel est amorcé par clinique
+            ReferentielCliniquesSeeder::class,
         ]);
     }
 }
