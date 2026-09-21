@@ -10,32 +10,27 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Amorce la base avec les seules données de référence de l'application.
+     *
+     * Aucun jeu de démonstration n'est posé ici : les comptes de test et la
+     * clinique fictive ont été retirés. La commande peut donc être exécutée
+     * en production sans précaution particulière.
      */
     public function run(): void
     {
-        // Données de référence partagées par toute la plateforme, sans donnée fictive :
-        // les rôles et les modes de paiement ne sont pas rattachés à une clinique.
-        // Elles doivent exister aussi en production.
+        // Référentiels communs à toute la plateforme, indispensables au fonctionnement :
+        // sans rôles, aucun collaborateur ne peut être rattaché ; sans modes de paiement,
+        // aucun encaissement ne peut être enregistré.
         $this->call([
             RoleSeeder::class,
             ModePaiementSeeder::class,
         ]);
 
-        // Jeux de démonstration : comptes de test, clinique fictive et données d'exemple.
-        // Ils ne doivent JAMAIS être exécutés en production (comptes à mot de passe connu
-        // et rattachés à aucune clinique, donc non cloisonnés).
-        if (app()->environment('production')) {
-            $this->command?->warn('Environnement de production détecté : les seeders de démonstration ont été ignorés.');
-
-            return;
-        }
-
+        // Référentiel propre à chaque clinique (services, actes, assurances, dépenses).
+        // Les nouvelles cliniques sont dotées automatiquement à l'inscription ; cet appel
+        // ne concerne donc que les établissements déjà enregistrés. Il est sans effet
+        // sur une base neuve.
         $this->call([
-            UserSeeder::class,
-            // Crée la clinique de démonstration et y rattache les données orphelines
-            SaaSMigrationSeeder::class,
-            // Doit suivre la création de la clinique : le référentiel est amorcé par clinique
             ReferentielCliniquesSeeder::class,
         ]);
     }
