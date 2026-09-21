@@ -29,45 +29,26 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketDetailController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
-
-// Route utilitaire pour exécuter les migrations en base de données
-Route::get('/run-migrations', function () {
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-
-        return '<h3>Migration exécutée avec succès !</h3><pre>'.Artisan::output().'</pre><br><a href="'.route('tickets.create').'">➔ Obtenir ou créer un ticket</a>';
-    } catch (Throwable $e) {
-        return '<h3>Erreur lors de la migration :</h3><pre>'.$e->getMessage().'</pre>';
-    }
-});
 
 // Routes d'authentification publiques (Connexion et Inscription)
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
-    Route::post('/login', 'login');
+    // Limitation stricte : protege contre la force brute sur les identifiants
+    Route::post('/login', 'login')->middleware('throttle:5,1');
     Route::get('/register', 'showRegisterForm')->name('register');
-    Route::post('/register', 'register');
-    Route::get('/auth/verifier-code/{code}', 'verifierCodeInvitation')->name('auth.verifier-code');
+    Route::post('/register', 'register')->middleware('throttle:5,1');
+    // Limitation : empeche l'enumeration des codes d'invitation des cliniques
+    Route::get('/auth/verifier-code/{code}', 'verifierCodeInvitation')
+        ->middleware('throttle:10,1')
+        ->name('auth.verifier-code');
 });
 
 // GROUPE SÉCURISÉ : TOUTES LES ROUTES DE L'APPLICATION PROTÉGÉES PAR LE MIDDLEWARE AUTH
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'clinique.active'])->group(function () {
 
     // Route de déconnexion
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    // Route utilitaire pour exécuter les migrations en base de données
-    Route::get('/run-migrations', function () {
-        try {
-            Artisan::call('migrate', ['--force' => true]);
-
-            return '<h3>Migration exécutée avec succès !</h3><pre>'.Artisan::output().'</pre><br><a href="'.route('tickets.create').'">➔ Obtenir ou créer un ticket</a>';
-        } catch (Throwable $e) {
-            return '<h3>Erreur lors de la migration :</h3><pre>'.$e->getMessage().'</pre>';
-        }
-    });
 
     // Route principale dirigeant vers le Tableau de Bord V1 (Dashboard)
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
