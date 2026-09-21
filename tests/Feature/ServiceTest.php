@@ -2,6 +2,12 @@
 
 use App\Models\Service;
 
+beforeEach(function () {
+    // Session explicite : l'administrateur est rattache a une clinique reelle,
+    // le cloisonnement multi-clinique s'applique donc pendant ces tests.
+    connecterAdmin();
+});
+
 test('peut afficher la liste des services', function () {
     $response = $this->get(route('services.index'));
 

@@ -7,6 +7,12 @@ use App\Models\Prestation;
 use App\Models\Service;
 use App\Models\Ticket;
 
+beforeEach(function () {
+    // Session explicite : l'administrateur est rattache a une clinique reelle,
+    // le cloisonnement multi-clinique s'applique donc pendant ces tests.
+    connecterAdmin();
+});
+
 test('peut afficher la liste des prestations', function () {
     $response = $this->get(route('prestations.index'));
 

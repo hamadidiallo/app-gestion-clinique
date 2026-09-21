@@ -13,35 +13,8 @@ uses(RefreshDatabase::class);
 /**
  * Non-régressions issues de l'audit de pré-déploiement.
  * Chaque test correspond à une faille qui avait été démontrée puis corrigée.
+ * Les fabriques creerClinique() et creerUtilisateur() viennent de tests/Pest.php.
  */
-function creerClinique(string $nom, string $code): Clinique
-{
-    return Clinique::create([
-        'nom' => $nom,
-        'slug' => strtolower($code),
-        'code' => $code,
-        'ville' => 'Bamako',
-        'pays' => 'Mali',
-        'devise' => 'FCFA',
-        'statut' => 'actif',
-        'prefixe_ticket' => 'TCK',
-        'prefixe_patient' => 'PAT',
-        'code_invitation' => $code.'-1234',
-    ]);
-}
-
-function creerUtilisateur(Clinique $clinique, string $email, Role $role): User
-{
-    return User::create([
-        'clinique_id' => $clinique->id,
-        'nom' => 'Nom',
-        'prenom' => 'Prenom',
-        'email' => $email,
-        'password' => bcrypt('password'),
-        'role_id' => $role->id,
-    ]);
-}
-
 test("la route d'execution des migrations n'existe plus", function () {
     $this->get('/run-migrations')->assertNotFound();
 });
@@ -212,9 +185,6 @@ test('un identifiant partiel ne donne plus acces a un compte', function () {
         'password' => bcrypt('password123'), 'role_id' => $role->id,
     ]);
 
-    // Pest connecte un administrateur avant chaque test : on repart d'une session vierge
-    auth()->logout();
-
     // L'ancien repli acceptait « dr.kone » comme prefixe de l'email : ce n'est plus le cas
     $this->post('/login', ['email' => 'dr.kone', 'password' => 'password123']);
 
@@ -230,9 +200,6 @@ test('un compte sans telephone ne peut pas etre atteint par une saisie vide', fu
         'email' => 'ancien@clinique.ml', 'telephone' => null,
         'password' => bcrypt('password123'), 'role_id' => $role->id,
     ]);
-
-    // Pest connecte un administrateur avant chaque test : on repart d'une session vierge
-    auth()->logout();
 
     // Une saisie sans aucun chiffre se normalise en null : elle ne doit correspondre a personne
     $this->post('/login', ['email' => '----', 'password' => 'password123']);

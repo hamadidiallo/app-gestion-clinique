@@ -3,6 +3,12 @@
 use App\Models\Acte;
 use App\Models\Service;
 
+beforeEach(function () {
+    // Session explicite : l'administrateur est rattache a une clinique reelle,
+    // le cloisonnement multi-clinique s'applique donc pendant ces tests.
+    connecterAdmin();
+});
+
 test('peut afficher le catalogue des actes médicaux', function () {
     $response = $this->get(route('actes.index'));
 
