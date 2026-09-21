@@ -9,7 +9,8 @@
             <a href="{{ route('categoriedepenses.create') }}" class="btn btn-primary">Nouvelle Catégorie</a>
         </div>
 
-        <table class="table table-striped table-bordered align-middle">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -71,5 +72,6 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </section>
 @endsection

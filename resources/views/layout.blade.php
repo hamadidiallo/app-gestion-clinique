@@ -393,6 +393,92 @@
             color: #ffffff !important;
         }
 
+        /* =====================================================================
+           Adaptation mobile et tablette
+
+           Le shell est concu pour un ecran large : barre laterale fixe de 254px
+           et hauteur bloquee a 100vh. Sous 992px cette barre consommerait
+           l'essentiel de la largeur, elle devient donc un tiroir coulissant.
+           ===================================================================== */
+
+        /* Bouton d'ouverture du tiroir : masque sur grand ecran */
+        .sidebar-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            border: 1px solid var(--card-border);
+            border-radius: 9px;
+            background-color: #ffffff;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0;
+        }
+        .sidebar-toggle:hover { background-color: #f1f5f9; }
+
+        /* Voile sombre affiche derriere le tiroir ouvert */
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 31, 26, 0.45);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 99;
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar-toggle { display: inline-flex; }
+
+            /* La barre sort du flux et coulisse depuis la gauche */
+            .app-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                box-shadow: 0 0 24px rgba(15, 31, 26, 0.18);
+            }
+            .app-wrapper.sidebar-open .app-sidebar { transform: translateX(0); }
+            .app-wrapper.sidebar-open .sidebar-backdrop { opacity: 1; visibility: visible; }
+
+            .app-topbar { padding: 0.65rem 1rem; gap: 0.5rem; }
+            .app-content { padding: 1rem; }
+
+            /* Les tableaux larges defilent horizontalement plutot que de
+               deborder de la page */
+            .table-responsive, .app-content table { max-width: 100%; }
+        }
+
+        @media (max-width: 575.98px) {
+            .app-topbar { padding: 0.55rem 0.75rem; }
+            .app-content { padding: 0.75rem; }
+
+            /* Les cartes occupent toute la largeur disponible */
+            .card-body { padding: 0.9rem; }
+            .card-header { padding: 0.8rem 0.9rem; }
+
+            h1 { font-size: 1.35rem; }
+            h2 { font-size: 1.2rem; }
+
+            /* Les barres d'actions passent en colonne */
+            .app-content .d-flex.justify-content-between {
+                flex-wrap: wrap;
+                gap: 0.6rem;
+            }
+        }
+
+        /* Sur un ecran tactile, la hauteur bloquee a 100vh empeche le
+           defilement naturel quand le clavier virtuel s'ouvre */
+        @media (max-width: 991.98px) and (hover: none) {
+            html, body, .app-wrapper, .app-main { height: auto; min-height: 100vh; }
+            .app-wrapper, .app-main { overflow: visible; }
+            .app-content { overflow: visible; }
+        }
+
         /* Print optimization */
         @media print {
             .app-sidebar, .app-topbar, .no-print {
@@ -412,9 +498,12 @@
     @vite(['resources/css/app.css'])
   </head>
   <body>
-    <div class="app-wrapper">
+    <div class="app-wrapper" id="appWrapper">
+        {{-- Voile mobile : referme le tiroir au clic en dehors --}}
+        <div class="sidebar-backdrop no-print" id="sidebarBackdrop" aria-hidden="true"></div>
+
         {{-- COLONNE GAUCHE : Sidebar Menu avec Lucide Icons --}}
-        <aside class="app-sidebar no-print">
+        <aside class="app-sidebar no-print" id="appSidebar">
             {{-- En-tête de la Sidebar --}}
             <div class="sidebar-brand">
                 @if(auth()->check() && auth()->user()->clinique && auth()->user()->clinique->logo)
@@ -610,6 +699,11 @@
         <div class="app-main">
             {{-- Topbar supérieure épurée --}}
             <header class="app-topbar no-print">
+                {{-- Ouverture du tiroir de navigation, visible sous 992px --}}
+                <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                        aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="appSidebar">
+                    <i data-lucide="menu"></i>
+                </button>
                 @php
                     $isCaissier = auth()->check() && auth()->user()->hasRole('Caissier');
                     $topbarCaisse = $isCaissier
@@ -711,6 +805,40 @@
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+
+            // --- Tiroir de navigation mobile ---
+            const wrapper = document.getElementById('appWrapper');
+            const toggle = document.getElementById('sidebarToggle');
+            const backdrop = document.getElementById('sidebarBackdrop');
+
+            const fermerTiroir = function () {
+                wrapper.classList.remove('sidebar-open');
+                if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            };
+
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    const ouvert = wrapper.classList.toggle('sidebar-open');
+                    toggle.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+                });
+            }
+
+            if (backdrop) backdrop.addEventListener('click', fermerTiroir);
+
+            // La navigation vers une autre page doit refermer le tiroir
+            document.querySelectorAll('.sidebar-menu .nav-link-custom').forEach(function (lien) {
+                lien.addEventListener('click', fermerTiroir);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') fermerTiroir();
+            });
+
+            // Le tiroir n'a plus lieu d'etre si l'ecran redevient large
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 992) fermerTiroir();
+            });
+
             var activeNav = document.querySelector('.sidebar-menu .nav-link-custom.active');
             if (activeNav) {
                 activeNav.scrollIntoView({ block: 'nearest', inline: 'nearest' });

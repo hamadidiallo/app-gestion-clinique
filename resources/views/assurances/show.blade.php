@@ -47,7 +47,8 @@
                 Cartes d'assurance associées ({{ $assurance->cartesAssurance->count() }})
             </div>
             <div class="card-body p-0">
-                <table class="table table-striped mb-0">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -79,6 +80,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </section>

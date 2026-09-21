@@ -99,3 +99,19 @@ test('les ecrans de processus M0 M0b M0c et M0d sont presents et coherents', fun
     $response->assertSee('Vérifions votre identité');
     $response->assertSee('Données chiffrées');
 });
+
+test('le shell applicatif fournit une navigation mobile', function () {
+    $clinique = creerClinique('Clinique Responsive', 'CRE');
+    $role = Role::firstOrCreate(['nom' => 'Administrateur'], ['description' => 'x']);
+    $user = creerUtilisateur($clinique, 'resp@test.ml', $role);
+
+    $reponse = $this->actingAs($user)->get(route('dashboard'));
+
+    $reponse->assertOk()
+        // Le bouton d ouverture du tiroir et son voile doivent etre presents
+        ->assertSee('id="sidebarToggle"', false)
+        ->assertSee('id="sidebarBackdrop"', false)
+        // Le shell doit declarer des points de rupture, pas seulement l impression
+        ->assertSee('@media (max-width: 991.98px)', false)
+        ->assertSee('width=device-width', false);
+});
