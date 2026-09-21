@@ -621,13 +621,15 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Téléphone administrateur <span style="color: #ef4444;">*</span></label>
-              <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" required />
+              <label class="form-label">Téléphone administrateur</label>
+              <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" />
               @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
             </div>
             <div class="form-group">
-              <label class="form-label">E-mail administrateur <span style="color: #ef4444;">*</span></label>
-              <input type="email" name="email" value="{{ old('email') }}" placeholder="direction@clinique.ml" class="form-input @error('email') is-invalid @enderror" required />
+              <label class="form-label">E-mail administrateur</label>
+              <input type="email" name="email" value="{{ old('email') }}" placeholder="direction@clinique.ml" class="form-input @error('email') is-invalid @enderror" />
+              @error('email')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
+              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Téléphone ou e-mail : renseignez au moins l'un des deux, il servira à vous connecter.</div>
             </div>
             <div class="form-group">
               <label class="form-label">Mot de passe <span style="color: #ef4444;">*</span></label>
@@ -768,14 +770,16 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Numéro de téléphone <span style="color: #ef4444;">*</span></label>
-            <input type="text" name="telephone" id="join_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" required />
+            <label class="form-label">Numéro de téléphone</label>
+            <input type="text" name="telephone" id="join_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" />
             @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
           </div>
 
           <div class="form-group">
-            <label class="form-label">Adresse e-mail professionnelle <span style="color: #ef4444;">*</span></label>
-            <input type="email" name="email" id="join_email" value="{{ old('email') }}" placeholder="dr.traore@clinique.ml" class="form-input @error('email') is-invalid @enderror" required />
+            <label class="form-label">Adresse e-mail professionnelle</label>
+            <input type="email" name="email" id="join_email" value="{{ old('email') }}" placeholder="dr.traore@clinique.ml" class="form-input @error('email') is-invalid @enderror" />
+            @error('email')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
+            <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Téléphone ou e-mail : renseignez au moins l'un des deux, il servira à vous connecter.</div>
           </div>
 
           <div class="form-group">

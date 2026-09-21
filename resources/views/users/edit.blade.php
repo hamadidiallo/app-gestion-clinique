@@ -68,7 +68,7 @@
                 {{-- Email --}}
                 <div class="col-md-6">
                     <label for="telephone" class="form-label fw-semibold text-dark">
-                        Téléphone (Identifiant de connexion) <span class="text-danger">*</span>
+                        Téléphone (Identifiant de connexion)
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i data-lucide="phone" class="lucide-sm text-muted"></i></span>
@@ -79,13 +79,14 @@
 
                 <div class="col-md-6">
                     <label for="email" class="form-label fw-semibold text-dark">
-                        Adresse Email <span class="text-danger">*</span>
+                        Adresse Email
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i data-lucide="mail" class="lucide-sm text-muted"></i></span>
                         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
                     </div>
                     @error('email')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    <div class="form-text text-muted small">Téléphone ou e-mail : renseignez au moins l'un des deux, il servira à se connecter.</div>
                 </div>
 
                 {{-- Rôle --}}

@@ -251,3 +251,73 @@ test('le code invitation resiste a l enumeration', function () {
     // Aucune collision et une entropie reelle (plus de 4 chiffres previsibles)
     expect($codes->unique()->count())->toBe(40);
 });
+
+test('un compte peut etre cree avec le seul telephone ou le seul email', function () {
+    $role = Role::firstOrCreate(['nom' => 'Administrateur'], ['description' => 'x']);
+    $caissier = Role::firstOrCreate(['nom' => 'Caissier'], ['description' => 'x']);
+    $a = creerClinique('Clinique A', 'CLA');
+    $adminA = creerUtilisateur($a, 'admin@a.ml', $role);
+
+    $this->actingAs($adminA);
+
+    // Uniquement le telephone
+    $this->post(route('users.store'), [
+        'nom' => 'Sans', 'prenom' => 'Email', 'telephone' => '76 11 11 11',
+        'password' => 'motdepasse', 'password_confirmation' => 'motdepasse',
+        'role_id' => $caissier->id,
+    ])->assertSessionHasNoErrors();
+
+    $sansEmail = User::where('telephone', '76111111')->first();
+    expect($sansEmail)->not->toBeNull()
+        ->and($sansEmail->email)->toBeNull();
+
+    // Uniquement l email
+    $this->post(route('users.store'), [
+        'nom' => 'Sans', 'prenom' => 'Telephone', 'email' => 'sans.tel@a.ml',
+        'password' => 'motdepasse', 'password_confirmation' => 'motdepasse',
+        'role_id' => $caissier->id,
+    ])->assertSessionHasNoErrors();
+
+    $sansTel = User::where('email', 'sans.tel@a.ml')->first();
+    expect($sansTel)->not->toBeNull()
+        ->and($sansTel->telephone)->toBeNull();
+});
+
+test('un compte sans aucun identifiant est refuse', function () {
+    $role = Role::firstOrCreate(['nom' => 'Administrateur'], ['description' => 'x']);
+    $caissier = Role::firstOrCreate(['nom' => 'Caissier'], ['description' => 'x']);
+    $a = creerClinique('Clinique A', 'CLA');
+
+    $this->actingAs(creerUtilisateur($a, 'admin@a.ml', $role));
+
+    $this->from(route('user.create'))->post(route('users.store'), [
+        'nom' => 'Aucun', 'prenom' => 'Identifiant',
+        'password' => 'motdepasse', 'password_confirmation' => 'motdepasse',
+        'role_id' => $caissier->id,
+    ])->assertSessionHasErrors(['email', 'telephone']);
+
+    expect(User::where('nom', 'Aucun')->exists())->toBeFalse();
+});
+
+test('chacun des deux identifiants permet de se connecter', function () {
+    $role = Role::firstOrCreate(['nom' => 'Caissier'], ['description' => 'x']);
+    $a = creerClinique('Clinique A', 'CLA');
+
+    $parTelephone = User::create([
+        'clinique_id' => $a->id, 'nom' => 'Tel', 'prenom' => 'Seul',
+        'telephone' => '76 22 22 22', 'password' => bcrypt('password123'), 'role_id' => $role->id,
+    ]);
+
+    $parEmail = User::create([
+        'clinique_id' => $a->id, 'nom' => 'Mail', 'prenom' => 'Seul',
+        'email' => 'mail.seul@a.ml', 'password' => bcrypt('password123'), 'role_id' => $role->id,
+    ]);
+
+    auth()->logout();
+    $this->post('/login', ['email' => '76 22 22 22', 'password' => 'password123']);
+    expect(auth()->id())->toBe($parTelephone->id);
+
+    auth()->logout();
+    $this->post('/login', ['email' => 'mail.seul@a.ml', 'password' => 'password123']);
+    expect(auth()->id())->toBe($parEmail->id);
+});

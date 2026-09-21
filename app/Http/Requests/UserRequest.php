@@ -51,11 +51,11 @@ class UserRequest extends FormRequest
             // Le nom est obligatoire et ne doit pas dépasser 50 caractères
             'nom' => 'required|string|max:50',
 
-            // L'email est obligatoire, valide et unique (en ignorant l'ID actuel en cas d'édition)
-            'email' => 'required|email|unique:users,email,'.$userId,
-
-            // Le téléphone sert à se connecter : unique, en ignorant le compte courant
-            'telephone' => 'required|string|max:30|unique:users,telephone,'.$userId,
+            // Email et téléphone servent tous deux d'identifiant de connexion :
+            // l'agent renseigne celui dont il dispose, au moins l'un des deux.
+            // Chacun reste unique quand il est fourni.
+            'email' => 'nullable|email|required_without:telephone|unique:users,email,'.$userId,
+            'telephone' => 'nullable|string|max:30|required_without:email|unique:users,telephone,'.$userId,
 
             // Règle du mot de passe adaptée selon création ou modification
             'password' => $passwordRule,
@@ -79,11 +79,11 @@ class UserRequest extends FormRequest
             'nom.required' => 'Le nom est obligatoire.',
             'nom.max' => 'Le nom ne doit pas dépasser 50 caractères.',
 
-            // Messages de validation pour l'email
-            'email.required' => 'L\'adresse email est obligatoire.',
+            // Messages de validation des identifiants de connexion
+            'email.required_without' => 'Renseignez au moins un identifiant de connexion : adresse email ou numéro de téléphone.',
             'email.email' => 'L\'adresse email doit être une adresse valide.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
-            'telephone.required' => 'Le numéro de téléphone est obligatoire : il sert à se connecter.',
+            'telephone.required_without' => 'Renseignez au moins un identifiant de connexion : numéro de téléphone ou adresse email.',
             'telephone.unique' => 'Ce numéro de téléphone est déjà rattaché à un compte.',
 
             // Messages de validation pour le mot de passe
