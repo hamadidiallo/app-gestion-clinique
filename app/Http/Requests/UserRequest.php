@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -21,6 +22,20 @@ class UserRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    /**
+     * Normalise le téléphone avant validation.
+     *
+     * La règle d'unicité doit porter sur la forme réellement stockée en base,
+     * sinon deux écritures du même numéro passeraient la validation avant de
+     * heurter l'index unique.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('telephone')) {
+            $this->merge(['telephone' => User::normaliserTelephone($this->input('telephone'))]);
+        }
+    }
+
     public function rules(): array
     {
         // Récupère l'ID de l'utilisateur de la route en cas de modification (ex: /users/{user})
@@ -38,6 +53,9 @@ class UserRequest extends FormRequest
 
             // L'email est obligatoire, valide et unique (en ignorant l'ID actuel en cas d'édition)
             'email' => 'required|email|unique:users,email,'.$userId,
+
+            // Le téléphone sert à se connecter : unique, en ignorant le compte courant
+            'telephone' => 'required|string|max:30|unique:users,telephone,'.$userId,
 
             // Règle du mot de passe adaptée selon création ou modification
             'password' => $passwordRule,
@@ -65,6 +83,8 @@ class UserRequest extends FormRequest
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email doit être une adresse valide.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'telephone.required' => 'Le numéro de téléphone est obligatoire : il sert à se connecter.',
+            'telephone.unique' => 'Ce numéro de téléphone est déjà rattaché à un compte.',
 
             // Messages de validation pour le mot de passe
             'password.required' => 'Le mot de passe est obligatoire.',

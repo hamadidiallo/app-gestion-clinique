@@ -25,6 +25,7 @@ class User extends Authenticatable
         'prenom',
         'nom',
         'email',
+        'telephone',
         'password',
         'role_id',
     ];
@@ -59,6 +60,45 @@ class User extends Authenticatable
     public function getNameAttribute(): string
     {
         return trim(($this->nom ?? '').' '.($this->prenom ?? ''));
+    }
+
+    /**
+     * Ramène un numéro de téléphone à une forme canonique comparable.
+     *
+     * Le même abonné peut saisir « +223 76 00 00 00 », « 00223 76-00-00-00 »
+     * ou « 76000000 » : ces trois formes doivent désigner un unique compte,
+     * sans quoi l'unicité et la connexion par téléphone seraient illusoires.
+     * L'indicatif pays du Mali est retiré pour ne conserver que les 8 chiffres nationaux.
+     */
+    public static function normaliserTelephone(?string $numero): ?string
+    {
+        if ($numero === null) {
+            return null;
+        }
+
+        // Ne conserver que les chiffres
+        $chiffres = preg_replace('/\D+/', '', $numero) ?? '';
+
+        if ($chiffres === '') {
+            return null;
+        }
+
+        // Préfixe international composé (00223...) puis indicatif pays (223...)
+        if (str_starts_with($chiffres, '00223')) {
+            $chiffres = substr($chiffres, 5);
+        } elseif (str_starts_with($chiffres, '223') && strlen($chiffres) > 8) {
+            $chiffres = substr($chiffres, 3);
+        }
+
+        return $chiffres !== '' ? $chiffres : null;
+    }
+
+    /**
+     * Stocke systématiquement le téléphone sous sa forme canonique.
+     */
+    public function setTelephoneAttribute(?string $valeur): void
+    {
+        $this->attributes['telephone'] = self::normaliserTelephone($valeur);
     }
 
     /**

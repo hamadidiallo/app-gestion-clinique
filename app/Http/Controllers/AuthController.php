@@ -7,6 +7,7 @@ use App\Models\Clinique;
 use App\Models\Invitation;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AmorcageCliniqueService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,32 +55,31 @@ class AuthController extends Controller
     {
         // Validation des champs du formulaire de connexion
         $credentials = $request->validate([
-            'email' => 'required',
+            'email' => 'required|string',
             'password' => 'required|string',
         ], [
-            'email.required' => 'L\'identifiant ou l\'adresse email est obligatoire.',
+            'email.required' => 'Le numéro de téléphone ou l\'adresse email est obligatoire.',
             'password.required' => 'Le mot de passe est obligatoire.',
         ]);
 
-        // Si l'identifiant n'est pas un email strict, chercher l'utilisateur par email ou par début d'email
-        $loginField = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'email';
+        $identifiant = trim($credentials['email']);
 
-        // Tentative d'authentification de l'utilisateur
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $request->has('remember'))) {
+        // L'identifiant saisi est soit une adresse email, soit un numéro de téléphone.
+        // Le téléphone est ramené à sa forme canonique pour que toutes les écritures
+        // possibles d'un même numéro mènent au même compte.
+        if (filter_var($identifiant, FILTER_VALIDATE_EMAIL)) {
+            $champ = 'email';
+            $valeur = $identifiant;
+        } else {
+            $champ = 'telephone';
+            $valeur = User::normaliserTelephone($identifiant);
+        }
+
+        // Une recherche sur une valeur nulle ferait correspondre les comptes sans téléphone
+        if ($valeur !== null && Auth::attempt([$champ => $valeur, 'password' => $credentials['password']], $request->has('remember'))) {
             $request->session()->regenerate();
 
             return redirect()->intended(route('dashboard'))->with('alert', 'Connexion réussie ! Bienvenue dans votre espace clinique.');
-        }
-
-        // Si la connexion directe échoue et qu'un pseudo était fourni, chercher si un email commence par ce pseudo
-        if (! filter_var($credentials['email'], FILTER_VALIDATE_EMAIL)) {
-            $candidate = User::where('email', 'like', $credentials['email'].'@%')->first();
-            if ($candidate && Hash::check($credentials['password'], $candidate->password)) {
-                Auth::login($candidate, $request->has('remember'));
-                $request->session()->regenerate();
-
-                return redirect()->intended(route('dashboard'))->with('alert', 'Connexion réussie ! Bienvenue dans votre espace clinique.');
-            }
         }
 
         // En cas d'échec d'authentification
@@ -193,6 +193,13 @@ class AuthController extends Controller
             $request->merge(['password_confirmation' => $request->input('password')]);
         }
 
+        // Le téléphone est normalisé AVANT validation : la règle d'unicité doit porter
+        // sur la forme réellement stockée, sinon « +223 76 00 00 00 » et « 76000000 »
+        // passeraient tous deux la validation avant de heurter l'index unique en base.
+        if ($request->filled('telephone')) {
+            $request->merge(['telephone' => User::normaliserTelephone($request->input('telephone'))]);
+        }
+
         // SCÉNARIO 1 : CRÉER UNE NOUVELLE CLINIQUE (Fondateur / Directeur de clinique)
         if ($actionType === 'creer') {
             $validated = $request->validate([
@@ -204,6 +211,7 @@ class AuthController extends Controller
                 'nom' => 'required|string|max:100',
                 'prenom' => 'required|string|max:100',
                 'email' => 'required|string|email|max:255|unique:users,email',
+                'telephone' => 'required|string|max:30|unique:users,telephone',
                 'password' => 'required|string|min:6|confirmed',
             ], [
                 'nom_clinique.required' => 'Le nom de votre clinique est obligatoire.',
@@ -211,6 +219,8 @@ class AuthController extends Controller
                 'nom.required' => 'Votre nom de famille est obligatoire.',
                 'prenom.required' => 'Votre prénom est obligatoire.',
                 'email.required' => 'L\'adresse email est obligatoire.',
+                'telephone.required' => 'Le numéro de téléphone est obligatoire : il sert à vous connecter.',
+                'telephone.unique' => 'Ce numéro de téléphone est déjà rattaché à un compte.',
                 'email.unique' => 'Cette adresse email est déjà utilisée.',
                 'password.required' => 'Le mot de passe est obligatoire.',
                 'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
@@ -218,12 +228,7 @@ class AuthController extends Controller
             ]);
 
             $user = DB::transaction(function () use ($validated) {
-                $codePrefix = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['nom_clinique']), 0, 4)) ?: 'CLI';
-                $codeInvitation = $codePrefix.'-'.rand(1000, 9999);
-
-                while (Clinique::where('code_invitation', $codeInvitation)->exists()) {
-                    $codeInvitation = $codePrefix.'-'.rand(1000, 9999);
-                }
+                $codeInvitation = Clinique::genererCodeInvitation($validated['nom_clinique']);
 
                 $clinique = Clinique::create([
                     'nom' => $validated['nom_clinique'],
@@ -238,6 +243,11 @@ class AuthController extends Controller
                     'code_invitation' => $codeInvitation,
                 ]);
 
+                // Dote la nouvelle clinique de son référentiel de démarrage (services,
+                // actes, assurances, catégories de dépenses). Sans cet amorçage, elle
+                // ouvrirait avec des catalogues vides et ne pourrait rien facturer.
+                app(AmorcageCliniqueService::class)->amorcer($clinique);
+
                 $adminRole = Role::firstOrCreate(
                     ['nom' => 'Administrateur'],
                     ['description' => 'Administration complète de la clinique']
@@ -248,6 +258,7 @@ class AuthController extends Controller
                     'nom' => $validated['nom'],
                     'prenom' => $validated['prenom'],
                     'email' => $validated['email'],
+                    'telephone' => $validated['telephone'],
                     'password' => Hash::make($validated['password']),
                     'role_id' => $adminRole->id,
                 ]);
@@ -273,15 +284,17 @@ class AuthController extends Controller
             $assignedRoleId = $invitation->role_id;
             $request->merge(['role_id' => $assignedRoleId]);
         } else {
+            // Code d'équipe général : le rôle n'est JAMAIS lu depuis le formulaire.
+            // Sans invitation nominative, tout inscrit reçoit le rôle le moins privilégié,
+            // sinon il suffirait de poster role_id=<Administrateur> pour prendre la main
+            // sur la clinique en connaissant simplement son code d'équipe.
             $clinique = Clinique::where('code_invitation', $codeClean)->first();
-            if (! $request->filled('role_id')) {
-                $defaultRole = Role::whereIn('nom', ['Collaborateur', 'Réceptionniste'])->first()
-                    ?? Role::whereNotIn('nom', ['Super Administrateur', 'Admin'])->first();
-                if ($defaultRole) {
-                    $request->merge(['role_id' => $defaultRole->id]);
-                }
-            }
-            $assignedRoleId = $request->input('role_id');
+
+            $defaultRole = Role::whereIn('nom', ['Collaborateur', 'Réceptionniste'])->first()
+                ?? Role::whereNotIn('nom', ['Super Administrateur', 'Admin', 'Administrateur'])->first();
+
+            $assignedRoleId = $defaultRole?->id;
+            $request->merge(['role_id' => $assignedRoleId]);
         }
 
         $validated = $request->validate([
@@ -289,6 +302,7 @@ class AuthController extends Controller
             'nom' => 'required|string|max:100',
             'prenom' => 'required|string|max:100',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'telephone' => 'required|string|max:30|unique:users,telephone',
             'password' => 'required|string|min:6|confirmed',
             'role_id' => 'required|exists:roles,id',
         ], [
@@ -296,6 +310,8 @@ class AuthController extends Controller
             'nom.required' => 'Le nom de famille est obligatoire.',
             'prenom.required' => 'Le prénom est obligatoire.',
             'email.required' => 'L\'adresse email est obligatoire.',
+            'telephone.required' => 'Le numéro de téléphone est obligatoire : il sert à vous connecter.',
+            'telephone.unique' => 'Ce numéro de téléphone est déjà rattaché à un compte.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
@@ -315,14 +331,16 @@ class AuthController extends Controller
             ])->with('error_tab', 'Rejoindre');
         }
 
-        // Sécurité stricte : si invitation spécifique, le rôle est forcé depuis la base de données
-        $finalRoleId = $invitation ? $invitation->role_id : $validated['role_id'];
+        // Sécurité stricte : le rôle provient toujours de la base de données
+        // (invitation nominative ou rôle par défaut), jamais de la requête cliente.
+        $finalRoleId = $invitation ? $invitation->role_id : $assignedRoleId;
 
         $user = User::create([
             'clinique_id' => $clinique->id,
             'nom' => $validated['nom'],
             'prenom' => $validated['prenom'],
             'email' => $validated['email'],
+            'telephone' => $validated['telephone'],
             'password' => Hash::make($validated['password']),
             'role_id' => $finalRoleId,
         ]);

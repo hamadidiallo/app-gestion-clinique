@@ -584,27 +584,27 @@
         <form method="POST" action="{{ route('register') }}" id="formCreateClinic">
           @csrf
           <input type="hidden" name="action_type" value="creer">
-          <input type="hidden" name="type_etablissement" id="input_type_etablissement" value="Clinique polyvalente">
+          <input type="hidden" name="type_etablissement" id="input_type_etablissement" value="{{ old('type_etablissement') }}">
 
           <div class="form-group">
             <label for="nom_clinique" class="form-label">Nom de l'établissement <span style="color: #ef4444;">*</span></label>
-            <input type="text" name="nom_clinique" id="nom_clinique" value="{{ old('nom_clinique', 'Clinique Baobab') }}" placeholder="Clinique Baobab" class="form-input @error('nom_clinique') is-invalid @enderror" required oninput="updateClinicPreview(this.value)" />
+            <input type="text" name="nom_clinique" id="nom_clinique" value="{{ old('nom_clinique') }}" placeholder="Clinique Baobab" class="form-input @error('nom_clinique') is-invalid @enderror" required oninput="updateClinicPreview(this.value)" />
           </div>
 
           <div style="display: flex; gap: 12px;">
             <div style="flex: 1; min-width: 0;" class="form-group">
               <label for="type_etablissement_select" class="form-label">Type</label>
-              <input type="text" id="type_etablissement_select" value="Clinique polyvalente" class="form-input" oninput="document.getElementById('input_type_etablissement').value = this.value" />
+              <input type="text" id="type_etablissement_select" value="{{ old('type_etablissement') }}" placeholder="Clinique polyvalente" class="form-input" oninput="document.getElementById('input_type_etablissement').value = this.value" />
             </div>
             <div style="flex: 1; min-width: 0;" class="form-group">
               <label for="ville_clinique" class="form-label">Ville <span style="color: #ef4444;">*</span></label>
-              <input type="text" name="ville" id="ville_clinique" value="{{ old('ville', 'Bamako') }}" placeholder="Bamako" class="form-input @error('ville') is-invalid @enderror" required />
+              <input type="text" name="ville" id="ville_clinique" value="{{ old('ville') }}" placeholder="Bamako" class="form-input @error('ville') is-invalid @enderror" required />
             </div>
           </div>
 
           <div class="form-group">
             <label for="telephone_clinique" class="form-label">Téléphone</label>
-            <input type="text" name="telephone_clinique" id="telephone_clinique" value="{{ old('telephone_clinique', '+223 20 22 44 66') }}" placeholder="+223 20 22 44 66" class="form-input" />
+            <input type="text" name="telephone_clinique" id="telephone_clinique" value="{{ old('telephone_clinique') }}" placeholder="+223 20 22 44 66" class="form-input" />
           </div>
 
           {{-- Compte administrateur direct --}}
@@ -621,8 +621,13 @@
               </div>
             </div>
             <div class="form-group">
+              <label class="form-label">Téléphone administrateur <span style="color: #ef4444;">*</span></label>
+              <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" required />
+              @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group">
               <label class="form-label">E-mail administrateur <span style="color: #ef4444;">*</span></label>
-              <input type="email" name="email" value="{{ old('email') }}" placeholder="direction@clinique.ml" class="form-input" required />
+              <input type="email" name="email" value="{{ old('email') }}" placeholder="direction@clinique.ml" class="form-input @error('email') is-invalid @enderror" required />
             </div>
             <div class="form-group">
               <label class="form-label">Mot de passe <span style="color: #ef4444;">*</span></label>
@@ -763,6 +768,12 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label">Numéro de téléphone <span style="color: #ef4444;">*</span></label>
+            <input type="text" name="telephone" id="join_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" required />
+            @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
+          </div>
+
+          <div class="form-group">
             <label class="form-label">Adresse e-mail professionnelle <span style="color: #ef4444;">*</span></label>
             <input type="email" name="email" id="join_email" value="{{ old('email') }}" placeholder="dr.traore@clinique.ml" class="form-input @error('email') is-invalid @enderror" required />
           </div>
@@ -791,15 +802,16 @@
       {{-- ====================================================== --}}
       <div id="screen_M1" class="auth-screen" style="{{ $activeScreen === 'M1' ? '' : 'display: none;' }}">
         <h1 class="screen-heading">Connexion</h1>
-        <p class="screen-subheading">Accédez à l'espace de la Clinique Baobab.</p>
+        <p class="screen-subheading">Accédez à votre espace de travail.</p>
 
         <form method="POST" action="{{ route('login') }}" id="formLogin">
           @csrf
           
           {{-- Identifiant professionnel --}}
           <div class="form-group">
-            <label for="login_email" class="form-label">Identifiant professionnel</label>
-            <input type="text" name="email" id="login_email" value="{{ old('email') }}" placeholder="dr.kone" class="form-input @error('email') is-invalid @enderror" required autofocus />
+            <label for="login_email" class="form-label">Numéro de téléphone</label>
+            <input type="text" name="email" id="login_email" value="{{ old('email') }}" placeholder="76 00 00 00" inputmode="tel" autocomplete="username" class="form-input @error('email') is-invalid @enderror" required autofocus />
+            <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Votre adresse email reste acceptée.</div>
           </div>
 
           {{-- Mot de passe avec lien Oublié ? --}}
@@ -865,33 +877,27 @@
 
     <div class="showcase-content">
 
-      {{-- 1. SHOWCASE POUR CONNEXION (M1) : AWA KONÉ & VITALS --}}
+      {{-- 1. SHOWCASE POUR CONNEXION (M1) : PÉRIMÈTRE FONCTIONNEL --}}
       <div id="showcase_M1" class="showcase-screen-content" style="{{ $activeScreen === 'M1' ? '' : 'display: none;' }}">
         <div class="showcase-title">Le dossier patient, du premier rendez-vous à la sortie.</div>
         <div class="showcase-desc">Rendez-vous, consultations, ordonnances, pharmacie et facturation réunis sur un poste unique et sécurisé.</div>
 
         <div class="card-dark-glass">
-          <div style="display: flex; align-items: center; gap: 11px; margin-bottom: 16px;">
-            <div style="width: 40px; height: 40px; border-radius: 11px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: #2563EB;">AK</div>
-            <div style="flex: 1;">
-              <div style="font-size: 13px; font-weight: 700; color: #ffffff;">Awa Koné · 34 ans</div>
-              <div style="font-size: 11px; color: #7E9B90; font-weight: 600;">Consultation générale · 09:30</div>
-            </div>
-            <span style="font-size: 10px; font-weight: 700; color: #6EE7B7; background: rgba(16, 185, 129, 0.16); padding: 4px 10px; border-radius: 20px;">En salle</span>
+          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Constantes et antécédents centralisés</span>
           </div>
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px 13px;">
-              <div style="font-size: 10px; color: #7E9B90; font-weight: 600;">Tension</div>
-              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; margin-top: 2px;">12/8</div>
-            </div>
-            <div style="flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px 13px;">
-              <div style="font-size: 10px; color: #7E9B90; font-weight: 600;">Temp.</div>
-              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; margin-top: 2px;">37,2°</div>
-            </div>
-            <div style="flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px 13px;">
-              <div style="font-size: 10px; color: #7E9B90; font-weight: 600;">Pouls</div>
-              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; margin-top: 2px;">78</div>
-            </div>
+          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Ordonnances et comptes rendus imprimables</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Tickets, encaissements et tiers payant</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Traçabilité complète des accès</span>
           </div>
         </div>
       </div>
@@ -934,8 +940,8 @@
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l5-3 5 3M14 20V6l6 3v11M3 20h18"></path></svg>
             </div>
             <div>
-              <div id="preview_clinic_name" style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Clinique Baobab</div>
-              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Clinique polyvalente · Bamako</div>
+              <div id="preview_clinic_name" style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Votre établissement</div>
+              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Nom, type et ville personnalisables</div>
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #F1F5F3;">
@@ -964,8 +970,8 @@
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v10M7 12h10"></path></svg>
             </div>
             <div>
-              <div style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Clinique Baobab</div>
-              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Marché Dabanani, Bamako</div>
+              <div style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Établissement d'accueil</div>
+              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Identifié par votre code d'invitation</div>
             </div>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1068,7 +1074,7 @@
   function updateClinicPreview(name) {
     const preview = document.getElementById('preview_clinic_name');
     if (preview) {
-      preview.innerText = name.trim() || 'Clinique Baobab';
+      preview.innerText = name.trim() || 'Votre établissement';
     }
   }
 

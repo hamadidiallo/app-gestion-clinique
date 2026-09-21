@@ -59,10 +59,22 @@
                     @error('nom')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
 
+                {{-- Telephone : identifiant de connexion --}}
+                <div class="col-md-6">
+                    <label for="telephone" class="form-label fw-semibold text-dark">
+                        Téléphone (Identifiant de connexion) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i data-lucide="phone" class="lucide-sm text-muted"></i></span>
+                        <input type="text" name="telephone" id="telephone" inputmode="tel" class="form-control @error('telephone') is-invalid @enderror" value="{{ old('telephone') }}" placeholder="Ex: 76 00 00 00" required>
+                    </div>
+                    @error('telephone')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+
                 {{-- Email --}}
                 <div class="col-md-6">
                     <label for="email" class="form-label fw-semibold text-dark">
-                        Adresse Email (Identifiant de connexion) <span class="text-danger">*</span>
+                        Adresse Email <span class="text-danger">*</span>
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i data-lucide="mail" class="lucide-sm text-muted"></i></span>

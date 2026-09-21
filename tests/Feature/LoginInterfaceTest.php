@@ -16,26 +16,34 @@ test('la nouvelle interface de connexion medigest saffiche correctement', functi
     $response->assertOk();
     $response->assertSee('MediGest');
     $response->assertSee('Connexion');
-    $response->assertSee('Accédez à l\'espace de la Clinique Baobab.', false);
-    $response->assertSee('Identifiant professionnel');
+    $response->assertSee('Accédez à votre espace de travail.', false);
+    $response->assertSee('Numéro de téléphone');
     $response->assertSee('Mot de passe');
     $response->assertSee('Oublié ?');
     $response->assertSee('Rester connecté sur ce poste');
     $response->assertSee('Se connecter');
     $response->assertSee('Connexion sécurisée · données de santé chiffrées');
 
-    // Panneau droit : Showcase dossier patient
+    // Panneau droit : Showcase du périmètre fonctionnel
     $response->assertSee('Le dossier patient, du premier rendez-vous à la sortie.');
     $response->assertSee('Rendez-vous, consultations, ordonnances, pharmacie et facturation réunis sur un poste unique et sécurisé.');
-    $response->assertSee('Awa Koné · 34 ans');
-    $response->assertSee('Consultation générale · 09:30');
-    $response->assertSee('En salle');
-    $response->assertSee('Tension');
-    $response->assertSee('12/8');
-    $response->assertSee('Temp.');
-    $response->assertSee('37,2°');
-    $response->assertSee('Pouls');
-    $response->assertSee('78');
+    $response->assertSee('Constantes et antécédents centralisés');
+    $response->assertSee('Ordonnances et comptes rendus imprimables');
+    $response->assertSee('Tickets, encaissements et tiers payant');
+    $response->assertSee('Traçabilité complète des accès');
+});
+
+test('aucune donnee fictive de demonstration sur l ecran de connexion', function () {
+    $response = $this->get(route('login'));
+
+    // Aucune identité de patient ou de clinique inventée ne doit être affichée
+    $response->assertDontSee('Awa Koné');
+    $response->assertDontSee('Marché Dabanani');
+
+    // Les champs d'inscription ne doivent pas être pré-remplis
+    $response->assertDontSee('value="Clinique Baobab"', false);
+    $response->assertDontSee('value="Bamako"', false);
+    $response->assertDontSee('value="+223 20 22 44 66"', false);
 });
 
 test('un utilisateur peut se connecter via la nouvelle interface', function () {
