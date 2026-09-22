@@ -76,7 +76,7 @@
                             <span>Nouveau</span>
                         </button>
                     </div>
-                    <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id', $initPatientId) }}" required>
+                    <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id', $initPatientId) }}">
                     
                     {{-- Message de confirmation après création rapide --}}
                     <div id="quick_patient_success_badge" class="alert alert-success d-none py-1 px-2 small mt-1 mb-0 d-flex align-items-center gap-1 rounded-2">
@@ -938,5 +938,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialisation
     recalculerTotaux();
 });
+
+        // Le champ patient_id est cache : lui poser l'attribut required bloquerait
+        // l'envoi sans message, le navigateur ne pouvant pas focaliser un champ
+        // invisible. Le controle est donc fait ici, et le serveur revalide.
+        (function () {
+            var form = document.getElementById('ticket_form');
+            var champCache = document.getElementById('patient_id');
+            var champRecherche = document.getElementById('patient_search_input');
+            if (!form || !champCache) return;
+
+            form.addEventListener('submit', function (e) {
+                if (champCache.value) return;
+
+                e.preventDefault();
+
+                if (champRecherche) {
+                    champRecherche.classList.add('is-invalid');
+                    champRecherche.focus();
+
+                    var message = document.getElementById('patient_requis_message');
+                    if (!message) {
+                        message = document.createElement('div');
+                        message.id = 'patient_requis_message';
+                        message.className = 'text-danger small mt-1';
+                        message.textContent = 'Sélectionnez un patient dans la liste avant de continuer.';
+                        champRecherche.closest('.mb-3, .col-12, .col-md-6, div').appendChild(message);
+                    }
+                }
+            });
+
+            if (champRecherche) {
+                champRecherche.addEventListener('input', function () {
+                    champRecherche.classList.remove('is-invalid');
+                    var message = document.getElementById('patient_requis_message');
+                    if (message) message.remove();
+                });
+            }
+        })();
 </script>
 @endpush

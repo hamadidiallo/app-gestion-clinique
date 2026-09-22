@@ -130,7 +130,7 @@
                                 </div>
 
                                 {{-- Champ caché réel pour la soumission du formulaire --}}
-                                <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id') }}" required>
+                                <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id') }}">
 
                                 {{-- Récapitulatif visuel du patient actuellement sélectionné --}}
                                 <div id="selected_patient_card" class="mt-2 p-2 bg-success-subtle border border-success-subtle rounded-2 {{ old('patient_id') && $initialPatientName ? '' : 'd-none' }}">
@@ -495,5 +495,43 @@ document.addEventListener('DOMContentLoaded', function() {
         removePatientBtn.addEventListener('click', resetPatientSelection);
     }
 });
+
+        // Le champ patient_id est cache : lui poser l'attribut required bloquerait
+        // l'envoi sans message, le navigateur ne pouvant pas focaliser un champ
+        // invisible. Le controle est donc fait ici, et le serveur revalide.
+        (function () {
+            var form = document.getElementById('consultationForm');
+            var champCache = document.getElementById('patient_id');
+            var champRecherche = document.getElementById('patient_search_input');
+            if (!form || !champCache) return;
+
+            form.addEventListener('submit', function (e) {
+                if (champCache.value) return;
+
+                e.preventDefault();
+
+                if (champRecherche) {
+                    champRecherche.classList.add('is-invalid');
+                    champRecherche.focus();
+
+                    var message = document.getElementById('patient_requis_message');
+                    if (!message) {
+                        message = document.createElement('div');
+                        message.id = 'patient_requis_message';
+                        message.className = 'text-danger small mt-1';
+                        message.textContent = 'Sélectionnez un patient dans la liste avant de continuer.';
+                        champRecherche.closest('.mb-3, .col-12, .col-md-6, div').appendChild(message);
+                    }
+                }
+            });
+
+            if (champRecherche) {
+                champRecherche.addEventListener('input', function () {
+                    champRecherche.classList.remove('is-invalid');
+                    var message = document.getElementById('patient_requis_message');
+                    if (message) message.remove();
+                });
+            }
+        })();
 </script>
 @endsection

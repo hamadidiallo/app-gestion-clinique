@@ -262,3 +262,34 @@ test('can search patient by full name or telephone for consultation creation', f
     expect(count($dataNom))->toBeGreaterThanOrEqual(1);
     expect($dataNom[0]['id'])->toBe($patient->id);
 });
+
+test('le champ patient cache ne porte pas required, qui bloquerait l envoi', function () {
+    $clinique = creerClinique('Clinique Garde', 'CGA');
+    $role = Role::firstOrCreate(['nom' => 'Administrateur'], ['description' => 'x']);
+    $user = creerUtilisateur($clinique, 'admin@garde.ml', $role);
+
+    // Un input hidden marque required empeche toute soumission : le navigateur
+    // ne peut pas focaliser le champ pour afficher son message de validation.
+    foreach ([route('consultations.create'), route('tickets.create')] as $url) {
+        $html = $this->actingAs($user)->get($url)->assertOk()->getContent();
+
+        expect($html)->not->toMatch('/<input[^>]*type="hidden"[^>]*name="patient_id"[^>]*required/');
+
+        // Le garde-fou navigateur prend le relais
+        expect($html)->toContain('patient_requis_message');
+    }
+});
+
+test('le serveur refuse une consultation sans patient', function () {
+    $clinique = creerClinique('Clinique Garde', 'CGA');
+    $role = Role::firstOrCreate(['nom' => 'Administrateur'], ['description' => 'x']);
+    $user = creerUtilisateur($clinique, 'admin@garde.ml', $role);
+
+    $this->actingAs($user)
+        ->from(route('consultations.create'))
+        ->post(route('consultations.store'), [
+            'date_consultation' => now()->format('Y-m-d\TH:i'),
+            'motif_consultation' => 'Sans patient',
+        ])
+        ->assertSessionHasErrors('patient_id');
+});
