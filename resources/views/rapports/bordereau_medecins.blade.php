@@ -247,13 +247,13 @@
                         +
                     </div>
                     <div>
-                        <div class="clinic-brand-title">{{ auth()->user()->clinique->nom ?? 'Clinique Gahambani' }}</div>
+                        <div class="clinic-brand-title">{{ auth()->user()->clinique->nom ?? config('app.name') }}</div>
                         <div class="small fw-semibold text-muted">Établissement Médico-Chirurgical & Maternité</div>
                     </div>
                 </div>
                 <div class="clinic-subtitle mt-2">
                     <div><strong>Agrément Ministériel :</strong> N° MS-0452/2020 &bull; <strong>NIF :</strong> 085123456T</div>
-                    <div>{{ auth()->user()->clinique->adresse ?? 'Quartier Administratif' }}, {{ auth()->user()->clinique->ville ?? 'Bamako' }} — {{ auth()->user()->clinique->pays ?? 'Mali' }}</div>
+                    <div>{{ auth()->user()->clinique->adresse ?? '' }}, {{ auth()->user()->clinique->ville ?? '' }} — {{ auth()->user()->clinique->pays ?? '' }}</div>
                     <div>Tél : {{ auth()->user()->clinique->telephone ?? '(+223) 20 22 00 00' }} &bull; Email : {{ auth()->user()->clinique->email ?? 'contact@clinique.ml' }}</div>
                 </div>
             </div>
@@ -477,7 +477,7 @@
 
         {{-- PIED DE PAGE LÉGAL --}}
         <div class="text-center text-muted small mt-4 pt-3 border-top" style="font-size: 10px;">
-            CLINGEST Santé &bull; Clinique Médico-Chirurgicale Gahambani &bull; Document officiel de liquidation des honoraires médicaux &bull; Émis le {{ \Carbon\Carbon::now()->format('d/m/Y à H:i') }} &bull; Page 1 / 1
+            {{ config('app.name') }} &bull; {{ auth()->user()->clinique->nom ?? '' }} &bull; Document officiel de liquidation des honoraires médicaux &bull; Émis le {{ \Carbon\Carbon::now()->format('d/m/Y à H:i') }} &bull; Page 1 / 1
         </div>
 
     </div>

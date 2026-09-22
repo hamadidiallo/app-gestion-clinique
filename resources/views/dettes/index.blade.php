@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Suivi des Dettes & Créances - CLINGEST')
+@section('title', 'Suivi des Dettes & Créances - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

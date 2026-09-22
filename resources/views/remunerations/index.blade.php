@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Rémunérations & Rétrocessions Médecins - CLINGEST')
+@section('title', 'Rémunérations & Rétrocessions Médecins - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

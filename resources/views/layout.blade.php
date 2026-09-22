@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', (auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom . ' - CLINGEST' : 'CLINGEST Santé'))</title>
+    <title>@yield('title', (auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom . ' - ' . config('app.name') : config('app.name')))</title>
 
     {{-- Google Fonts : IBM Plex Sans & IBM Plex Mono (de doc/Clinique.dc.html) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -516,7 +516,7 @@
                     </div>
                 @endif
                 <div class="min-w-0">
-                    <div class="brand-title">{{ auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom : 'CLINGEST' }}</div>
+                    <div class="brand-title">{{ auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->nom : config('app.name') }}</div>
                     <div class="brand-sub">{{ auth()->check() && auth()->user()->clinique ? auth()->user()->clinique->ville . ' · ' . auth()->user()->clinique->pays : 'Plateforme Médicale SaaS' }}</div>
                 </div>
             </div>

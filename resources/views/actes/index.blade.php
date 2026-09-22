@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Catalogue des Actes Médicaux - CLINGEST')
+@section('title', 'Catalogue des Actes Médicaux - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

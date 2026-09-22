@@ -147,3 +147,118 @@ test('can print medical prescription', function () {
     $response->assertSee('Oméprazole');
     $response->assertSee('Fatoumata');
 });
+
+test('can create a consultation with empty prescription inputs without triggering validation errors', function () {
+    $user = getOrCreateTestUser();
+    $patient = Patient::create([
+        'nom' => 'Keita',
+        'prenom' => 'Moussa',
+        'sexe' => 'M',
+        'telephone' => '78998877',
+        'statut' => 'non_assure',
+    ]);
+
+    // Simule la soumission classique du formulaire web où la 1ère ligne de prescription est vide
+    $postData = [
+        'patient_id' => $patient->id,
+        'date_consultation' => now()->format('Y-m-d H:i:s'),
+        'motif_consultation' => 'Contrôle de routine',
+        'prescriptions' => [
+            [
+                'medicament' => '',
+                'dosage' => '',
+                'duree' => '',
+                'posologie' => '',
+            ],
+        ],
+    ];
+
+    $response = $this->actingAs($user)->post(route('consultations.store'), $postData);
+
+    $response->assertSessionHasNoErrors();
+    $consultation = Consultation::where('patient_id', $patient->id)->first();
+    expect($consultation)->not->toBeNull();
+    expect($consultation->ordonnance)->toBeNull();
+});
+
+test('normalizes vital signs with comma, meters for height and mg/dL for glycemie', function () {
+    $user = getOrCreateTestUser();
+    $patient = Patient::create([
+        'nom' => 'Sidibe',
+        'prenom' => 'Aminata',
+        'sexe' => 'F',
+        'telephone' => '71223344',
+        'statut' => 'non_assure',
+    ]);
+
+    $postData = [
+        'patient_id' => $patient->id,
+        'date_consultation' => now()->format('Y-m-d H:i:s'),
+        'motif_consultation' => 'Prise de constantes et bilan',
+        'temperature' => '38,5',      // Virgule au lieu du point
+        'poids' => '72,4',            // Virgule au lieu du point
+        'taille' => '1.75',           // En mètres (doit devenir 175 cm)
+        'glycemie' => '95',           // En mg/dL (doit devenir 0.95 g/L)
+        'tension_arterielle' => '12/8',
+    ];
+
+    $response = $this->actingAs($user)->post(route('consultations.store'), $postData);
+
+    $response->assertSessionHasNoErrors();
+    $consultation = Consultation::where('patient_id', $patient->id)->first();
+    expect($consultation)->not->toBeNull();
+    expect((float) $consultation->temperature)->toBe(38.5);
+    expect((float) $consultation->poids)->toBe(72.4);
+    expect((int) $consultation->taille)->toBe(175);
+    expect((float) $consultation->glycemie)->toBe(0.95);
+});
+
+test('returns clear French validation message when temperature is outside physiological range', function () {
+    $user = getOrCreateTestUser();
+    $patient = Patient::create([
+        'nom' => 'Diarra',
+        'prenom' => 'Ousmane',
+        'sexe' => 'M',
+        'telephone' => '79887766',
+        'statut' => 'non_assure',
+    ]);
+
+    $postData = [
+        'patient_id' => $patient->id,
+        'date_consultation' => now()->format('Y-m-d H:i:s'),
+        'motif_consultation' => 'Contrôle',
+        'temperature' => 15, // En dessous de 30°C
+    ];
+
+    $response = $this->actingAs($user)->post(route('consultations.store'), $postData);
+
+    $response->assertSessionHasErrors(['temperature']);
+    $errors = session('errors')->get('temperature');
+    expect($errors[0])->toContain('La température doit être comprise entre 30°C et 45°C.');
+});
+
+test('can search patient by full name or telephone for consultation creation', function () {
+    $user = getOrCreateTestUser();
+    $patient = Patient::create([
+        'nom' => 'Traore',
+        'prenom' => 'Ibrahim',
+        'sexe' => 'M',
+        'telephone' => '76452891',
+        'statut' => 'non_assure',
+    ]);
+
+    // 1. Recherche par numéro de téléphone
+    $responseTel = $this->actingAs($user)->getJson(route('patients.search', ['q' => '76452891']));
+    $responseTel->assertStatus(200);
+    $dataTel = $responseTel->json();
+    expect(count($dataTel))->toBeGreaterThanOrEqual(1);
+    expect($dataTel[0]['id'])->toBe($patient->id);
+    expect($dataTel[0]['nom_complet'])->toBe('Ibrahim Traore');
+
+    // 2. Recherche par nom complet "Traore Ibrahim"
+    $responseNom = $this->actingAs($user)->getJson(route('patients.search', ['q' => 'Traore Ibrahim']));
+    $responseNom->assertStatus(200);
+    $dataNom = $responseNom->json();
+    expect(count($dataNom))->toBeGreaterThanOrEqual(1);
+    expect($dataNom[0]['id'])->toBe($patient->id);
+});

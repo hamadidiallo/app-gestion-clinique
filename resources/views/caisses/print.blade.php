@@ -111,9 +111,9 @@
     {{-- FORMAT TICKET Z 80mm --}}
     <div class="receipt-container">
         <div class="receipt-header">
-            <h2>CLINIQUE GAHAMBANI</h2>
-            <small>CLINGEST - Gestion Médicale</small><br>
-            <small>Mali - Kati</small>
+            <h2>{{ strtoupper($caisse->clinique->nom ?? config('app.name')) }}</h2>
+            <small>{{ $caisse->clinique->type_etablissement ?? '' }}</small><br>
+            <small>{{ $caisse->clinique->ville ?? '' }}{{ $caisse->clinique?->pays ? ' - ' . $caisse->clinique->pays : '' }}</small>
             <div class="mt-2 fw-bold" style="font-size: 13px; border: 1px solid #000; padding: 2px;">
                 BILAN DE CLÔTURE DE CAISSE (Z)
             </div>
@@ -195,7 +195,7 @@
 
         <div class="receipt-footer">
             <small>Imprimé le {{ \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}</small><br>
-            <small>CLINGEST - Contrôle Financier Interne</small>
+            <small>{{ config('app.name') }} - Contrôle Financier Interne</small>
         </div>
     </div>
 

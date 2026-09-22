@@ -107,11 +107,25 @@
         {{-- En-tête de la Clinique --}}
         <div class="clinic-header d-flex justify-content-between align-items-start">
             <div>
+@php
+                    // L'ordonnance est remise au patient : elle doit porter
+                    // l'identite de l'etablissement qui l'a emise.
+                    $cliniqueEmettrice = $consultation->clinique ?? auth()->user()->clinique;
+                @endphp
                 <h2 class="h4 text-primary fw-bold mb-1">
-                    <i data-lucide="building-2" class="me-2"></i>CLINIQUE MÉDICO-CHIRURGICALE
+                    <i data-lucide="building-2" class="me-2"></i>{{ strtoupper($cliniqueEmettrice->nom ?? config('app.name')) }}
                 </h2>
-                <p class="small text-muted mb-0">Consultations Générales & Spécialisées - Urgences 24h/24</p>
-                <p class="small text-muted mb-0">Bamako, Mali • Tél: (+223) 20 22 00 00 / (+223) 70 00 00 00</p>
+                @if($cliniqueEmettrice?->type_etablissement)
+                    <p class="small text-muted mb-0">{{ $cliniqueEmettrice->type_etablissement }}</p>
+                @endif
+                <p class="small text-muted mb-0">
+                    {{ collect([
+                        $cliniqueEmettrice?->adresse,
+                        $cliniqueEmettrice?->ville,
+                        $cliniqueEmettrice?->pays,
+                    ])->filter()->implode(', ') }}
+                    @if($cliniqueEmettrice?->telephone) • Tél : {{ $cliniqueEmettrice->telephone }} @endif
+                </p>
             </div>
             <div class="text-end">
                 <span class="badge bg-light text-dark border font-monospace fs-6">N° {{ $consultation->ordonnance->reference }}</span>

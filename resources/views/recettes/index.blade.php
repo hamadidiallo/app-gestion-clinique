@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Registre des Recettes - CLINGEST')
+@section('title', 'Registre des Recettes - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

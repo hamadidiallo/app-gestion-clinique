@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Règlement de Solde & Encaissement d\'Impayé - CLINGEST')
+@section('title', 'Règlement de Solde & Encaissement d\'Impayé - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

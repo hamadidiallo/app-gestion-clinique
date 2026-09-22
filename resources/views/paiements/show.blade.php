@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Reçu de Paiement ' . $paiement->reference . ' - CLINGEST')
+@section('title', 'Reçu de Paiement ' . $paiement->reference . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

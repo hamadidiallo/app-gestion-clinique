@@ -85,22 +85,31 @@ class PatientController extends Controller
             return response()->json([]);
         }
 
-        $patients = Patient::with(['assurance', 'cartesAssurance' => function ($q) {
+        $patients = Patient::with(['assurance', 'dossierMedical', 'cartesAssurance' => function ($q) {
             $q->where('statut', true)->with('assurance');
         }])
             ->where(function ($q) use ($query) {
                 $q->where('prenom', 'LIKE', "%{$query}%")
                     ->orWhere('nom', 'LIKE', "%{$query}%")
                     ->orWhere('telephone', 'LIKE', "%{$query}%")
+                    ->orWhere('reference', 'LIKE', "%{$query}%")
                     ->orWhere('numero_assure', 'LIKE', "%{$query}%")
+                    ->orWhereRaw("CONCAT(prenom, ' ', nom) LIKE ?", ["%{$query}%"])
+                    ->orWhereRaw("CONCAT(nom, ' ', prenom) LIKE ?", ["%{$query}%"])
                     ->orWhereHas('cartesAssurance', function ($cq) use ($query) {
                         $cq->where('reference', 'LIKE', "%{$query}%");
                     });
             })
-            ->limit(10)
+            ->limit(15)
             ->get();
 
-        $formatted = $patients->map(function ($patient) {
+        // Les antecedents, allergies et groupe sanguin relevent du secret medical.
+        // L'autocompletion est partagee avec la creation de ticket, ou un caissier
+        // ou un comptable recevrait ces donnees dans la reponse JSON sans meme les
+        // afficher. Elles ne sont donc jointes que pour les profils soignants.
+        $peutVoirDossierMedical = auth()->user()?->isAdmin() || auth()->user()?->hasRole('Médecin');
+
+        $formatted = $patients->map(function ($patient) use ($peutVoirDossierMedical) {
             $carte = $patient->cartesAssurance->first();
             $assuranceId = $patient->assurance_id ?? ($carte ? $carte->assurance_id : null);
             $assuranceNom = $patient->assurance ? $patient->assurance->nom : ($carte && $carte->assurance ? $carte->assurance->nom : null);
@@ -109,6 +118,7 @@ class PatientController extends Controller
 
             return [
                 'id' => $patient->id,
+                'reference' => $patient->reference,
                 'nom_complet' => $patient->prenom.' '.$patient->nom,
                 'telephone' => $patient->telephone ?? 'Sans téléphone',
                 'statut' => $patient->statut,
@@ -117,6 +127,10 @@ class PatientController extends Controller
                 'numero_assure' => $numeroAssure,
                 'carte_reference' => $numeroAssure,
                 'taux_couverture' => (float) $tauxCouverture,
+                'groupe_sanguin' => $peutVoirDossierMedical ? ($patient->dossierMedical?->groupe_sanguin ?? '') : '',
+                'allergies' => $peutVoirDossierMedical ? ($patient->dossierMedical?->allergies ?? '') : '',
+                'antecedents_personnels' => $peutVoirDossierMedical ? ($patient->dossierMedical?->antecedents_personnels ?? '') : '',
+                'antecedents_familiaux' => $peutVoirDossierMedical ? ($patient->dossierMedical?->antecedents_familiaux ?? '') : '',
             ];
         });
 

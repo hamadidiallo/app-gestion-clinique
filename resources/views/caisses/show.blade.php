@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Session de Caisse #' . $caisse->id . ' - CLINGEST')
+@section('title', 'Session de Caisse #' . $caisse->id . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

@@ -137,7 +137,7 @@
                     <img src="{{ asset('storage/' . $ticket->clinique->logo) }}" alt="Logo" style="max-height: 40px; max-width: 140px; object-fit: contain; filter: grayscale(100%);">
                 </div>
             @endif
-            <h2>{{ strtoupper($ticket->clinique->nom ?? 'CLINIQUE GAHAMBANI') }}</h2>
+            <h2>{{ strtoupper($ticket->clinique->nom ?? config('app.name')) }}</h2>
             <small>{{ $ticket->clinique->ville ?? 'Mali' }} · {{ $ticket->clinique->telephone ?? '' }}</small>
         </div>
 

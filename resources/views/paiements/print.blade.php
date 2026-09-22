@@ -117,7 +117,7 @@
                     <img src="{{ asset('storage/' . $paiement->clinique->logo) }}" alt="Logo" style="max-height: 40px; max-width: 140px; object-fit: contain; filter: grayscale(100%);">
                 </div>
             @endif
-            <h2>{{ strtoupper($paiement->clinique->nom ?? 'CLINIQUE GAHAMBANI') }}</h2>
+            <h2>{{ strtoupper($paiement->clinique->nom ?? config('app.name')) }}</h2>
             <small>{{ $paiement->clinique->ville ?? 'Mali' }} · {{ $paiement->clinique->telephone ?? '' }}</small>
             <div class="mt-1 fw-bold" style="font-size: 13px;">QUITTANCE DE PAIEMENT</div>
         </div>

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Modes de Paiement & Règlement - CLINGEST')
+@section('title', 'Modes de Paiement & Règlement - ' . config('app.name'))
 
 @section('content')
     <div class="container-fluid p-0">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Modifier le Règlement - CLINGEST')
+@section('title', 'Modifier le Règlement - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

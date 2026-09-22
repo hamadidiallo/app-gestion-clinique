@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Générer un Décompte de Rémunération - CLINGEST')
+@section('title', 'Générer un Décompte de Rémunération - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

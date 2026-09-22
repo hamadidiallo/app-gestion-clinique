@@ -307,8 +307,14 @@ test('ticket index search does not crash with unknown column', function () {
 });
 
 test('patient create and edit interfaces render successfully with new design system', function () {
-    $user = getTestAdminUser();
+    // Les ecrans patient affichaient un nom de clinique fige : chaque
+    // etablissement voyait celui d'un autre. Ils doivent porter le sien.
+    $clinique = creerClinique('Polyclinique Sanou', 'PSA');
+    $role = Role::firstOrCreate(['nom' => 'Administrateur']);
+    $user = creerUtilisateur($clinique, 'admin.sanou@test.ml', $role);
+
     $patient = Patient::create([
+        'clinique_id' => $clinique->id,
         'nom' => 'Coulibaly',
         'prenom' => 'Ousmane',
         'sexe' => 'M',
@@ -319,11 +325,14 @@ test('patient create and edit interfaces render successfully with new design sys
     $resCreate = $this->actingAs($user)->get(route('patients.create'));
     $resCreate->assertStatus(200);
     $resCreate->assertSee('Admission');
-    $resCreate->assertSee('Clinique Gahambani');
+    $resCreate->assertSee('Polyclinique Sanou');
+    $resCreate->assertDontSee('Gahambani');
 
     $resEdit = $this->actingAs($user)->get(route('patients.edit', $patient));
     $resEdit->assertStatus(200);
     $resEdit->assertSee('Modifier Dossier : Ousmane Coulibaly');
+    $resEdit->assertSee('Polyclinique Sanou');
+    $resEdit->assertDontSee('Gahambani');
 });
 
 test('un ticket cree avec un medecin et un acte genere automatiquement une prestation et alimente la remuneration', function () {

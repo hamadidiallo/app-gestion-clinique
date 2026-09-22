@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Gestion des Tickets & Factures - CLINGEST')
+@section('title', 'Gestion des Tickets & Factures - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Dossier de Créance #' . $dette->id . ' - CLINGEST')
+@section('title', 'Dossier de Créance #' . $dette->id . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

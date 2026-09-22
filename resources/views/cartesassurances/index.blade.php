@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Liste des Cartes d\'Assurance - CLINGEST')
+@section('title', 'Liste des Cartes d\'Assurance - ' . config('app.name'))
 
 @section('content')
     <div class="container-fluid p-0">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Fiche du Dr ' . $medecin->prenom . ' ' . $medecin->nom . ' - CLINGEST')
+@section('title', 'Fiche du Dr ' . $medecin->prenom . ' ' . $medecin->nom . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

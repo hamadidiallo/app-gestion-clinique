@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Fiche Utilisateur #' . $user->id . ' - CLINGEST')
+@section('title', 'Fiche Utilisateur #' . $user->id . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

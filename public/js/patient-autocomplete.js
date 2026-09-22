@@ -25,6 +25,48 @@ window.selectPatientInForm = function (patient) {
     }
     if (hiddenPatientId) {
         hiddenPatientId.value = patient.id;
+        hiddenPatientId.dispatchEvent(new Event('change'));
+    }
+
+    const clearBtn = document.getElementById('clear_patient_search_btn');
+    if (clearBtn) {
+        clearBtn.style.display = 'block';
+    }
+
+    // Carte de confirmation du patient sélectionné
+    const cardSelected = document.getElementById('selected_patient_card');
+    const textName = document.getElementById('selected_patient_name');
+    const textTel = document.getElementById('selected_patient_tel');
+    if (cardSelected && textName) {
+        textName.textContent = fullName;
+        if (textTel) {
+            textTel.textContent = '• Tél: ' + (patient.telephone || 'Sans tél');
+        }
+        cardSelected.classList.remove('d-none');
+    }
+
+    // Synchronisation de la liste déroulante alternative si présente
+    const selectDropdown = document.getElementById('patient_select_dropdown');
+    if (selectDropdown) {
+        selectDropdown.value = patient.id;
+    }
+
+    // Pré-remplissage automatique des antécédents médicaux (Consultations)
+    const selectGroupe = document.querySelector('select[name="groupe_sanguin"]');
+    if (selectGroupe && patient.groupe_sanguin) {
+        selectGroupe.value = patient.groupe_sanguin;
+    }
+    const inputAllergies = document.querySelector('input[name="allergies"]');
+    if (inputAllergies && patient.allergies) {
+        inputAllergies.value = patient.allergies;
+    }
+    const inputAntPerso = document.querySelector('textarea[name="antecedents_personnels"]');
+    if (inputAntPerso && patient.antecedents_personnels) {
+        inputAntPerso.value = patient.antecedents_personnels;
+    }
+    const inputAntFam = document.querySelector('textarea[name="antecedents_familiaux"]');
+    if (inputAntFam && patient.antecedents_familiaux) {
+        inputAntFam.value = patient.antecedents_familiaux;
     }
 
     const inputReferenceTicket = document.getElementById('reference');
@@ -57,6 +99,10 @@ window.selectPatientInForm = function (patient) {
         } else {
             badgeAssure.classList.add('d-none');
         }
+    }
+
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
 };
 

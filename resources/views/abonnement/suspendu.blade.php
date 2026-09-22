@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Abonnement Suspendu - CLINGEST SaaS</title>
+    <title>Abonnement Suspendu - {{ config('app.name') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +60,7 @@
                 <span>Que devez-vous faire ?</span>
             </div>
             <p class="mb-1 text-muted">
-                Pour réactiver immédiatement vos accès ou régulariser votre licence d'utilisation, veuillez contacter l'administrateur de la plateforme CLINGEST Santé.
+                Pour réactiver immédiatement vos accès ou régulariser votre licence d'utilisation, veuillez contacter l'administrateur de la plateforme {{ config('app.name') }}.
             </p>
             <div class="mt-2 text-muted">
                 <strong>Support Plateforme :</strong> support@clingest.com / (+223) 76 00 00 00

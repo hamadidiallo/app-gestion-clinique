@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Créer un Utilisateur - CLINGEST')
+@section('title', 'Créer un Utilisateur - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0" style="max-width: 900px;">

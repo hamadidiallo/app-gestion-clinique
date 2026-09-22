@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Bulletin de Rémunération - Dr. ' . ($remuneration->medecin->nom ?? '') . ' - CLINGEST')
+@section('title', 'Bulletin de Rémunération - Dr. ' . ($remuneration->medecin->nom ?? '') . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

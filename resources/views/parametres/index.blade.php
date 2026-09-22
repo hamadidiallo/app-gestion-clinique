@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Paramètres & Configuration de la Clinique - CLINGEST')
+@section('title', 'Paramètres & Configuration de la Clinique - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

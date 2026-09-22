@@ -72,44 +72,62 @@
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Tension Artérielle</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="tension_arterielle" class="form-control" placeholder="ex: 12/8" value="{{ old('tension_arterielle', $consultation->tension_arterielle) }}">
+                                    <input type="text" name="tension_arterielle" class="form-control @error('tension_arterielle') is-invalid @enderror" placeholder="ex: 12/8" value="{{ old('tension_arterielle', $consultation->tension_arterielle) }}">
                                     <span class="input-group-text">mmHg</span>
                                 </div>
+                                @error('tension_arterielle')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Température</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" step="0.1" name="temperature" class="form-control" placeholder="ex: 37.2" value="{{ old('temperature', $consultation->temperature) }}">
+                                    <input type="number" step="0.1" name="temperature" class="form-control @error('temperature') is-invalid @enderror" placeholder="ex: 37.2" value="{{ old('temperature', $consultation->temperature) }}">
                                     <span class="input-group-text">°C</span>
                                 </div>
+                                @error('temperature')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Poids</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" step="0.1" name="poids" class="form-control" placeholder="ex: 70" value="{{ old('poids', $consultation->poids) }}">
+                                    <input type="number" step="0.1" name="poids" class="form-control @error('poids') is-invalid @enderror" placeholder="ex: 70" value="{{ old('poids', $consultation->poids) }}">
                                     <span class="input-group-text">kg</span>
                                 </div>
+                                @error('poids')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Taille</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="taille" class="form-control" placeholder="ex: 175" value="{{ old('taille', $consultation->taille) }}">
+                                    <input type="number" name="taille" class="form-control @error('taille') is-invalid @enderror" placeholder="ex: 175 (ou 1.75)" value="{{ old('taille', $consultation->taille) }}">
                                     <span class="input-group-text">cm</span>
                                 </div>
+                                @error('taille')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Pouls</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="pouls" class="form-control" placeholder="ex: 75" value="{{ old('pouls', $consultation->pouls) }}">
+                                    <input type="number" name="pouls" class="form-control @error('pouls') is-invalid @enderror" placeholder="ex: 75" value="{{ old('pouls', $consultation->pouls) }}">
                                     <span class="input-group-text">bpm</span>
                                 </div>
+                                @error('pouls')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 mb-2">
                                 <label class="form-label small fw-bold">Glycémie</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" step="0.01" name="glycemie" class="form-control" placeholder="ex: 0.95" value="{{ old('glycemie', $consultation->glycemie) }}">
+                                    <input type="number" step="0.01" name="glycemie" class="form-control @error('glycemie') is-invalid @enderror" placeholder="ex: 0.95 (ou 95)" value="{{ old('glycemie', $consultation->glycemie) }}">
                                     <span class="input-group-text">g/L</span>
                                 </div>
+                                @error('glycemie')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>

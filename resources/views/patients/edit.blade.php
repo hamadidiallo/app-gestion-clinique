@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Modifier le Dossier Patient - Clinique Gahambani')
+@section('title', 'Modifier le Dossier Patient - ' . (auth()->user()->clinique->nom ?? config('app.name')))
 
 @section('content')
 <div class="container-fluid p-0">
@@ -299,7 +299,7 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <span class="badge bg-white-subtle text-white border border-white-subtle px-2 py-1 fs-8 text-uppercase tracking-wider">
-                                        Clinique Gahambani
+                                        {{ auth()->user()->clinique->nom ?? config('app.name') }}
                                     </span>
                                     <div class="fs-8 opacity-75 mt-1">Dossier #{{ $patient->id }}</div>
                                 </div>

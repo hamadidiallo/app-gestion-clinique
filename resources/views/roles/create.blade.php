@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Créer un Nouveau Rôle - CLINGEST')
+@section('title', 'Créer un Nouveau Rôle - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

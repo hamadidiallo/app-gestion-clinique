@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Clinique;
+use App\Models\DossierMedical;
 use App\Models\Patient;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -287,4 +288,39 @@ test('chacun des deux identifiants permet de se connecter', function () {
     auth()->logout();
     $this->post('/login', ['email' => 'mail.seul@a.ml', 'password' => 'password123']);
     expect(auth()->id())->toBe($parEmail->id);
+});
+
+test('le secret medical ne fuit pas par l autocompletion patient', function () {
+    $clinique = creerClinique('Clinique A', 'CLA');
+    $medecinRole = Role::firstOrCreate(['nom' => 'Médecin'], ['description' => 'x']);
+    $caissierRole = Role::firstOrCreate(['nom' => 'Caissier'], ['description' => 'x']);
+
+    $patient = Patient::create([
+        'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
+        'sexe' => 'F', 'statut' => 'actif',
+    ]);
+    DossierMedical::create([
+        'patient_id' => $patient->id,
+        'numero_dossier' => 'DOS-SEC-1',
+        'groupe_sanguin' => 'O+',
+        'allergies' => 'ALLERGIE-CONFIDENTIELLE',
+        'antecedents_personnels' => 'ANTECEDENT-CONFIDENTIEL',
+    ]);
+
+    // Le medecin a besoin de ces informations pour la consultation
+    $this->actingAs(creerUtilisateur($clinique, 'medecin@a.ml', $medecinRole));
+    $reponseMedecin = $this->getJson(route('patients.search', ['q' => 'Traore']));
+    $reponseMedecin->assertOk();
+    expect($reponseMedecin->json('0.allergies'))->toBe('ALLERGIE-CONFIDENTIELLE');
+
+    // Le caissier utilise la meme autocompletion pour les tickets : il ne doit
+    // pas recevoir le dossier medical, meme sans l afficher
+    $this->actingAs(creerUtilisateur($clinique, 'caissier@a.ml', $caissierRole));
+    $reponseCaissier = $this->getJson(route('patients.search', ['q' => 'Traore']));
+    $reponseCaissier->assertOk()
+        ->assertDontSee('ALLERGIE-CONFIDENTIELLE')
+        ->assertDontSee('ANTECEDENT-CONFIDENTIEL');
+
+    // Il conserve en revanche ce dont il a besoin pour facturer
+    expect($reponseCaissier->json('0.nom_complet'))->toBe('Awa Traore');
 });

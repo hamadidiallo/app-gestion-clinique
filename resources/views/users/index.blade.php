@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Gestion des Utilisateurs & Comptes - CLINGEST')
+@section('title', 'Gestion des Utilisateurs & Comptes - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

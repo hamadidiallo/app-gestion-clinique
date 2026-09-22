@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Gestion des Rôles & Droits d\'Accès - CLINGEST')
+@section('title', 'Gestion des Rôles & Droits d\'Accès - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Gestion des Caisses & Guichets - CLINGEST')
+@section('title', 'Gestion des Caisses & Guichets - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Modifier l\'Utilisateur - CLINGEST')
+@section('title', 'Modifier l\'Utilisateur - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0" style="max-width: 900px;">

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Détails du Rôle : ' . $role->nom . ' - CLINGEST')
+@section('title', 'Détails du Rôle : ' . $role->nom . ' - ' . config('app.name'))
 
 @section('content')
 <div class="container-fluid p-0">
