@@ -133,6 +133,9 @@
                     </div>
                 </div>
 
+                @if($peutVoirDossierMedical)
+                {{-- Dossier, diagnostic et ordonnance : reserves aux profils soignants.
+                     Le serveur ecarte de toute facon ces champs pour les autres. --}}
                 {{-- Carte 3: Dossier Médical --}}
                 @php $dos = $consultation->patient->dossierMedical; @endphp
                 <div class="card border-0 shadow-sm mb-4">
@@ -263,6 +266,7 @@
                     </div>
                 </div>
 
+                @endif
                 <div class="d-flex gap-2 justify-content-end mb-5">
                     <a href="{{ route('consultations.show', $consultation) }}" class="btn btn-secondary px-4">Annuler</a>
                     <button type="submit" class="btn btn-warning btn-lg px-4 shadow-sm fw-bold">

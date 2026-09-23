@@ -17,6 +17,7 @@ use App\Services\PrestationService;
 use App\Traits\HasPeriodFilter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class ConsultationController extends Controller
@@ -104,9 +105,49 @@ class ConsultationController extends Controller
     /**
      * Enregistre une consultation médicale, met à jour le dossier médical et génère l'ordonnance si prescrite.
      */
+    /**
+     * Champs relevant de l'acte médical, réservés aux profils soignants.
+     *
+     * @var list<string>
+     */
+    private const CHAMPS_CLINIQUES = [
+        // Dossier médical du patient
+        'groupe_sanguin',
+        'allergies',
+        'antecedents_personnels',
+        'antecedents_familiaux',
+        // Examen et conclusion
+        'histoire_maladie',
+        'examen_physique',
+        'diagnostic',
+        'conduite_a_tenir',
+        // Ordonnance
+        'prescriptions',
+    ];
+
+    /**
+     * Retire les champs médicaux lorsque l'utilisateur n'a pas qualité pour les renseigner.
+     *
+     * L'accueil prépare la consultation et relève les constantes : c'est son métier.
+     * Poser un diagnostic ou établir une ordonnance engage en revanche la
+     * responsabilité d'un soignant, et l'ordonnance sort à l'en-tête de la clinique.
+     * Masquer les champs dans la vue ne suffirait pas : ils resteraient soumettables.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function filtrerChampsCliniques(array $validated): array
+    {
+        if (auth()->user()?->peutConsulterDossierMedical()) {
+            return $validated;
+        }
+
+        return Arr::except($validated, self::CHAMPS_CLINIQUES);
+    }
+
     public function store(ConsultationRequest $request)
     {
-        $validated = $request->validated();
+        $validated = $this->filtrerChampsCliniques($request->validated());
 
         // 1. Récupération ou initialisation du dossier médical du patient
         $patient = Patient::findOrFail($validated['patient_id']);
@@ -253,8 +294,9 @@ class ConsultationController extends Controller
     {
         $consultation->load(['patient.dossierMedical', 'medecin', 'ordonnance.lignes']);
         $medecins = Medecin::where('statut', true)->orderBy('nom')->get();
+        $peutVoirDossierMedical = (bool) auth()->user()?->peutConsulterDossierMedical();
 
-        return view('consultations.edit', compact('consultation', 'medecins'));
+        return view('consultations.edit', compact('consultation', 'medecins', 'peutVoirDossierMedical'));
     }
 
     /**
@@ -262,7 +304,7 @@ class ConsultationController extends Controller
      */
     public function update(ConsultationRequest $request, Consultation $consultation)
     {
-        $validated = $request->validated();
+        $validated = $this->filtrerChampsCliniques($request->validated());
 
         $consultation->update([
             'medecin_id' => $validated['medecin_id'] ?? null,

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Clinique;
+use App\Models\Consultation;
 use App\Models\DossierMedical;
 use App\Models\Patient;
 use App\Models\Role;
@@ -361,4 +362,76 @@ test('la receptionniste ne recoit pas le dossier medical dans le code de la page
         ->assertDontSee('data-allergies=', false)
         // Elle conserve ce dont elle a besoin pour choisir le patient
         ->assertSee('Traore');
+});
+
+test('la receptionniste ne peut ni poser un diagnostic ni prescrire', function () {
+    $clinique = creerClinique('Clinique A', 'CLA');
+    $receptionRole = Role::firstOrCreate(['nom' => 'Réceptionniste'], ['description' => 'x']);
+    $recep = creerUtilisateur($clinique, 'recep@a.ml', $receptionRole);
+
+    $patient = Patient::create([
+        'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
+        'sexe' => 'F', 'statut' => 'actif',
+    ]);
+
+    // Elle force les champs medicaux dans la requete, le formulaire ne les
+    // affichant plus : le serveur doit les ecarter malgre tout.
+    $this->actingAs($recep)->post(route('consultations.store'), [
+        'patient_id' => $patient->id,
+        'date_consultation' => now()->format('Y-m-d\TH:i'),
+        'motif_consultation' => 'Fievre',
+        'temperature' => '38,5',
+        'tension_arterielle' => '12/8',
+        'diagnostic' => 'DIAGNOSTIC INTERDIT',
+        'examen_physique' => 'EXAMEN INTERDIT',
+        'allergies' => 'ALLERGIE INTERDITE',
+        'prescriptions' => [
+            ['medicament' => 'Coartem', 'dosage' => '80/480', 'duree' => '3j', 'posologie' => '2x/j'],
+        ],
+    ]);
+
+    $consultation = Consultation::withoutGlobalScopes()
+        ->where('motif_consultation', 'Fievre')->first();
+
+    // La consultation et les constantes relevent bien de son metier
+    expect($consultation)->not->toBeNull()
+        ->and((float) $consultation->temperature)->toBe(38.5)
+        ->and($consultation->tension_arterielle)->toBe('12/8');
+
+    // Mais rien de l acte medical n a ete enregistre
+    expect($consultation->diagnostic)->toBeNull()
+        ->and($consultation->examen_physique)->toBeNull()
+        ->and($consultation->ordonnance)->toBeNull()
+        ->and($patient->dossierMedical?->allergies)->toBeNull();
+});
+
+test('le medecin conserve la main sur l acte medical', function () {
+    $clinique = creerClinique('Clinique A', 'CLA');
+    $medecinRole = Role::firstOrCreate(['nom' => 'Médecin'], ['description' => 'x']);
+    $medecin = creerUtilisateur($clinique, 'medecin@a.ml', $medecinRole);
+
+    $patient = Patient::create([
+        'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
+        'sexe' => 'F', 'statut' => 'actif',
+    ]);
+
+    $this->actingAs($medecin)->post(route('consultations.store'), [
+        'patient_id' => $patient->id,
+        'date_consultation' => now()->format('Y-m-d\TH:i'),
+        'motif_consultation' => 'Paludisme',
+        'diagnostic' => 'Paludisme simple',
+        'allergies' => 'Penicilline',
+        'prescriptions' => [
+            ['medicament' => 'Coartem', 'dosage' => '80/480', 'duree' => '3j', 'posologie' => '2x/j'],
+        ],
+    ]);
+
+    $consultation = Consultation::withoutGlobalScopes()
+        ->where('motif_consultation', 'Paludisme')->first();
+
+    expect($consultation)->not->toBeNull()
+        ->and($consultation->diagnostic)->toBe('Paludisme simple')
+        ->and($consultation->ordonnance)->not->toBeNull()
+        ->and($consultation->ordonnance->lignes)->toHaveCount(1)
+        ->and($patient->fresh()->dossierMedical?->allergies)->toBe('Penicilline');
 });

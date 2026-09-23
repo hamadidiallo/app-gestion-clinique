@@ -266,6 +266,11 @@
                     </div>
                 </div>
 
+                @if($peutVoirDossierMedical)
+                {{-- Dossier, diagnostic et ordonnance : reserves aux profils soignants.
+                     L'accueil prepare la consultation et releve les constantes ; poser un
+                     diagnostic ou etablir une ordonnance engage la responsabilite d'un
+                     soignant. Le serveur ecarte de toute facon ces champs pour les autres. --}}
                 {{-- Carte 3: Dossier Médical & Antécédents --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-secondary text-white py-2">
@@ -380,6 +385,7 @@
                     </div>
                 </div>
 
+                @endif
                 {{-- Boutons d'action --}}
                 <div class="d-flex gap-2 justify-content-end mb-5">
                     <a href="{{ route('consultations.index') }}" class="btn btn-secondary px-4">Annuler</a>
