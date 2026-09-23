@@ -29,6 +29,8 @@ class ConsultationController extends Controller
      */
     public function index()
     {
+        $peutVoirDossierMedical = (bool) auth()->user()?->peutConsulterDossierMedical();
+
         $period = request('periode', 'tous');
         $customStart = request('date_debut');
         $customEnd = request('date_fin');
@@ -38,15 +40,23 @@ class ConsultationController extends Controller
         $query = Consultation::with(['patient', 'medecin', 'ticket', 'ordonnance'])->latest('date_consultation');
 
         $this->applyDateFilter($query, $filter['start'], $filter['end'], 'date_consultation');
-        $this->applySearchFilter($query, request('q', request('search')), [
+        // Le diagnostic n'est interrogeable que par les soignants : le laisser
+        // dans les champs cherchables permettrait de le deviner par recoupement,
+        // en testant un terme et en observant quels patients ressortent.
+        $champsRecherche = [
             'reference',
             'motif_consultation',
-            'diagnostic',
             'patient.nom',
             'patient.prenom',
             'medecin.nom',
             'medecin.prenom',
-        ]);
+        ];
+
+        if ($peutVoirDossierMedical) {
+            $champsRecherche[] = 'diagnostic';
+        }
+
+        $this->applySearchFilter($query, request('q', request('search')), $champsRecherche);
 
         if (request('statut')) {
             $query->where('statut', request('statut'));
@@ -61,7 +71,7 @@ class ConsultationController extends Controller
         $periodLabel = $filter['label'];
         $medecins = Medecin::where('statut', true)->orderBy('nom')->get();
 
-        return view('consultations.index', compact('consultations', 'currentPeriod', 'periodLabel', 'medecins'));
+        return view('consultations.index', compact('consultations', 'currentPeriod', 'periodLabel', 'medecins', 'peutVoirDossierMedical'));
     }
 
     /**

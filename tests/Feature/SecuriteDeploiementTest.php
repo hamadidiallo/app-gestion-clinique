@@ -3,6 +3,7 @@
 use App\Models\Clinique;
 use App\Models\Consultation;
 use App\Models\DossierMedical;
+use App\Models\Ordonnance;
 use App\Models\Patient;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -434,4 +435,50 @@ test('le medecin conserve la main sur l acte medical', function () {
         ->and($consultation->ordonnance)->not->toBeNull()
         ->and($consultation->ordonnance->lignes)->toHaveCount(1)
         ->and($patient->fresh()->dossierMedical?->allergies)->toBe('Penicilline');
+});
+
+test('la receptionniste ne peut pas lire le dossier medical d une consultation', function () {
+    $clinique = creerClinique('Clinique A', 'CLA');
+    $medecinRole = Role::firstOrCreate(['nom' => 'Médecin'], ['description' => 'x']);
+    $receptionRole = Role::firstOrCreate(['nom' => 'Réceptionniste'], ['description' => 'x']);
+    $medecin = creerUtilisateur($clinique, 'medecin@a.ml', $medecinRole);
+    $recep = creerUtilisateur($clinique, 'recep@a.ml', $receptionRole);
+
+    $patient = Patient::create([
+        'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
+        'sexe' => 'F', 'statut' => 'actif',
+    ]);
+
+    $consultation = Consultation::create([
+        'clinique_id' => $clinique->id, 'patient_id' => $patient->id, 'user_id' => $medecin->id,
+        'reference' => 'CS-LECT-1', 'date_consultation' => now(),
+        'motif_consultation' => 'Fievre',
+        'diagnostic' => 'DIAGNOSTIC-CONFIDENTIEL',
+    ]);
+    $ordonnance = Ordonnance::create([
+        'consultation_id' => $consultation->id, 'patient_id' => $patient->id,
+        'reference' => 'ORD-LECT-1', 'date_ordonnance' => now(),
+    ]);
+
+    // Le medecin lit la fiche complete et imprime l ordonnance
+    $this->actingAs($medecin);
+    $this->get(route('consultations.show', $consultation))->assertOk()->assertSee('DIAGNOSTIC-CONFIDENTIEL');
+    $this->get(route('consultations.print-ordonnance', $consultation))->assertOk();
+
+    // La receptionniste en est ecartee
+    $this->actingAs($recep);
+    $this->get(route('consultations.show', $consultation))->assertForbidden();
+    $this->get(route('consultations.print-ordonnance', $consultation))->assertForbidden();
+
+    // La liste lui reste utile mais sans rien devoiler du diagnostic
+    $liste = $this->get(route('consultations.index'))->assertOk();
+    $liste->assertSee('Traore')
+        ->assertSee('Fievre')
+        ->assertDontSee('DIAGNOSTIC-CONFIDENTIEL')
+        ->assertDontSee($ordonnance->reference);
+
+    // Et la recherche ne permet pas de sonder les diagnostics par recoupement
+    $this->get(route('consultations.index', ['q' => 'DIAGNOSTIC-CONFIDENTIEL']))
+        ->assertOk()
+        ->assertDontSee('CS-LECT-1');
 });

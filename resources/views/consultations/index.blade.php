@@ -35,7 +35,7 @@
                 <div class="col-md-4">
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i data-lucide="search"></i></span>
-                        <input type="text" name="q" class="form-control" placeholder="Rechercher réf, patient, médecin, diagnostic..." value="{{ request('q') }}">
+                        <input type="text" name="q" class="form-control" placeholder="{{ $peutVoirDossierMedical ? 'Rechercher réf, patient, médecin, diagnostic...' : 'Rechercher réf, patient, médecin...' }}" value="{{ request('q') }}">
                     </div>
                 </div>
 
@@ -138,12 +138,14 @@
                             </td>
                             <td>
                                 <strong class="d-block text-dark">{{ Str::limit($item->motif_consultation, 30) }}</strong>
-                                @if($item->diagnostic)
+                                @if($peutVoirDossierMedical && $item->diagnostic)
                                     <small class="text-muted"><i data-lucide="activity" class="text-danger me-1"></i>{{ Str::limit($item->diagnostic, 40) }}</small>
                                 @endif
                             </td>
                             <td>
-                                @if($item->ordonnance)
+                                @if(! $peutVoirDossierMedical)
+                                    <span class="badge bg-light text-muted border">&mdash;</span>
+                                @elseif($item->ordonnance)
                                     <a href="{{ route('consultations.print-ordonnance', $item) }}" target="_blank" class="badge bg-success text-decoration-none py-2 px-2" title="Imprimer Ordonnance">
                                         <i data-lucide="printer" class="me-1"></i> {{ $item->ordonnance->reference }}
                                     </a>
@@ -153,9 +155,11 @@
                             </td>
                             <td class="text-end pe-3">
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('consultations.show', $item) }}" class="btn btn-outline-primary" title="Voir fiche complète">
-                                        <i data-lucide="eye"></i>
-                                    </a>
+                                    @if($peutVoirDossierMedical)
+                                        <a href="{{ route('consultations.show', $item) }}" class="btn btn-outline-primary" title="Voir fiche complète">
+                                            <i data-lucide="eye"></i>
+                                        </a>
+                                    @endif
                                     <a href="{{ route('consultations.edit', $item) }}" class="btn btn-outline-warning" title="Modifier">
                                         <i data-lucide="edit-3"></i>
                                     </a>

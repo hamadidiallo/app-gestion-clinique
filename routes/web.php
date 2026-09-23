@@ -292,11 +292,16 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
             Route::get('/consultations', 'index')->name('consultations.index');
             Route::get('/consultations/create', 'create')->name('consultations.create');
             Route::post('/consultations', 'store')->name('consultations.store');
-            Route::get('/consultations/{consultation}', 'show')->name('consultations.show');
             Route::get('/consultations/{consultation}/edit', 'edit')->name('consultations.edit');
             Route::put('/consultations/{consultation}', 'update')->name('consultations.update');
             Route::delete('/consultations/{consultation}', 'destroy')->name('consultations.destroy');
-            Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
+
+            // La fiche complete et l'ordonnance exposent diagnostic, antecedents et
+            // prescription : leur lecture est reservee aux profils soignants.
+            Route::middleware(['role:Administrateur,Médecin'])->group(function () {
+                Route::get('/consultations/{consultation}', 'show')->name('consultations.show');
+                Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
+            });
         });
     });
 
