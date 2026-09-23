@@ -117,10 +117,14 @@
                                             <option value="{{ $p->id }}" 
                                                     data-nom="{{ $p->prenom }} {{ $p->nom }}" 
                                                     data-tel="{{ $p->telephone ?? 'Sans tél' }}"
-                                                    data-groupe="{{ $p->dossierMedical?->groupe_sanguin ?? '' }}"
-                                                    data-allergies="{{ $p->dossierMedical?->allergies ?? '' }}"
-                                                    data-ant-perso="{{ $p->dossierMedical?->antecedents_personnels ?? '' }}"
-                                                    data-ant-fam="{{ $p->dossierMedical?->antecedents_familiaux ?? '' }}"
+                                                    @if($peutVoirDossierMedical)
+                                                        {{-- Secret medical : ces attributs seraient lisibles dans le
+                                                             code de la page, ils ne sont donc emis que pour les soignants --}}
+                                                        data-groupe="{{ $p->dossierMedical?->groupe_sanguin ?? '' }}"
+                                                        data-allergies="{{ $p->dossierMedical?->allergies ?? '' }}"
+                                                        data-ant-perso="{{ $p->dossierMedical?->antecedents_personnels ?? '' }}"
+                                                        data-ant-fam="{{ $p->dossierMedical?->antecedents_familiaux ?? '' }}"
+                                                    @endif
                                                     {{ old('patient_id') == $p->id ? 'selected' : '' }}>
                                                 {{ $p->nom }} {{ $p->prenom }} ({{ $p->telephone ?? 'Sans tél' }})
                                             </option>

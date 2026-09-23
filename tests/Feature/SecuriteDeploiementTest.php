@@ -324,3 +324,41 @@ test('le secret medical ne fuit pas par l autocompletion patient', function () {
     // Il conserve en revanche ce dont il a besoin pour facturer
     expect($reponseCaissier->json('0.nom_complet'))->toBe('Awa Traore');
 });
+
+test('la receptionniste ne recoit pas le dossier medical dans le code de la page', function () {
+    $clinique = creerClinique('Clinique A', 'CLA');
+    $medecinRole = Role::firstOrCreate(['nom' => 'Médecin'], ['description' => 'x']);
+    $receptionRole = Role::firstOrCreate(['nom' => 'Réceptionniste'], ['description' => 'x']);
+
+    $patient = Patient::create([
+        'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
+        'sexe' => 'F', 'statut' => 'actif',
+    ]);
+    DossierMedical::create([
+        'patient_id' => $patient->id,
+        'numero_dossier' => 'DOS-VUE-1',
+        'groupe_sanguin' => 'AB-',
+        'allergies' => 'ALLERGIE-SECRETE',
+        'antecedents_personnels' => 'ANTECEDENT-SECRET',
+    ]);
+
+    // Le medecin dispose des informations pour mener la consultation
+    $this->actingAs(creerUtilisateur($clinique, 'medecin@a.ml', $medecinRole));
+    $this->get(route('consultations.create'))
+        ->assertOk()
+        ->assertSee('ALLERGIE-SECRETE');
+
+    // La receptionniste accede au meme ecran mais ne doit rien en recevoir,
+    // y compris dans les attributs data-* du code source
+    $this->actingAs(creerUtilisateur($clinique, 'reception@a.ml', $receptionRole));
+    $this->get(route('consultations.create'))
+        ->assertOk()
+        ->assertDontSee('ALLERGIE-SECRETE')
+        ->assertDontSee('ANTECEDENT-SECRET')
+        // « AB- » figure aussi dans la liste statique des groupes sanguins du
+        // formulaire : on verifie donc l absence de l attribut, pas de la valeur
+        ->assertDontSee('data-groupe=', false)
+        ->assertDontSee('data-allergies=', false)
+        // Elle conserve ce dont elle a besoin pour choisir le patient
+        ->assertSee('Traore');
+});

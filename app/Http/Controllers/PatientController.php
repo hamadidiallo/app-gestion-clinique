@@ -107,7 +107,7 @@ class PatientController extends Controller
         // L'autocompletion est partagee avec la creation de ticket, ou un caissier
         // ou un comptable recevrait ces donnees dans la reponse JSON sans meme les
         // afficher. Elles ne sont donc jointes que pour les profils soignants.
-        $peutVoirDossierMedical = auth()->user()?->isAdmin() || auth()->user()?->hasRole('Médecin');
+        $peutVoirDossierMedical = (bool) auth()->user()?->peutConsulterDossierMedical();
 
         $formatted = $patients->map(function ($patient) use ($peutVoirDossierMedical) {
             $carte = $patient->cartesAssurance->first();

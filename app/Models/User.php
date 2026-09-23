@@ -160,6 +160,20 @@ class User extends Authenticatable
         return $this->hasRole('Caissier');
     }
 
+    /**
+     * Indique si l'utilisateur peut prendre connaissance du dossier médical.
+     *
+     * Groupe sanguin, allergies et antécédents relèvent du secret médical et ne
+     * concernent que les profils soignants. Les autres rôles accèdent aux mêmes
+     * écrans de recherche de patient pour facturer ou accueillir : sans ce
+     * filtre, ces données leur parviendraient dans le code de la page ou dans
+     * les réponses JSON, même sans jamais être affichées.
+     */
+    public function peutConsulterDossierMedical(): bool
+    {
+        return $this->isAdmin() || $this->isMedecin();
+    }
+
     public function isReceptionniste(): bool
     {
         return $this->hasRole(['Réceptionniste', 'Receptionniste']);

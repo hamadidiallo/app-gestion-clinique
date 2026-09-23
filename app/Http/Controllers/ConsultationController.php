@@ -85,10 +85,20 @@ class ConsultationController extends Controller
             $selectedPatient = Patient::with('dossierMedical')->find($patientId);
         }
 
-        $patients = Patient::orderBy('nom')->get();
+        // Le dossier medical n'est charge que s'il peut etre emis dans la page :
+        // inutile de le lire pour un profil qui n'y a pas acces.
+        $peutVoirDossierMedical = (bool) auth()->user()?->peutConsulterDossierMedical();
+
+        $patients = Patient::query()
+            ->when($peutVoirDossierMedical, fn ($q) => $q->with('dossierMedical'))
+            ->orderBy('nom')
+            ->get();
+
         $medecins = Medecin::where('statut', true)->orderBy('nom')->get();
 
-        return view('consultations.create', compact('patients', 'medecins', 'ticket', 'selectedPatient', 'defaultMedecinId'));
+        return view('consultations.create', compact(
+            'patients', 'medecins', 'ticket', 'selectedPatient', 'defaultMedecinId', 'peutVoirDossierMedical'
+        ));
     }
 
     /**
