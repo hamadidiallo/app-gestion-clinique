@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ActeRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class ActeRequest extends FormRequest
         return [
             'service_id' => 'required|exists:services,id',
             'nom' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:actes,code,'.$acteId,
+            'code' => ['required', 'string', 'max:50', Rule::unique('actes', 'code')->ignore($acteId)],
             'categorie' => 'required|string|in:consultation,chirurgie,imagerie,biologie,soins,exploration,maternite,autre',
             'tarif_normal' => 'required|numeric|min:0',
             'tarif_amo' => 'nullable|numeric|min:0',

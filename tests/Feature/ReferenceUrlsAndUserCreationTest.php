@@ -94,7 +94,7 @@ class ReferenceUrlsAndUserCreationTest extends TestCase
             'part_patient' => 5000,
             'montant_paye' => 0,
             'reste_a_payer' => 5000,
-            'statut' => 'valide',
+            'statut' => 'en_attente',
             'user_id' => $this->admin->id,
         ]);
         $this->assertEquals(url('/tickets/TCK-2026-9999'), route('tickets.show', $ticket));

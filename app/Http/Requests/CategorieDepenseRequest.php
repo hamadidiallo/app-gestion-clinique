@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CategorieDepenseRequest extends FormRequest
 {
@@ -29,7 +30,7 @@ class CategorieDepenseRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Code unique
-            'code' => 'required|string|max:50|unique:categorie_depenses,code,'.$categorieId,
+            'code' => ['required', 'string', 'max:50', Rule::unique('categorie_depenses', 'code')->ignore($categorieId)],
 
             // Description optionnelle
             'description' => 'nullable|string',

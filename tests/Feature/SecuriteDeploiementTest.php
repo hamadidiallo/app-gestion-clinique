@@ -32,14 +32,14 @@ test('les lignes de ticket sont cloisonnees par clinique', function () {
 
     $patientA = Patient::create([
         'clinique_id' => $a->id, 'nom' => 'SecretA', 'prenom' => 'Confidentiel',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
 
     $ticketA = Ticket::create([
         'clinique_id' => $a->id, 'patient_id' => $patientA->id, 'user_id' => $userA->id,
         'reference' => 'TCK-A-001', 'date_ticket' => now(), 'montant_total' => 10000,
         'montant_patient' => 10000, 'montant_assurance' => 0, 'montant_paye' => 0,
-        'reste_a_payer' => 10000, 'statut' => 'impaye',
+        'reste_a_payer' => 10000, 'statut' => 'en_attente',
     ]);
 
     $ligneA = TicketDetail::create([
@@ -299,7 +299,7 @@ test('le secret medical ne fuit pas par l autocompletion patient', function () {
 
     $patient = Patient::create([
         'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
     DossierMedical::create([
         'patient_id' => $patient->id,
@@ -334,7 +334,7 @@ test('la receptionniste ne recoit pas le dossier medical dans le code de la page
 
     $patient = Patient::create([
         'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
     DossierMedical::create([
         'patient_id' => $patient->id,
@@ -372,7 +372,7 @@ test('la receptionniste ne peut ni poser un diagnostic ni prescrire', function (
 
     $patient = Patient::create([
         'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
 
     // Elle force les champs medicaux dans la requete, le formulaire ne les
@@ -413,7 +413,7 @@ test('le medecin conserve la main sur l acte medical', function () {
 
     $patient = Patient::create([
         'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
 
     $this->actingAs($medecin)->post(route('consultations.store'), [
@@ -446,7 +446,7 @@ test('la receptionniste ne peut pas lire le dossier medical d une consultation',
 
     $patient = Patient::create([
         'clinique_id' => $clinique->id, 'nom' => 'Traore', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
 
     $consultation = Consultation::create([

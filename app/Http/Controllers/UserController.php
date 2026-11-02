@@ -52,10 +52,11 @@ class UserController extends Controller
         }
 
         if ($search) {
+            // whereLike reste insensible à la casse sur PostgreSQL, où « like » ne l'est pas
             $query->where(function ($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                    ->orWhere('prenom', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereLike('nom', "%{$search}%")
+                    ->orWhereLike('prenom', "%{$search}%")
+                    ->orWhereLike('email', "%{$search}%");
             });
         }
 
@@ -64,10 +65,10 @@ class UserController extends Controller
 
         $stats = [
             'total' => $this->utilisateursDeLaClinique()->count(),
-            'admins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Admin%'))->count(),
-            'medecins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Medecin%')->orWhere('nom', 'like', '%Médecin%'))->count(),
+            'admins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->whereLike('nom', '%Admin%'))->count(),
+            'medecins' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->whereLike('nom', '%Medecin%')->orWhereLike('nom', '%Médecin%'))->count(),
             'caisse_accueil' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->whereIn('nom', ['Caissier', 'Réceptionniste', 'Receptionniste']))->count(),
-            'comptables' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->where('nom', 'like', '%Comptable%'))->count(),
+            'comptables' => $this->utilisateursDeLaClinique()->whereHas('role', fn ($q) => $q->whereLike('nom', '%Comptable%'))->count(),
         ];
 
         $invitations = Invitation::with('role')

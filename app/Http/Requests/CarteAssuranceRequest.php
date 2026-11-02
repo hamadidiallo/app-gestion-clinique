@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CarteAssuranceRequest extends FormRequest
 {
@@ -34,7 +35,7 @@ class CarteAssuranceRequest extends FormRequest
             'assurance_id' => 'required|exists:assurances,id',
 
             // La référence de la carte est obligatoire, unique et limitée à 100 caractères
-            'reference' => 'required|string|max:100|unique:carte_assurances,reference,'.$carteId,
+            'reference' => ['required', 'string', 'max:100', Rule::unique('carte_assurances', 'reference')->ignore($carteId)],
 
             // Le taux de couverture est obligatoire et doit être un nombre entre 0 et 100
             'taux_couverture' => 'required|numeric|min:0|max:100',

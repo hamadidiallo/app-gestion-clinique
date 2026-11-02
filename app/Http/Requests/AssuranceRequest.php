@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AssuranceRequest extends FormRequest
 {
@@ -31,7 +32,7 @@ class AssuranceRequest extends FormRequest
             'nom' => 'required|string|max:255',
 
             // Le code d'assurance est facultatif, mais s'il est renseigné il doit être unique
-            'code' => 'nullable|string|max:50|unique:assurances,code,'.$assuranceId,
+            'code' => ['nullable', 'string', 'max:50', Rule::unique('assurances', 'code')->ignore($assuranceId)],
 
             // Le numéro de téléphone est facultatif et ne doit pas dépasser 20 caractères
             'telephone' => 'nullable|string|max:20',

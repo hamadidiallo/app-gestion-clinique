@@ -22,7 +22,7 @@ test('les charges utiles SQL classiques sont neutralisees', function () {
     ]);
     Patient::create([
         'clinique_id' => $c->id, 'nom' => 'Diallo', 'prenom' => 'Awa',
-        'sexe' => 'F', 'statut' => 'actif',
+        'sexe' => 'F', 'statut' => 'non_assure',
     ]);
 
     $charges = [

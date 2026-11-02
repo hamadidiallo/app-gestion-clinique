@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -54,8 +55,8 @@ class UserRequest extends FormRequest
             // Email et téléphone servent tous deux d'identifiant de connexion :
             // l'agent renseigne celui dont il dispose, au moins l'un des deux.
             // Chacun reste unique quand il est fourni.
-            'email' => 'nullable|email|required_without:telephone|unique:users,email,'.$userId,
-            'telephone' => 'nullable|string|max:30|required_without:email|unique:users,telephone,'.$userId,
+            'email' => ['nullable', 'email', 'required_without:telephone', Rule::unique('users', 'email')->ignore($userId)],
+            'telephone' => ['nullable', 'string', 'max:30', 'required_without:email', Rule::unique('users', 'telephone')->ignore($userId)],
 
             // Règle du mot de passe adaptée selon création ou modification
             'password' => $passwordRule,

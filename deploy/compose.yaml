@@ -1,35 +1,43 @@
 # =============================================================================
 # Pile de production — medigest.dukani.tech
 #
+# MediGest est hébergé sur le serveur de Dukani (EC2 13.49.80.9, 2 Go de RAM)
+# et s'appuie sur ce qui y tourne déjà :
+#   - la base est dans le PostgreSQL de Dukani (conteneur dukani_postgres),
+#     avec un utilisateur et une base « medigest » qui n'ont pas accès à Dukani ;
+#   - le TLS est terminé par le Caddy de Dukani, qui transmet
+#     medigest.dukani.tech à medigest-web (voir LISEZMOI-deploiement.md).
+# Aucun port n'est donc publié ici, et il n'y a pas de conteneur de base.
+#
 # L'image applicative est construite sur le poste de développement puis chargée
-# sur l'instance : avec 2 Go de RAM, compiler les extensions PHP et les assets
-# sur le serveur serait lent et exposerait à un échec par manque de mémoire.
+# sur l'instance : compiler les extensions PHP et les assets sur le serveur
+# serait lent et pourrait manquer de mémoire.
+#
+# Les services portent le préfixe « medigest- » car ils rejoignent le réseau de
+# Dukani : un nom générique comme « app » pourrait y entrer en collision.
 # =============================================================================
 
 services:
-  caddy:
+  medigest-web:
     image: caddy:2-alpine
+    container_name: medigest_web
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       # Même chemin que dans le conteneur applicatif : php-fpm doit retrouver
       # les fichiers à l'emplacement annoncé par Caddy.
       - public_assets:/var/www/html/public:ro
-      # Certificats et clés de compte ACME : à conserver entre deux déploiements
-      # sous peine de réémettre un certificat à chaque redémarrage.
-      - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - app
+      - medigest-app
+    mem_limit: 64m
     networks:
       - interne
+      - dukani
 
-  app:
+  medigest-app:
     image: medigest-app:latest
+    container_name: medigest_app
     restart: unless-stopped
     env_file: .env
     environment:
@@ -39,14 +47,15 @@ services:
     volumes:
       - public_assets:/var/www/html/public
       - storage_data:/var/www/html/storage
-    depends_on:
-      db:
-        condition: service_healthy
+    # Plafond pour qu'un emballement de MediGest ne prive pas Dukani de mémoire
+    mem_limit: 512m
     networks:
       - interne
+      - dukani
 
-  queue:
+  medigest-queue:
     image: medigest-app:latest
+    container_name: medigest_queue
     restart: unless-stopped
     env_file: .env
     environment:
@@ -57,45 +66,22 @@ services:
     volumes:
       - storage_data:/var/www/html/storage
     depends_on:
-      app:
-        condition: service_started
-      db:
-        condition: service_healthy
+      - medigest-app
+    mem_limit: 256m
     networks:
-      - interne
-
-  db:
-    image: mysql:8.4
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: "${DB_DATABASE}"
-      MYSQL_USER: "${DB_USERNAME}"
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-    # Dimensionnement pour une instance à 2 Go : la valeur par défaut du buffer
-    # pool laisserait trop peu de mémoire à PHP.
-    command: >
-      --innodb-buffer-pool-size=192M
-      --max-connections=60
-      --performance-schema=OFF
-    volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 40s
-    networks:
-      - interne
+      - dukani
 
 networks:
+  # Entre le Caddy de MediGest et php-fpm
   interne:
     driver: bridge
+  # Réseau du compose Dukani : accès à dukani_postgres, et point d'entrée
+  # du Caddy de Dukani vers medigest-web
+  dukani:
+    external: true
+    name: dukani_default
 
 volumes:
   public_assets:
   storage_data:
-  db_data:
-  caddy_data:
   caddy_config:

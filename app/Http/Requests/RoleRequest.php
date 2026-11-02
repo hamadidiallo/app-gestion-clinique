@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleRequest extends FormRequest
 {
@@ -28,7 +29,7 @@ class RoleRequest extends FormRequest
 
         return [
             // Le nom est obligatoire, max 50 caractères et unique
-            'nom' => 'required|string|max:50|unique:roles,nom,'.$roleId,
+            'nom' => ['required', 'string', 'max:50', Rule::unique('roles', 'nom')->ignore($roleId)],
 
             // La description est facultative
             'description' => 'nullable|string',

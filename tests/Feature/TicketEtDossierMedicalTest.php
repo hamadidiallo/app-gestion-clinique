@@ -394,7 +394,7 @@ test('un ticket cree avec un medecin et un acte genere automatiquement une prest
 test('ticket creation respects ReglePartage with clinique multi-tenancy', function () {
     $user = getTestAdminUser();
     $caisse = Caisse::firstOrCreate(
-        ['nom' => 'Caisse Regle Test', 'user_id' => $user->id, 'statut' => 'ouverte'],
+        ['user_id' => $user->id, 'statut' => 'ouverte'],
         ['montant_initial' => 50000, 'solde_actuel' => 50000, 'date_ouverture' => now()]
     );
 

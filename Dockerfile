@@ -48,15 +48,20 @@ RUN apk add --no-cache \
         icu-libs \
         libzip \
         oniguruma \
+        libpq \
     && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         icu-dev \
         libzip-dev \
         oniguruma-dev \
+        postgresql-dev \
     # opcache est déjà compilé dans l'image officielle : l'inclure ici ferait
     # échouer l'installation, faute de module produit. Il est simplement
     # configuré via docker/php.ini.
+    # pdo_pgsql pour la production (PostgreSQL partagé avec Dukani),
+    # pdo_mysql conservé pour les installations sur MySQL.
     && docker-php-ext-install -j"$(nproc)" \
+        pdo_pgsql \
         pdo_mysql \
         bcmath \
         intl \

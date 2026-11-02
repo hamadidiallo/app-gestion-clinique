@@ -45,8 +45,9 @@ class RapportController extends Controller
         $assuranceSelected = null;
         $effectiveAssuranceId = null;
         if (! empty($assuranceId)) {
-            $assuranceSelected = Assurance::where('id', $assuranceId)->orWhere('code', $assuranceId)->first();
-            $effectiveAssuranceId = $assuranceSelected?->id ?? $assuranceId;
+            $assuranceSelected = $this->parIdOuCode(Assurance::class, $assuranceId);
+            // Inconnu : -1 ne correspond à aucune ligne (la valeur brute faisait échouer PostgreSQL)
+            $effectiveAssuranceId = $assuranceSelected?->id ?? -1;
         }
 
         // Période de filtrage (par défaut : mois en cours)
@@ -104,8 +105,9 @@ class RapportController extends Controller
         $assuranceSelected = null;
         $effectiveAssuranceId = null;
         if (! empty($assuranceId)) {
-            $assuranceSelected = Assurance::where('id', $assuranceId)->orWhere('code', $assuranceId)->first();
-            $effectiveAssuranceId = $assuranceSelected?->id ?? $assuranceId;
+            $assuranceSelected = $this->parIdOuCode(Assurance::class, $assuranceId);
+            // Inconnu : -1 ne correspond à aucune ligne (la valeur brute faisait échouer PostgreSQL)
+            $effectiveAssuranceId = $assuranceSelected?->id ?? -1;
         }
 
         $dateDebut = $request->get('date_debut', Carbon::now()->startOfMonth()->toDateString());
@@ -168,8 +170,9 @@ class RapportController extends Controller
         $medecinSelected = null;
         $effectiveMedecinId = null;
         if (! empty($medecinId)) {
-            $medecinSelected = Medecin::where('id', $medecinId)->orWhere('code', $medecinId)->first();
-            $effectiveMedecinId = $medecinSelected?->id ?? $medecinId;
+            $medecinSelected = $this->parIdOuCode(Medecin::class, $medecinId);
+            // Inconnu : -1 ne correspond à aucune ligne (la valeur brute faisait échouer PostgreSQL)
+            $effectiveMedecinId = $medecinSelected?->id ?? -1;
         }
 
         $dateDebut = $request->get('date_debut', Carbon::now()->startOfMonth()->toDateString());
@@ -220,8 +223,9 @@ class RapportController extends Controller
         $medecinSelected = null;
         $effectiveMedecinId = null;
         if (! empty($medecinId)) {
-            $medecinSelected = Medecin::where('id', $medecinId)->orWhere('code', $medecinId)->first();
-            $effectiveMedecinId = $medecinSelected?->id ?? $medecinId;
+            $medecinSelected = $this->parIdOuCode(Medecin::class, $medecinId);
+            // Inconnu : -1 ne correspond à aucune ligne (la valeur brute faisait échouer PostgreSQL)
+            $effectiveMedecinId = $medecinSelected?->id ?? -1;
         }
 
         $dateDebut = $request->get('date_debut', Carbon::now()->startOfMonth()->toDateString());
@@ -265,5 +269,22 @@ class RapportController extends Controller
             'numeroBordereau',
             'montantEnLettres'
         ));
+    }
+
+    /**
+     * Retrouve une assurance ou un médecin par son identifiant ou par son code.
+     * L'identifiant n'est comparé que pour une valeur numérique : PostgreSQL refuse
+     * de comparer une colonne bigint à un texte comme « AMO ».
+     *
+     * @template T of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<T>  $model
+     * @return T|null
+     */
+    private function parIdOuCode(string $model, string|int $valeur)
+    {
+        return ctype_digit((string) $valeur)
+            ? $model::find($valeur)
+            : $model::where('code', $valeur)->first();
     }
 }

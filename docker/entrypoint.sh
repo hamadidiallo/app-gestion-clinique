@@ -31,12 +31,16 @@ chown -R www-data:www-data storage bootstrap/cache
 # --- Attente de la base ----------------------------------------------------
 # Test via PDO plutot qu avec un client externe : MySQL 8.4 utilise par defaut
 # caching_sha2_password, que le client MariaDB ne sait pas negocier.
+# Le DSN suit DB_CONNECTION : pgsql en production, mysql sinon.
 printf 'Attente de la base de donnees'
 i=0
 until php -r '
     try {
+        $pgsql = getenv("DB_CONNECTION") === "pgsql";
         new PDO(
-            sprintf("mysql:host=%s;port=%s", getenv("DB_HOST"), getenv("DB_PORT") ?: 3306),
+            $pgsql
+                ? sprintf("pgsql:host=%s;port=%s;dbname=%s", getenv("DB_HOST"), getenv("DB_PORT") ?: 5432, getenv("DB_DATABASE"))
+                : sprintf("mysql:host=%s;port=%s", getenv("DB_HOST"), getenv("DB_PORT") ?: 3306),
             getenv("DB_USERNAME"),
             getenv("DB_PASSWORD")
         );

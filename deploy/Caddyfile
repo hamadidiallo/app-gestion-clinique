@@ -1,37 +1,46 @@
 # =============================================================================
-# Reverse proxy et terminaison TLS
-# Le certificat Let's Encrypt est obtenu et renouvele automatiquement par Caddy,
-# ce qui suppose que le port 80 reste joignable depuis l'exterieur.
+# Serveur web interne de MediGest
+#
+# Le TLS et le certificat de medigest.dukani.tech sont gérés par le Caddy de
+# Dukani, qui transmet les requêtes ici en HTTP sur le réseau Docker. Ce Caddy
+# n'écoute donc qu'en HTTP, sans port publié sur l'hôte.
 # =============================================================================
 
-medigest.dukani.tech {
-	# Volume partage avec le conteneur applicatif. Le chemin est identique des
-	# deux cotes : php-fpm resout SCRIPT_FILENAME dans son propre systeme de
+{
+	# Pas de certificat ni de redirection HTTPS ici : c'est le rôle du Caddy de Dukani
+	auto_https off
+	admin off
+	servers {
+		# Le Caddy de Dukani est sur le réseau Docker : ses en-têtes
+		# X-Forwarded-* (dont le protocole https) sont pris en compte.
+		trusted_proxies static private_ranges
+	}
+}
+
+:80 {
+	# Volume partagé avec le conteneur applicatif. Le chemin est identique des
+	# deux côtés : php-fpm résout SCRIPT_FILENAME dans son propre système de
 	# fichiers, il doit donc retrouver exactement ce chemin.
 	root * /var/www/html/public
 
 	encode zstd gzip
 
-	# Les requetes PHP partent vers php-fpm, le reste est servi en statique
-	php_fastcgi app:9000 {
-		trusted_proxies private_ranges
-	}
+	# Les requêtes PHP partent vers php-fpm, le reste est servi en statique
+	php_fastcgi medigest-app:9000
 
 	file_server
 
-	# Rien ne doit etre servi depuis storage/ ni .env, meme par erreur
+	# Rien ne doit être servi depuis storage/ ni .env, même par erreur
 	@interdits {
-		path /.env* /storage/logs/* /vendor/* /composer.* 
+		path /.env* /storage/logs/* /vendor/* /composer.*
 	}
 	respond @interdits 404
 
 	header {
-		# Force le HTTPS sur un an pour les navigateurs deja venus
-		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# HSTS est posé par le Caddy de Dukani, qui sert le HTTPS
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		# Masque la signature du serveur
 		-Server
 	}
 

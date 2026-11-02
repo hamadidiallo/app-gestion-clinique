@@ -70,7 +70,7 @@ test('un utilisateur de la clinique A ne peut voir que les patients de sa cliniq
         'nom' => 'Coulibaly',
         'prenom' => 'Fatoumata',
         'sexe' => 'F',
-        'statut' => 'actif',
+        'statut' => 'non_assure',
     ]);
 
     $patientB = Patient::create([
@@ -78,7 +78,7 @@ test('un utilisateur de la clinique A ne peut voir que les patients de sa cliniq
         'nom' => 'Sidibé',
         'prenom' => 'Ousmane',
         'sexe' => 'M',
-        'statut' => 'actif',
+        'statut' => 'non_assure',
     ]);
 
     // En tant qu'utilisateur de la Clinique A
@@ -106,7 +106,7 @@ test('la création d\'un patient assigne automatiquement le clinique_id de l\'ut
         'nom' => 'Konaté',
         'prenom' => 'Moussa',
         'sexe' => 'M',
-        'statut' => 'actif',
+        'statut' => 'non_assure',
     ]);
 
     expect($nouveauPatient->clinique_id)->toBe($this->cliniqueA->id);
@@ -118,7 +118,7 @@ test('l\'isolation des tickets et données financières est totale entre cliniqu
         'nom' => 'Diallo',
         'prenom' => 'Kadiatou',
         'sexe' => 'F',
-        'statut' => 'actif',
+        'statut' => 'non_assure',
     ]);
 
     $ticketA = Ticket::create([
@@ -132,7 +132,7 @@ test('l\'isolation des tickets et données financières est totale entre cliniqu
         'montant_assurance' => 0,
         'montant_paye' => 10000,
         'reste_a_payer' => 0,
-        'statut' => 'regle',
+        'statut' => 'paye',
     ]);
 
     // Utilisateur B ne doit rien voir du ticket A
