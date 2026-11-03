@@ -65,6 +65,23 @@
 
         .ticket-table th.right, .ticket-table td.right {
             text-align: right;
+            white-space: nowrap;
+            padding-left: 8px;
+            width: 1%;
+        }
+
+        /* Ligne libellé / montant : le libellé passe à la ligne si besoin,
+           le montant reste entier et collé à droite. */
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .ticket-row > :last-child {
+            white-space: nowrap;
+            text-align: right;
         }
 
         .ticket-totals {
@@ -95,7 +112,7 @@
 
             .ticket-receipt {
                 width: 78mm !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
                 padding: 2mm !important;
                 box-shadow: none !important;
                 font-size: 11px !important;
@@ -137,7 +154,7 @@
                     <img src="{{ asset('storage/' . $ticket->clinique->logo) }}" alt="Logo" style="max-height: 40px; max-width: 140px; object-fit: contain; filter: grayscale(100%);">
                 </div>
             @endif
-            <h2>{{ strtoupper($ticket->clinique->nom ?? config('app.name')) }}</h2>
+            <h2>{{ mb_strtoupper($ticket->clinique->nom ?? config('app.name')) }}</h2>
             <small>{{ $ticket->clinique->ville ?? 'Mali' }} · {{ $ticket->clinique->telephone ?? '' }}</small>
         </div>
 
@@ -151,17 +168,17 @@
             <div><strong>DATE:</strong> {{ \Carbon\Carbon::parse($ticket->date_ticket)->format('d/m/Y H:i') }}</div>
             <div><strong>EXPIRATION:</strong> {{ $ticket->date_expiration ? \Carbon\Carbon::parse($ticket->date_expiration)->format('d/m/Y') : '7 Jours' }}</div>
             <hr style="border-top: 1px dotted #000; margin: 4px 0;">
-            <div><strong>PATIENT:</strong> {{ strtoupper($ticket->patient->nom ?? 'INCONNU') }} {{ $ticket->patient->prenom ?? '' }}</div>
+            <div><strong>PATIENT:</strong> {{ mb_strtoupper($ticket->patient->nom ?? 'INCONNU') }} {{ $ticket->patient->prenom ?? '' }}</div>
             <div><strong>SEXE:</strong> {{ $ticket->patient->sexe == 'M' ? 'Masculin' : 'Féminin' }}</div>
             @if($ticket->assurance)
-                <div><strong>ASSURANCE:</strong> {{ strtoupper($ticket->assurance->nom) }}</div>
+                <div><strong>ASSURANCE:</strong> {{ mb_strtoupper($ticket->assurance->nom) }}</div>
             @endif
             @if($printService)
-                <div><strong>SERVICE:</strong> {{ strtoupper($printService->nom) }}</div>
+                <div><strong>SERVICE:</strong> {{ mb_strtoupper($printService->nom) }}</div>
             @endif
             @if($printMedecin)
-                <div><strong>MEDECIN:</strong> DR {{ strtoupper($printMedecin->nom) }} {{ strtoupper($printMedecin->prenom) }}</div>
-                <div><strong>SPECIALITE:</strong> {{ strtoupper($printMedecin->specialite ?? 'GENERALISTE') }}</div>
+                <div><strong>MEDECIN:</strong> DR {{ mb_strtoupper($printMedecin->nom) }} {{ mb_strtoupper($printMedecin->prenom) }}</div>
+                <div><strong>SPECIALITE:</strong> {{ mb_strtoupper($printMedecin->specialite ?? 'GENERALISTE') }}</div>
             @endif
         </div>
 
@@ -179,7 +196,7 @@
                     <tr>
                         <td>
                             <strong>{{ $detail->libelle }}</strong><br>
-                            <small>[{{ strtoupper($detail->type_item ?? 'acte') }}] &times; {{ number_format($detail->quantite, 0) }}</small>
+                            <small>[{{ mb_strtoupper($detail->type_item ?? 'acte') }}] &times; {{ number_format($detail->quantite, 0) }}</small>
                         </td>
                         <td class="right" style="vertical-align: top;">{{ number_format($detail->prix_unitaire, 0, ',', ' ') }}</td>
                         <td class="right" style="vertical-align: top;">{{ number_format($detail->montant_total, 0, ',', ' ') }}</td>
@@ -194,35 +211,35 @@
 
         {{-- Résumé Financier --}}
         <div class="ticket-totals">
-            <div class="d-flex justify-content-between">
+            <div class="ticket-row">
                 <span>TOTAL BRUT:</span>
                 <strong>{{ number_format($ticket->montant_total, 0, ',', ' ') }} FCFA</strong>
             </div>
 
             @if($ticket->montant_assurance > 0)
-                <div class="d-flex justify-content-between">
-                    <span>PART ASSURANCE ({{ $ticket->assurance ? $ticket->assurance->nom : 'TIERS' }}):</span>
+                <div class="ticket-row">
+                    <span>PART ASSURANCE{{ $ticket->assurance ? ' (' . \Illuminate\Support\Str::before($ticket->assurance->nom, ' (') . ')' : '' }}:</span>
                     <span>-{{ number_format($ticket->montant_assurance, 0, ',', ' ') }} FCFA</span>
                 </div>
             @endif
 
-            <div class="d-flex justify-content-between mt-1" style="font-size: 13px; font-weight: bold; border-top: 1px dashed #000; padding-top: 4px;">
+            <div class="ticket-row mt-1" style="font-size: 13px; font-weight: bold; border-top: 1px dashed #000; padding-top: 4px;">
                 <span>NET PATIENT:</span>
                 <span>{{ number_format($ticket->montant_patient, 0, ',', ' ') }} FCFA</span>
             </div>
 
-            <div class="d-flex justify-content-between mt-1">
+            <div class="ticket-row mt-1">
                 <span>MONTANT ENCAISSÉ:</span>
                 <span>{{ number_format($ticket->montant_paye, 0, ',', ' ') }} FCFA</span>
             </div>
 
             @if($ticket->reste_a_payer > 0)
-                <div class="d-flex justify-content-between text-danger">
+                <div class="ticket-row text-danger">
                     <span>RESTE DÛ (DETTE):</span>
                     <strong>{{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} FCFA</strong>
                 </div>
             @else
-                <div class="d-flex justify-content-between text-success">
+                <div class="ticket-row text-success">
                     <span>SOLDE:</span>
                     <strong>SOLDÉ / PAYÉ</strong>
                 </div>
@@ -231,7 +248,7 @@
 
         {{-- Pied de ticket --}}
         <div class="ticket-footer">
-            <p class="mb-1"><strong>STATUT: {{ strtoupper(str_replace('_', ' ', $ticket->statut)) }}</strong></p>
+            <p class="mb-1"><strong>STATUT: {{ mb_strtoupper(str_replace('_', ' ', $ticket->statut)) }}</strong></p>
             <p class="mb-1">Ticket valable 7 jours à compter de sa date d'émission.</p>
             <small>Caissier: {{ $ticket->user->name ?? 'Guichetier' }}</small><br>
             <small>*** Prompt et complet rétablissement ***</small>
