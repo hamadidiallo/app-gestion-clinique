@@ -34,7 +34,7 @@ class Caisse extends Model
     {
         static::creating(function (Caisse $caisse) {
             if (empty($caisse->reference)) {
-                $maxId = (int) (static::max('id') ?? 0);
+                $maxId = (int) (static::withoutGlobalScopes()->max('id') ?? 0); // toutes cliniques : la référence est unique globalement
                 $caisse->reference = 'SES-'.str_pad((string) ($maxId + 1), 5, '0', STR_PAD_LEFT);
             }
         });
