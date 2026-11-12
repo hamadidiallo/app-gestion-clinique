@@ -28,7 +28,11 @@ use App\Http\Controllers\Personnel\MedecinController;
 use App\Http\Controllers\Personnel\RemunerationController;
 use App\Http\Controllers\Pilotage\DashboardController;
 use App\Http\Controllers\Pilotage\RapportController;
+use App\Http\Controllers\Vitrine\VitrineController;
 use Illuminate\Support\Facades\Route;
+
+// Page vitrine publique (un utilisateur connecté est redirigé vers son tableau de bord)
+Route::get('/', [VitrineController::class, 'index'])->name('accueil');
 
 // Routes d'authentification publiques (Connexion et Inscription)
 Route::controller(AuthController::class)->group(function () {
@@ -49,9 +53,8 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
     // Route de déconnexion
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Route principale dirigeant vers le Tableau de Bord V1 (Dashboard)
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    // Tableau de bord (la racine « / » est la page vitrine publique)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // =========================================================================
     // ZONE 1 : ADMINISTRATION & SÉCURITÉ (Administrateur uniquement)
