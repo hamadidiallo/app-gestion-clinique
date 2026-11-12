@@ -8,8 +8,8 @@
   {{-- Typographie officielle : Plus Jakarta Sans & Space Grotesk --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
@@ -30,7 +30,7 @@
       display: flex;
       width: 100%;
       background: #ffffff;
-      overflow-x: hidden;
+      overflow-x: clip; /* « clip » et non « hidden » : laisse le panneau droit rester fixe au défilement */
     }
 
     /* Panneau gauche : Formulaires */
@@ -48,7 +48,7 @@
 
     .form-inner {
       width: 100%;
-      max-width: 368px;
+      max-width: 440px;
       margin: auto;
       padding: 16px 0;
       min-width: 0;
@@ -83,19 +83,124 @@
     /* Titres & Sous-titres */
     .screen-heading {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: #0F1F1A;
-      letter-spacing: -1px;
-      margin: 0 0 7px 0;
-      line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin: 0 0 8px 0;
+      line-height: 1.1;
     }
     .screen-subheading {
-      font-size: 13px;
+      font-size: 15px;
       color: #5B7169;
       font-weight: 500;
-      margin: 0 0 24px 0;
-      line-height: 1.5;
+      margin: 0 0 28px 0;
+      line-height: 1.55;
+    }
+
+    /* Parties numérotées d'un formulaire (ordre réel de saisie) */
+    .form-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F1F1A;
+    }
+    .form-section-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #D1FAE5;
+      color: #065F46;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .form-section + .form-section {
+      margin-top: 10px;
+      padding-top: 24px;
+      border-top: 1px solid #E4EDE9;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    .form-row > .form-group {
+      flex: 1;
+      min-width: 0;
+    }
+    .form-hint {
+      font-size: 12.5px;
+      color: #6B7F77;
+      font-weight: 500;
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+    .form-error {
+      font-size: 12.5px;
+      color: #DC2626;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .required-mark { color: #DC2626; }
+    .label-facultatif { font-size: 12px; font-weight: 500; color: #8A9B94; margin-left: 4px; }
+
+    /* Écran de création : formulaire large en deux colonnes, tenant sans défilement */
+    .form-inner.form-inner-large { max-width: 600px; padding: 0; }
+    .form-panel:has(.form-inner-large) { padding-top: 24px; padding-bottom: 24px; }
+    .form-panel:has(.form-inner-large) .form-panel-pied { display: none; }
+    .form-inner-large .brand-bar { margin-bottom: 16px; }
+    .form-compact .btn-back-link { margin-bottom: 12px; }
+    .form-compact .screen-heading { font-size: 30px; }
+    .form-compact .screen-subheading { font-size: 14.5px; margin-bottom: 20px; }
+    .form-compact .form-group { margin-bottom: 12px; }
+    .form-compact .form-label { margin-bottom: 5px; font-size: 13px; }
+    .form-compact .form-input { min-height: 44px; padding: 9px 14px; }
+    .form-hint-cellule { display: flex; align-items: flex-end; padding-bottom: 4px; }
+    .form-compact .btn-primary-gradient { margin-top: 8px; }
+
+    /* Rubriques du formulaire, dans le style du ticket thermique imprimé */
+    .rubrique-ticket {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 12px;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #0F1F1A;
+    }
+    .rubrique-ticket span { color: #047857; }
+    .rubrique-ticket::after {
+      content: '';
+      flex: 1;
+      border-top: 1.5px dashed #C9D8D1;
+    }
+    .form-row + .rubrique-ticket { margin-top: 10px; }
+
+    .lien-connexion { margin: 14px 0 0; text-align: center; font-size: 14px; color: #5B7169; }
+    .lien-connexion button {
+      background: none;
+      border: 0;
+      padding: 4px 2px;
+      font: inherit;
+      font-weight: 700;
+      color: #047857;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .lien-connexion button:hover { color: #065F46; }
+    @media (max-width: 560px) {
+      .form-compact .form-row { flex-direction: column; gap: 0; }
+      .form-hint-cellule { padding-bottom: 0; }
     }
 
     /* Stepper 1/3, 2/3 */
@@ -144,14 +249,14 @@
 
     /* Form Groups & Inputs */
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .form-label {
       display: block;
-      font-size: 12.5px;
+      font-size: 13.5px;
       font-weight: 600;
-      color: #3F554D;
-      margin-bottom: 7px;
+      color: #2F443C;
+      margin-bottom: 8px;
     }
     .form-label-row {
       display: flex;
@@ -161,21 +266,25 @@
     }
     .form-input {
       width: 100%;
-      border: 1px solid #DEE7E2;
-      border-radius: 11px;
-      padding: 12px 14px;
-      font-size: 13.5px;
+      min-height: 50px;
+      border: 1px solid #E1E9E5;
+      border-radius: 12px;
+      padding: 12px 15px;
+      font-size: 16px; /* 16 px : évite le zoom automatique sur iPhone */
       color: #0F1F1A;
-      font-weight: 600;
+      font-weight: 500;
       font-family: inherit;
-      background: #ffffff;
+      background: #F6F9F7;
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
     }
+    .form-input:hover {
+      border-color: #C9D8D1;
+    }
     .form-input:focus {
-      border-color: #10B981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-      background-color: #F0FDF9;
+      border-color: #047857;
+      box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.12);
+      background-color: #ffffff;
     }
     .form-input::placeholder {
       color: #94A3B8;
@@ -219,19 +328,27 @@
       align-items: center;
       justify-content: center;
       gap: 9px;
-      background: linear-gradient(135deg, #10B981, #047857);
-      border-radius: 11px;
-      padding: 13px 18px;
+      min-height: 52px;
+      background: #047857;
+      border-radius: 12px;
+      padding: 14px 18px;
       color: #ffffff;
-      font-size: 14px;
+      font-size: 15.5px;
       font-weight: 700;
+      font-family: inherit;
       border: none;
       cursor: pointer;
-      box-shadow: 0 10px 22px -8px rgba(4, 120, 87, 0.5);
-      transition: opacity 0.15s, transform 0.05s;
+      box-shadow: 0 12px 24px -12px rgba(4, 120, 87, 0.6);
+      transition: background-color 0.15s, transform 0.05s;
     }
     .btn-primary-gradient:hover {
-      opacity: 0.95;
+      background: #065F46;
+    }
+    .btn-primary-gradient:focus-visible,
+    .btn-back-link:focus-visible,
+    .password-toggle-btn:focus-visible {
+      outline: 3px solid rgba(4, 120, 87, 0.45);
+      outline-offset: 2px;
     }
     .btn-primary-gradient:active {
       transform: scale(0.99);
@@ -373,48 +490,144 @@
 
     /* Panneau droit : Showcase Médical Dark Emerald */
     .showcase-panel {
-      width: 600px;
+      width: 46%;
+      max-width: 760px;
       flex: 0 0 auto;
-      background: linear-gradient(160deg, #0E241C, #08170F);
+      align-self: flex-start;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background-color: #06281F;
+      background-image:
+        radial-gradient(circle at 80% 10%, rgba(52, 211, 153, 0.22), transparent 45%),
+        radial-gradient(circle at 10% 95%, rgba(16, 185, 129, 0.14), transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: auto, auto, 40px 40px, 40px 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 48px;
-      position: relative;
+      padding: 56px;
       overflow: hidden;
     }
-    .showcase-glow {
-      position: absolute;
-      right: -120px;
-      top: -90px;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.28), transparent 68%);
-      pointer-events: none;
-    }
+    .showcase-glow { display: none; }
     .showcase-content {
       position: relative;
       width: 100%;
-      max-width: 440px;
+      max-width: 460px;
       z-index: 1;
     }
     .showcase-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 24px;
+      font-size: 34px;
       font-weight: 700;
       color: #ffffff;
-      letter-spacing: -0.5px;
-      line-height: 1.3;
-      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      margin-bottom: 14px;
     }
     .showcase-desc {
-      font-size: 13px;
-      color: #9DB4AB;
+      font-size: 16px;
+      color: #A9C4BA;
       font-weight: 500;
       line-height: 1.6;
-      margin-bottom: 26px;
+      margin-bottom: 32px;
     }
+
+    /* Aperçu du ticket thermique (création de l'établissement) */
+    .apercu-legende {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6EE7B7;
+      margin-bottom: 14px;
+    }
+    .apercu-legende::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.2);
+    }
+    .apercu-imprimante {
+      height: 14px;
+      border-radius: 7px;
+      background: #021510;
+      box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      z-index: 2;
+    }
+    .apercu-ticket {
+      margin: -7px 22px 0;
+      background: #ffffff;
+      color: #111111;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      padding: 24px 20px 30px;
+      -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+              mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+    }
+    .apercu-centre { text-align: center; }
+    .apercu-nom {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+    .apercu-vide { color: #9AA5A0; }
+    .apercu-sep { border: 0; border-top: 1px dashed #9AA5A0; margin: 12px 0; }
+    .apercu-ligne { display: flex; justify-content: space-between; gap: 12px; }
+    .apercu-ligne span:last-child { text-align: right; }
+    .apercu-total { font-weight: 600; font-size: 14px; }
+    .apercu-pied { margin: 14px 0 0; text-align: center; font-size: 11.5px; }
+    @media (max-height: 820px) {
+      .apercu-ticket { padding: 18px 18px 24px; }
+    }
+
+    /* Le ticket passe à gauche : on lit d'abord l'objet imprimé, puis on remplit le formulaire */
+    .showcase-panel { order: -1; }
+
+    /* Connexion */
+    .lien-discret {
+      background: none;
+      border: 0;
+      padding: 4px 0;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: #047857;
+      cursor: pointer;
+    }
+    .lien-discret:hover { color: #065F46; text-decoration: underline; text-underline-offset: 3px; }
+    .lien-discret:focus-visible { outline: 3px solid rgba(4, 120, 87, 0.45); outline-offset: 2px; border-radius: 4px; }
+    .aide-encart {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #F0FDF9;
+      border: 1px dashed #A7D7C5;
+      font-size: 13.5px;
+      color: #065F46;
+      line-height: 1.5;
+    }
+    .case-poste {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 22px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      color: #3F554D;
+      font-weight: 500;
+    }
+    .case-poste input { accent-color: #047857; width: 18px; height: 18px; cursor: pointer; }
+    #screen_M1 .rubrique-ticket { margin-bottom: 18px; }
 
     /* Badges & Cartes Flottantes */
     .card-dark-glass {
@@ -433,9 +646,10 @@
 
     @media (max-width: 1100px) {
       .showcase-panel {
-        width: 480px;
+        width: 42%;
         padding: 36px;
       }
+      .showcase-title { font-size: 28px; }
     }
     @media (max-width: 960px) {
       .auth-container {
@@ -478,7 +692,7 @@
   {{-- PANNEAU GAUCHE : PROCESSUS D'AUTHENTIFICATION INTERACTIF   --}}
   {{-- ======================================================== --}}
   <div class="form-panel">
-    <div class="form-inner">
+    <div class="form-inner {{ $activeScreen === 'M0b' ? 'form-inner-large' : '' }}">
 
       {{-- LOGO BRANDING MEDIGEST --}}
       <div class="brand-bar">
@@ -564,88 +778,96 @@
       {{-- ====================================================== --}}
       {{-- ÉCRAN M0b : CRÉER UN ÉTABLISSEMENT · ÉTAPE 1/3           --}}
       {{-- ====================================================== --}}
-      <div id="screen_M0b" class="auth-screen" style="{{ $activeScreen === 'M0b' ? '' : 'display: none;' }}">
+      <div id="screen_M0b" class="auth-screen form-compact" style="{{ $activeScreen === 'M0b' ? '' : 'display: none;' }}">
         <button type="button" class="btn-back-link" onclick="navigateToScreen('M0')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"></path></svg>
-          <span>Retour au choix de démarrage</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+          <span>Retour</span>
         </button>
 
-        {{-- Stepper 1/3 --}}
-        <div class="stepper-row">
-          <div class="step-bar active"></div>
-          <div class="step-bar"></div>
-          <div class="step-bar"></div>
-          <span class="step-counter">1/3</span>
-        </div>
-
-        <h2 class="screen-heading" style="font-size: 27px;">Votre établissement</h2>
-        <p class="screen-subheading">Ces informations figureront sur vos ordonnances et factures.</p>
+        <h2 class="screen-heading">Créer votre clinique</h2>
+        <p class="screen-subheading">Vous inviterez votre équipe juste après.</p>
 
         <form method="POST" action="{{ route('register') }}" id="formCreateClinic">
           @csrf
           <input type="hidden" name="action_type" value="creer">
           <input type="hidden" name="type_etablissement" id="input_type_etablissement" value="{{ old('type_etablissement') }}">
 
-          <div class="form-group">
-            <label for="nom_clinique" class="form-label">Nom de l'établissement <span style="color: #ef4444;">*</span></label>
-            <input type="text" name="nom_clinique" id="nom_clinique" value="{{ old('nom_clinique') }}" placeholder="Clinique Baobab" class="form-input @error('nom_clinique') is-invalid @enderror" required oninput="updateClinicPreview(this.value)" />
-          </div>
+          <h3 class="rubrique-ticket"><span>01</span>Établissement</h3>
 
-          <div style="display: flex; gap: 12px;">
-            <div style="flex: 1; min-width: 0;" class="form-group">
-              <label for="type_etablissement_select" class="form-label">Type</label>
-              <input type="text" id="type_etablissement_select" value="{{ old('type_etablissement') }}" placeholder="Clinique polyvalente" class="form-input" oninput="document.getElementById('input_type_etablissement').value = this.value" />
-            </div>
-            <div style="flex: 1; min-width: 0;" class="form-group">
-              <label for="ville_clinique" class="form-label">Ville <span style="color: #ef4444;">*</span></label>
-              <input type="text" name="ville" id="ville_clinique" value="{{ old('ville') }}" placeholder="Bamako" class="form-input @error('ville') is-invalid @enderror" required />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="telephone_clinique" class="form-label">Téléphone</label>
-            <input type="text" name="telephone_clinique" id="telephone_clinique" value="{{ old('telephone_clinique') }}" placeholder="+223 20 22 44 66" class="form-input" />
-          </div>
-
-          {{-- Compte administrateur direct --}}
-          <div style="padding-top: 8px; border-top: 1px solid #E4EDE9; margin-top: 6px; margin-bottom: 14px;">
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #5B7169; letter-spacing: 0.05em; margin-bottom: 10px;">Compte administrateur</div>
-            <div style="display: flex; gap: 10px;">
-              <div style="flex: 1; min-width: 0;" class="form-group">
-                <label class="form-label">Prénom <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="prenom" value="{{ old('prenom') }}" placeholder="Dr Séni" class="form-input" required />
-              </div>
-              <div style="flex: 1; min-width: 0;" class="form-group">
-                <label class="form-label">Nom <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="nom" value="{{ old('nom') }}" placeholder="Koné" class="form-input" required />
-              </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nom_clinique" class="form-label">Nom de l'établissement <span class="required-mark">*</span></label>
+              <input type="text" name="nom_clinique" id="nom_clinique" value="{{ old('nom_clinique') }}" placeholder="Clinique Baobab" class="form-input @error('nom_clinique') is-invalid @enderror" required autocomplete="organization" oninput="updateClinicPreview()" />
+              @error('nom_clinique')<div class="form-error">{{ $message }}</div>@enderror
             </div>
             <div class="form-group">
-              <label class="form-label">Téléphone administrateur</label>
-              <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" />
-              @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
+              <label for="ville_clinique" class="form-label">Ville <span class="required-mark">*</span></label>
+              <input type="text" name="ville" id="ville_clinique" value="{{ old('ville') }}" placeholder="Bamako" class="form-input @error('ville') is-invalid @enderror" required autocomplete="address-level2" oninput="updateClinicPreview()" />
+              @error('ville')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type_etablissement_select" class="form-label">Type <span class="label-facultatif">facultatif</span></label>
+              <input type="text" id="type_etablissement_select" value="{{ old('type_etablissement') }}" placeholder="Polyclinique" class="form-input" oninput="document.getElementById('input_type_etablissement').value = this.value; updateClinicPreview()" />
             </div>
             <div class="form-group">
-              <label class="form-label">E-mail administrateur</label>
-              <input type="email" name="email" value="{{ old('email') }}" placeholder="direction@clinique.ml" class="form-input @error('email') is-invalid @enderror" />
-              @error('email')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
-              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Téléphone ou e-mail : renseignez au moins l'un des deux, il servira à vous connecter.</div>
+              <label for="telephone_clinique" class="form-label">Téléphone <span class="label-facultatif">facultatif</span></label>
+              <input type="tel" name="telephone_clinique" id="telephone_clinique" value="{{ old('telephone_clinique') }}" placeholder="+223 20 22 44 66" class="form-input" inputmode="tel" oninput="updateClinicPreview()" />
+            </div>
+          </div>
+
+          <h3 class="rubrique-ticket"><span>02</span>Responsable</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="admin_prenom" class="form-label">Prénom <span class="required-mark">*</span></label>
+              <input type="text" name="prenom" id="admin_prenom" value="{{ old('prenom') }}" placeholder="Séni" class="form-input @error('prenom') is-invalid @enderror" required autocomplete="given-name" oninput="updateClinicPreview()" />
+              @error('prenom')<div class="form-error">{{ $message }}</div>@enderror
             </div>
             <div class="form-group">
-              <label class="form-label">Mot de passe <span style="color: #ef4444;">*</span></label>
+              <label for="admin_nom" class="form-label">Nom <span class="required-mark">*</span></label>
+              <input type="text" name="nom" id="admin_nom" value="{{ old('nom') }}" placeholder="Koné" class="form-input @error('nom') is-invalid @enderror" required autocomplete="family-name" oninput="updateClinicPreview()" />
+              @error('nom')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="admin_telephone" class="form-label">Téléphone</label>
+              <input type="tel" name="telephone" id="admin_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" autocomplete="tel-national" class="form-input @error('telephone') is-invalid @enderror" />
+              @error('telephone')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group">
+              <label for="admin_email" class="form-label">E-mail</label>
+              <input type="email" name="email" id="admin_email" value="{{ old('email') }}" placeholder="direction@clinique.ml" autocomplete="email" class="form-input @error('email') is-invalid @enderror" />
+              @error('email')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="create_admin_password" class="form-label">Mot de passe <span class="required-mark">*</span></label>
               <div class="password-wrapper">
-                <input type="password" name="password" id="create_admin_password" placeholder="6 caractères minimum" class="form-input" required />
-                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('create_admin_password')" aria-label="Afficher/masquer">
-                  <svg id="eye_icon_create_admin_password" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <input type="password" name="password" id="create_admin_password" placeholder="6 caractères minimum" class="form-input @error('password') is-invalid @enderror" required autocomplete="new-password" />
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('create_admin_password')" aria-label="Afficher ou masquer le mot de passe">
+                  <svg id="eye_icon_create_admin_password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
               </div>
+              @error('password')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group form-hint-cellule">
+              <p class="form-hint" style="margin: 0;">Le téléphone ou l'e-mail, au choix, vous servira à vous connecter.</p>
             </div>
           </div>
 
           <button type="submit" class="btn-primary-gradient">
-            <span>Créer l'établissement</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            <span>Créer ma clinique</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
           </button>
+
+          <p class="lien-connexion">Déjà inscrit ? <button type="button" onclick="navigateToScreen('M1')">Se connecter</button></p>
         </form>
       </div>
 
@@ -805,68 +1027,56 @@
       {{-- ÉCRAN M1 : CONNEXION (REPRODUCTION EXACTE DU DESIGN)     --}}
       {{-- ====================================================== --}}
       <div id="screen_M1" class="auth-screen" style="{{ $activeScreen === 'M1' ? '' : 'display: none;' }}">
-        <h1 class="screen-heading">Connexion</h1>
-        <p class="screen-subheading">Accédez à votre espace de travail.</p>
+        <p class="rubrique-ticket"><span>Accès</span>Espace équipe</p>
+        <h1 class="screen-heading">Bon retour parmi nous.</h1>
+        <p class="screen-subheading">Connectez-vous pour reprendre là où l'équipe s'est arrêtée.</p>
 
         <form method="POST" action="{{ route('login') }}" id="formLogin">
           @csrf
-          
-          {{-- Identifiant professionnel --}}
+
           <div class="form-group">
-            <label for="login_email" class="form-label">Numéro de téléphone</label>
-            <input type="text" name="email" id="login_email" value="{{ old('email') }}" placeholder="76 00 00 00" inputmode="tel" autocomplete="username" class="form-input @error('email') is-invalid @enderror" required autofocus />
-            <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Votre adresse email reste acceptée.</div>
+            <label for="login_email" class="form-label">Téléphone ou e-mail</label>
+            <input type="text" name="email" id="login_email" value="{{ old('email') }}" placeholder="76 00 00 00" autocomplete="username" class="form-input @error('email') is-invalid @enderror" required autofocus />
+            @error('email')<div class="form-error">{{ $message }}</div>@enderror
           </div>
 
-          {{-- Mot de passe avec lien Oublié ? --}}
           <div class="form-group">
             <div class="form-label-row">
-              <span class="form-label" style="margin-bottom: 0;">Mot de passe</span>
-              <a href="javascript:void(0)" onclick="alert('Veuillez contacter l\'administrateur de votre établissement pour réinitialiser votre accès.')" style="font-size: 12px; font-weight: 700; color: #047857;">Oublié ?</a>
+              <label for="login_password" class="form-label" style="margin-bottom: 0;">Mot de passe</label>
+              <button type="button" class="lien-discret" aria-expanded="false" aria-controls="aide_mot_de_passe" onclick="basculerAideMotDePasse(this)">Mot de passe oublié ?</button>
             </div>
             <div class="password-wrapper">
-              <input type="password" name="password" id="login_password" placeholder="••••••••" class="form-input @error('password') is-invalid @enderror" required />
+              <input type="password" name="password" id="login_password" placeholder="Votre mot de passe" autocomplete="current-password" class="form-input @error('password') is-invalid @enderror" required />
               <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('login_password')" aria-label="Afficher ou masquer le mot de passe">
-                <svg id="eye_icon_login_password" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <svg id="eye_icon_login_password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
             </div>
+            <div id="aide_mot_de_passe" class="aide-encart" hidden>
+              Demandez à l'administrateur de votre clinique de réinitialiser votre mot de passe depuis la page Utilisateurs.
+            </div>
           </div>
 
-          {{-- Checkbox personnalisée : Rester connecté sur ce poste --}}
-          <label style="display: flex; align-items: center; gap: 9px; margin-bottom: 20px; cursor: pointer; user-select: none;">
-            <input type="checkbox" name="remember" value="1" checked style="accent-color: #059669; width: 17px; height: 17px; border-radius: 5px; cursor: pointer;" />
-            <span style="font-size: 12.5px; color: #3F554D; font-weight: 500;">Rester connecté sur ce poste</span>
+          <label class="case-poste">
+            <input type="checkbox" name="remember" value="1" checked />
+            <span>Rester connecté sur ce poste</span>
           </label>
 
-          {{-- Bouton Se connecter > --}}
           <button type="submit" class="btn-primary-gradient">
             <span>Se connecter</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
           </button>
         </form>
 
-        {{-- Mention de sécurité avec cadenas --}}
-        <div style="font-size: 11.5px; color: #94A3B8; font-weight: 500; margin-top: 24px; display: flex; align-items: center; gap: 7px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2.5"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>Connexion sécurisée · données de santé chiffrées</span>
-        </div>
-
-        {{-- Lien vers Créer ou Rejoindre --}}
-        <div style="font-size: 12.5px; color: #5B7169; font-weight: 500; margin-top: 20px; text-align: center;">
-          Pas encore de compte ? <a href="javascript:void(0)" onclick="navigateToScreen('M0')" style="color: #047857; font-weight: 700;">Créer ou rejoindre</a>
-        </div>
+        <p class="lien-connexion">Nouvelle clinique ou nouveau membre ? <button type="button" onclick="navigateToScreen('M0')">Créer ou rejoindre</button></p>
       </div>
 
     </div>
 
     {{-- Footer de page panneau gauche --}}
-    <div style="font-size: 11px; color: #94A3B8; text-align: center; margin-top: 24px;">
+    <div class="form-panel-pied" style="font-size: 11px; color: #94A3B8; text-align: center; margin-top: 24px;">
       MediGest Web · Gestion de clinique polyvalente
     </div>
   </div>
@@ -883,25 +1093,27 @@
 
       {{-- 1. SHOWCASE POUR CONNEXION (M1) : PÉRIMÈTRE FONCTIONNEL --}}
       <div id="showcase_M1" class="showcase-screen-content" style="{{ $activeScreen === 'M1' ? '' : 'display: none;' }}">
-        <div class="showcase-title">Le dossier patient, du premier rendez-vous à la sortie.</div>
-        <div class="showcase-desc">Rendez-vous, consultations, ordonnances, pharmacie et facturation réunis sur un poste unique et sécurisé.</div>
+        <div class="showcase-title">Chaque soir, une clôture de caisse nette.</div>
+        <div class="showcase-desc">Chaque ticket, chaque paiement et chaque part d'assurance est enregistré au fil de la journée. La clôture s'imprime en un clic.</div>
 
-        <div class="card-dark-glass">
-          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Constantes et antécédents centralisés</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Ordonnances et comptes rendus imprimables</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Tickets, encaissements et tiers payant</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, 0.07);">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #ffffff; font-weight: 600;">Traçabilité complète des accès</span>
+        <div class="apercu-legende">Exemple de clôture de caisse</div>
+        <div aria-hidden="true">
+          <div class="apercu-imprimante"></div>
+          <div class="apercu-ticket">
+            <div class="apercu-centre">
+              <div class="apercu-nom">Clôture de caisse</div>
+              <div>Guichet 1 · {{ now()->format('d/m/Y') }}</div>
+            </div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>Fond d'ouverture</span><span>50 000</span></div>
+            <div class="apercu-ligne"><span>Tickets encaissés</span><span>38</span></div>
+            <div class="apercu-ligne"><span>Espèces</span><span>412 500</span></div>
+            <div class="apercu-ligne"><span>Autres modes</span><span>75 000</span></div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>Part assurances à réclamer</span><span>186 250</span></div>
+            <div class="apercu-ligne"><span>Dettes patients</span><span>12 000</span></div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne apercu-total"><span>TOTAL ENCAISSÉ</span><span>487 500 F</span></div>
           </div>
         </div>
       </div>
@@ -935,30 +1147,26 @@
 
       {{-- 3. SHOWCASE POUR CRÉATION (M0b) : CONFIGURÉ EN 3 ÉTAPES --}}
       <div id="showcase_M0b" class="showcase-screen-content" style="{{ $activeScreen === 'M0b' ? '' : 'display: none;' }}">
-        <div class="showcase-title">Configuré en trois étapes.</div>
-        <div class="showcase-desc">Identité de l'établissement, compte administrateur, puis invitation de votre équipe.</div>
+        <div class="showcase-title">Vos tickets portent déjà votre nom.</div>
+        <div class="showcase-desc">Ce que vous saisissez apparaît en tête de chaque ticket et de chaque ordonnance imprimés par votre clinique.</div>
 
-        <div class="card-white-showcase">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <div style="width: 46px; height: 46px; border-radius: 13px; background: linear-gradient(150deg, #10B981, #047857); display: flex; align-items: center; justify-content: center;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l5-3 5 3M14 20V6l6 3v11M3 20h18"></path></svg>
+        <div class="apercu-legende">Aperçu en direct</div>
+        <div aria-hidden="true">
+          <div class="apercu-imprimante"></div>
+          <div class="apercu-ticket">
+            <div class="apercu-centre">
+              <div class="apercu-nom" id="preview_clinic_name" data-vide="Votre établissement">Votre établissement</div>
+              <div id="preview_clinic_type" data-vide=""></div>
+              <div id="preview_clinic_contact" data-vide="Ville · Téléphone">Ville · Téléphone</div>
             </div>
-            <div>
-              <div id="preview_clinic_name" style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Votre établissement</div>
-              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Nom, type et ville personnalisables</div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #F1F5F3;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12B76A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #0F1F1A; font-weight: 600;">Dossiers patients illimités</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #F1F5F3;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12B76A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #0F1F1A; font-weight: 600;">Ordonnances &amp; facturation</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #F1F5F3;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12B76A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span style="font-size: 12.5px; color: #0F1F1A; font-weight: 600;">Multi-utilisateurs par rôle</span>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>Ticket</span><span>TCK-{{ now()->format('Ymd') }}-0001</span></div>
+            <div class="apercu-ligne"><span>Date</span><span>{{ now()->format('d/m/Y H:i') }}</span></div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>Consultation générale</span><span>10 000</span></div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne apercu-total"><span>TOTAL</span><span>10 000 F</span></div>
+            <p class="apercu-pied" id="preview_caissier" data-vide="Caissier : votre nom">Caissier : votre nom</p>
           </div>
         </div>
       </div>
@@ -980,9 +1188,9 @@
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span style="font-size: 10.5px; font-weight: 700; color: #175CD3; background: #EFF8FF; padding: 5px 11px; border-radius: 20px;">Médecin</span>
-            <span style="font-size: 10.5px; font-weight: 700; color: #0E7490; background: #ECFEFF; padding: 5px 11px; border-radius: 20px;">Infirmier</span>
+            <span style="font-size: 10.5px; font-weight: 700; color: #0E7490; background: #ECFEFF; padding: 5px 11px; border-radius: 20px;">Réceptionniste</span>
             <span style="font-size: 10.5px; font-weight: 700; color: #B45309; background: #FFFAEB; padding: 5px 11px; border-radius: 20px;">Caissier</span>
-            <span style="font-size: 10.5px; font-weight: 700; color: #7C3AED; background: #F4F3FF; padding: 5px 11px; border-radius: 20px;">Laborantin</span>
+            <span style="font-size: 10.5px; font-weight: 700; color: #7C3AED; background: #F4F3FF; padding: 5px 11px; border-radius: 20px;">Comptable</span>
           </div>
         </div>
       </div>
@@ -999,8 +1207,8 @@
               <path d="m9 12 2 2 4-4"></path>
             </svg>
           </div>
-          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #0F1F1A;">Données chiffrées</div>
-          <div style="font-size: 12px; color: #94A3B8; font-weight: 500; line-height: 1.6; margin-top: 6px;">Vos accès sont protégés par vérification médicale sécurisée.</div>
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #0F1F1A;">Accès vérifié</div>
+          <div style="font-size: 12px; color: #5B7169; font-weight: 500; line-height: 1.6; margin-top: 6px;">Votre compte n'est activé qu'une fois le contact enregistré par la clinique confirmé.</div>
         </div>
       </div>
 
@@ -1021,6 +1229,10 @@
       if (el) el.style.display = (s === screenId) ? 'block' : 'none';
       if (sc) sc.style.display = (s === screenId) ? 'block' : 'none';
     });
+
+    // Le formulaire de création, en deux colonnes, a besoin de plus de largeur
+    const formInner = document.querySelector('.form-inner');
+    if (formInner) formInner.classList.toggle('form-inner-large', screenId === 'M0b');
 
     // Mettre à jour l'URL sans rechargement pour confort UX
     if (window.history && window.history.replaceState) {
@@ -1075,12 +1287,30 @@
   }
 
   // Prévisualisation instantanée du nom de clinique dans M0b
-  function updateClinicPreview(name) {
-    const preview = document.getElementById('preview_clinic_name');
-    if (preview) {
-      preview.innerText = name.trim() || 'Votre établissement';
-    }
+  function updateClinicPreview() {
+    const valeur = (id) => ((document.getElementById(id) || {}).value || '').trim();
+    const ecrire = (id, texte) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = texte || el.dataset.vide;
+      el.classList.toggle('apercu-vide', !texte);
+    };
+
+    ecrire('preview_clinic_name', valeur('nom_clinique'));
+    ecrire('preview_clinic_type', valeur('type_etablissement_select'));
+    ecrire('preview_clinic_contact', [valeur('ville_clinique'), valeur('telephone_clinique')].filter(Boolean).join(' · '));
+    const responsable = [valeur('admin_prenom'), valeur('admin_nom')].filter(Boolean).join(' ');
+    ecrire('preview_caissier', responsable ? 'Caissier : ' + responsable : '');
   }
+
+  // Aide « Mot de passe oublié ? » affichée sous le champ, sans fenêtre bloquante
+  function basculerAideMotDePasse(bouton) {
+    const aide = document.getElementById('aide_mot_de_passe');
+    if (!aide) return;
+    aide.hidden = !aide.hidden;
+    bouton.setAttribute('aria-expanded', String(!aide.hidden));
+  }
+  updateClinicPreview();
 
   // Gestion des 6 cases de code d'invitation (M0c)
   const codeHiddenFinal = document.getElementById('code_invitation_final');

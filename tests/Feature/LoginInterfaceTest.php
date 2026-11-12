@@ -16,21 +16,23 @@ test('la nouvelle interface de connexion medigest saffiche correctement', functi
     $response->assertOk();
     $response->assertSee('MediGest');
     $response->assertSee('Connexion');
-    $response->assertSee('Accédez à votre espace de travail.', false);
-    $response->assertSee('Numéro de téléphone');
+    $response->assertSee('Bon retour parmi nous.');
+    $response->assertSee('Téléphone ou e-mail');
     $response->assertSee('Mot de passe');
-    $response->assertSee('Oublié ?');
+    $response->assertSee('Mot de passe oublié ?');
     $response->assertSee('Rester connecté sur ce poste');
     $response->assertSee('Se connecter');
-    $response->assertSee('Connexion sécurisée · données de santé chiffrées');
+    // L'aide s'affiche dans la page, sans fenêtre alert() bloquante
+    $response->assertSee('id="aide_mot_de_passe"', false);
+    $response->assertDontSee('alert(', false);
 
-    // Panneau droit : Showcase du périmètre fonctionnel
-    $response->assertSee('Le dossier patient, du premier rendez-vous à la sortie.');
-    $response->assertSee('Rendez-vous, consultations, ordonnances, pharmacie et facturation réunis sur un poste unique et sécurisé.');
-    $response->assertSee('Constantes et antécédents centralisés');
-    $response->assertSee('Ordonnances et comptes rendus imprimables');
-    $response->assertSee('Tickets, encaissements et tiers payant');
-    $response->assertSee('Traçabilité complète des accès');
+    // Panneau : exemple de clôture de caisse
+    $response->assertSee('Exemple de clôture de caisse');
+    $response->assertSee('TOTAL ENCAISSÉ');
+    // Promesses non tenues par l'application : ne pas les afficher
+    $response->assertDontSee('données de santé chiffrées');
+    $response->assertDontSee('Rendez-vous');
+    $response->assertDontSee('pharmacie');
 });
 
 test('aucune donnee fictive de demonstration sur l ecran de connexion', function () {
@@ -81,23 +83,25 @@ test('les ecrans de processus M0 M0b M0c et M0d sont presents et coherents', fun
     $response->assertSee('invite l\'équipe', false);
 
     // M0b Créer établissement
-    $response->assertSee('Votre établissement');
-    $response->assertSee('Configuré en trois étapes.');
-    $response->assertSee('Dossiers patients illimités');
-    $response->assertSee('Ordonnances & facturation');
-    $response->assertSee('Multi-utilisateurs par rôle');
+    $response->assertSee('Créer votre clinique');
+    $response->assertSee('Établissement');
+    $response->assertSee('Responsable');
+    $response->assertSee('Déjà inscrit ?');
+    $response->assertSee('id="preview_caissier"', false);
+    $response->assertSee('Aperçu en direct');
+    $response->assertSee('id="preview_clinic_name"', false);
 
-    // M0c Rejoindre avec code
+    // M0c Rejoindre avec code : uniquement des rôles qui existent dans l'application
     $response->assertSee('Code de la clinique');
     $response->assertSee('Rejoignez votre équipe en un instant.');
     $response->assertSee('Médecin');
-    $response->assertSee('Infirmier');
+    $response->assertSee('Réceptionniste');
     $response->assertSee('Caissier');
-    $response->assertSee('Laborantin');
+    $response->assertSee('Comptable');
 
     // M0d Vérification
     $response->assertSee('Vérifions votre identité');
-    $response->assertSee('Données chiffrées');
+    $response->assertSee('Accès vérifié');
 });
 
 test('le shell applicatif fournit une navigation mobile', function () {
