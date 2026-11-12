@@ -252,6 +252,7 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
             Route::post('/create/ticket', 'store')->name('tickets.store');
             Route::get('/tickets/{ticket}', 'show')->name('tickets.show');
             Route::get('/tickets/{ticket}/print', 'print')->name('tickets.print');
+            Route::get('/tickets/{ticket}/facture', 'facture')->name('tickets.facture');
             Route::get('/tickets/{ticket}/edit', 'edit')->name('tickets.edit');
             Route::put('/tickets/{ticket}', 'update')->name('tickets.update');
             Route::delete('/tickets/{ticket}', 'destroy')->name('tickets.destroy');

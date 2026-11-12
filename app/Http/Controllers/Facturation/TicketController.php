@@ -19,11 +19,13 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Services\CalculFacturationService;
 use App\Services\GestionCaisseService;
+use App\Services\NumberToWordsService;
 use App\Services\PrestationService;
 use App\Services\TicketService;
 use App\Traits\HasPeriodFilter;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\View\View;
 
 class TicketController extends Controller
 {
@@ -505,12 +507,24 @@ class TicketController extends Controller
     }
 
     /**
-     * Affiche la vue d'impression du ticket thermique 80mm et format PDF/A4.
+     * Affiche la vue d'impression du ticket thermique 80 mm.
      */
     public function print(Ticket $ticket)
     {
         $ticket->load(['patient', 'user', 'assurance', 'service', 'medecin', 'details.prestation.medecin', 'details.prestation.service', 'paiements.modePaiement']);
 
         return view('facturation.tickets.print', compact('ticket'));
+    }
+
+    /**
+     * Affiche la facture au format A4 du ticket (impression ou enregistrement en PDF depuis le navigateur).
+     */
+    public function facture(Ticket $ticket): View
+    {
+        $ticket->load(['clinique', 'patient', 'user', 'assurance', 'service', 'medecin', 'details.prestation.medecin', 'details.prestation.service', 'paiements.modePaiement']);
+
+        $montantEnLettres = NumberToWordsService::toCurrency((float) $ticket->montant_patient, 'francs CFA');
+
+        return view('facturation.tickets.facture', compact('ticket', 'montantEnLettres'));
     }
 }

@@ -41,6 +41,10 @@
                 <i data-lucide="printer" style="width: 1rem; height: 1rem;"></i>
                 <span>Imprimer Reçu (80mm)</span>
             </a>
+            <a href="{{ route('tickets.facture', $ticket) }}" target="_blank" class="btn btn-outline-teal fw-semibold shadow-sm d-flex align-items-center gap-1">
+                <i data-lucide="file-text" style="width: 1rem; height: 1rem;"></i>
+                <span>Facture A4</span>
+            </a>
             <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" title="Modifier le ticket">
                 <i data-lucide="edit-3" style="width: 1rem; height: 1rem;"></i>
             </a>
