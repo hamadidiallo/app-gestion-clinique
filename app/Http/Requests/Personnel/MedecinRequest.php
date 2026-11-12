@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests\Personnel;
 
+use App\Models\User;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class MedecinRequest extends FormRequest
 {
@@ -47,6 +50,29 @@ class MedecinRequest extends FormRequest
 
             // Le statut du médecin est obligatoire et booléen (1 = Actif, 0 = Inactif)
             'statut' => 'required|boolean',
+
+            // Compte de connexion du médecin : un compte « Médecin » de la même clinique,
+            // relié à une seule fiche. C'est lui qui donne accès à la file d'attente.
+            'user_id' => [
+                'nullable',
+                'integer',
+                Rule::unique('medecins', 'user_id')->ignore($this->route('medecin')?->id),
+                function (string $attribut, mixed $valeur, Closure $echec) {
+                    $compte = User::query()
+                        ->where('clinique_id', $this->user()?->clinique_id)
+                        ->find($valeur);
+
+                    if (! $compte || ! $compte->hasRole('Médecin')) {
+                        $echec('Choisissez un compte de la clinique ayant le rôle Médecin.');
+                    }
+                },
+            ],
+
+            // Service principal : sert à proposer au médecin les tickets sans médecin de ce service
+            'service_id' => [
+                'nullable',
+                Rule::exists('services', 'id')->where('clinique_id', $this->user()?->clinique_id),
+            ],
         ];
     }
 
@@ -65,6 +91,8 @@ class MedecinRequest extends FormRequest
             'pourcentage.max' => 'Le pourcentage ne peut pas dépasser 100%.',
             'salaire_fixe.numeric' => 'Le salaire fixe doit être un montant numérique.',
             'statut.required' => 'Le statut du médecin est obligatoire.',
+            'user_id.unique' => 'Ce compte est déjà relié à une autre fiche médecin.',
+            'service_id.exists' => 'Le service choisi n\'existe pas dans cette clinique.',
         ];
     }
 }

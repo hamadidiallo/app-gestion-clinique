@@ -268,10 +268,21 @@
 
                 @endif
                 <div class="d-flex gap-2 justify-content-end mb-5">
-                    <a href="{{ route('consultations.show', $consultation) }}" class="btn btn-secondary px-4">Annuler</a>
-                    <button type="submit" class="btn btn-warning btn-lg px-4 shadow-sm fw-bold">
-                        <i data-lucide="check-circle" class="me-1"></i> Mettre à jour la Consultation
-                    </button>
+                    @if ($consultation->statut === 'en_cours')
+                        {{-- Consultation ouverte depuis la file d'attente --}}
+                        <a href="{{ auth()->user()?->medecin ? route('medecin.file-attente') : route('consultations.show', $consultation) }}" class="btn btn-light border px-4">Retour à la file</a>
+                        <button type="submit" name="statut" value="en_cours" class="btn btn-outline-secondary btn-lg px-4 fw-semibold">
+                            <i data-lucide="save" class="me-1"></i> Enregistrer sans terminer
+                        </button>
+                        <button type="submit" name="statut" value="terminee" class="btn btn-teal btn-lg px-4 shadow-sm fw-bold">
+                            <i data-lucide="check-circle" class="me-1"></i> Terminer la consultation
+                        </button>
+                    @else
+                        <a href="{{ route('consultations.show', $consultation) }}" class="btn btn-secondary px-4">Annuler</a>
+                        <button type="submit" class="btn btn-warning btn-lg px-4 shadow-sm fw-bold">
+                            <i data-lucide="check-circle" class="me-1"></i> Mettre à jour la Consultation
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

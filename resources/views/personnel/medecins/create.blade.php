@@ -102,6 +102,8 @@
                                 @enderror
                             </div>
 
+                            @include('personnel.medecins._acces_file_attente')
+
                             {{-- Raccourcis rapides de spécialité --}}
                             <div class="col-12 pt-1">
                                 <span class="text-muted small me-2">Suggestions rapides :</span>

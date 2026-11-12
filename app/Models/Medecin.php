@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Medecin extends Model
@@ -12,6 +13,8 @@ class Medecin extends Model
 
     protected $fillable = [
         'clinique_id',
+        'user_id',
+        'service_id',
         'code',
         'nom',
         'prenom',
@@ -54,6 +57,22 @@ class Medecin extends Model
     public function consultations(): HasMany
     {
         return $this->hasMany(Consultation::class);
+    }
+
+    /**
+     * Compte utilisateur avec lequel ce médecin se connecte (sa file d'attente en dépend).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Service principal du médecin : les tickets payés de ce service sans médecin lui sont proposés.
+     */
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class);
     }
 
     /**

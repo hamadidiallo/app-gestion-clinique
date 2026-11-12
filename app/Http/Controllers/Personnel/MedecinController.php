@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Personnel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Personnel\MedecinRequest;
 use App\Models\Medecin;
+use App\Models\Service;
+use App\Models\User;
 use App\Traits\HasPeriodFilter;
+use Illuminate\Support\Collection;
 
 class MedecinController extends Controller
 {
@@ -44,7 +47,29 @@ class MedecinController extends Controller
             '0' => 'Inactif',
         ];
 
-        return view('personnel.medecins.create', compact('statuts'));
+        $comptes = $this->comptesMedecinDisponibles();
+        $services = Service::orderBy('nom')->get();
+
+        return view('personnel.medecins.create', compact('statuts', 'comptes', 'services'));
+    }
+
+    /**
+     * Comptes « Médecin » de la clinique qui ne sont pas encore reliés à une fiche
+     * (plus, en modification, celui déjà relié à la fiche en cours).
+     */
+    private function comptesMedecinDisponibles(?Medecin $medecin = null): Collection
+    {
+        $comptesDejaRelies = Medecin::whereNotNull('user_id')
+            ->when($medecin, fn ($requete) => $requete->whereKeyNot($medecin->id))
+            ->pluck('user_id');
+
+        return User::with('role')
+            ->where('clinique_id', auth()->user()->clinique_id)
+            ->whereNotIn('id', $comptesDejaRelies)
+            ->orderBy('nom')
+            ->get()
+            ->filter(fn (User $compte) => $compte->hasRole('Médecin'))
+            ->values();
     }
 
     /**
@@ -95,7 +120,10 @@ class MedecinController extends Controller
             '0' => 'Inactif',
         ];
 
-        return view('personnel.medecins.edit', compact('medecin', 'statuts'));
+        $comptes = $this->comptesMedecinDisponibles($medecin);
+        $services = Service::orderBy('nom')->get();
+
+        return view('personnel.medecins.edit', compact('medecin', 'statuts', 'comptes', 'services'));
     }
 
     /**

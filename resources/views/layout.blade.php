@@ -533,11 +533,18 @@
 
             {{-- Navigation par modules avec Lucide Icons et Filtrage RBAC --}}
             <div class="sidebar-menu">
-                {{-- Dashboard (Visible pour tous) --}}
+                {{-- Point d'entrée : file d'attente pour le médecin, tableau de bord pour les autres profils --}}
+                @if(auth()->check() && auth()->user()->hasRole('Médecin'))
+                <a href="{{ route('medecin.file-attente') }}" class="nav-link-custom {{ request()->routeIs('medecin.*') ? 'active' : '' }}">
+                    <i data-lucide="list-ordered"></i>
+                    <span>Ma file d'attente</span>
+                </a>
+                @else
                 <a href="{{ route('dashboard') }}" class="nav-link-custom {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Tableau de bord</span>
                 </a>
+                @endif
 
                 {{-- MODULE 1: ACCUEIL & DOSSIER MÉDICAL --}}
                 <div class="menu-header">Accueil & Médical</div>

@@ -6,6 +6,7 @@ use App\Traits\BelongsToClinique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Consultation extends Model
 {
@@ -65,6 +66,20 @@ class Consultation extends Model
     public function ordonnance(): HasOne
     {
         return $this->hasOne(Ordonnance::class);
+    }
+
+    /**
+     * Génère une référence de consultation libre, au format CS-AAAAMMJJ-XXXX.
+     */
+    public static function genererReference(): string
+    {
+        $prefixe = 'CS-'.now()->format('Ymd').'-';
+
+        do {
+            $reference = $prefixe.strtoupper(Str::random(4));
+        } while (static::withoutGlobalScopes()->where('reference', $reference)->exists());
+
+        return $reference;
     }
 
     /**

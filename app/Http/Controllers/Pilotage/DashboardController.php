@@ -20,6 +20,12 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+        // Le médecin n'a pas à voir les chiffres financiers de la clinique :
+        // son point d'entrée est sa file d'attente du jour.
+        if ($request->user()?->hasRole('Médecin')) {
+            return redirect()->route('medecin.file-attente');
+        }
+
         // 1. Détermination de la période de filtrage (default: ce mois)
         $periode = $request->get('periode', 'mois');
 

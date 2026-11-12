@@ -23,6 +23,7 @@ use App\Http\Controllers\Facturation\TicketController;
 use App\Http\Controllers\Facturation\TicketDetailController;
 use App\Http\Controllers\Medical\ActeController;
 use App\Http\Controllers\Medical\ConsultationController;
+use App\Http\Controllers\Medical\FileAttenteController;
 use App\Http\Controllers\Patients\PatientController;
 use App\Http\Controllers\Personnel\MedecinController;
 use App\Http\Controllers\Personnel\RemunerationController;
@@ -306,6 +307,14 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
                 Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
             });
         });
+    });
+
+    // =========================================================================
+    // ZONE 7A : FILE D'ATTENTE DU MÉDECIN (compte relié à une fiche médecin)
+    // =========================================================================
+    Route::middleware(['role:Médecin'])->controller(FileAttenteController::class)->group(function () {
+        Route::get('/file-attente', 'index')->name('medecin.file-attente');
+        Route::post('/file-attente/{ticket}/prendre', 'prendre')->name('medecin.prendre');
     });
 
     // =========================================================================

@@ -179,11 +179,7 @@ class ConsultationController extends Controller
         }
 
         // 2. Génération de la référence unique de consultation
-        $datePrefix = Carbon::now()->format('Ymd');
-        $reference = 'CS-'.$datePrefix.'-'.strtoupper(Str::random(4));
-        while (Consultation::where('reference', $reference)->exists()) {
-            $reference = 'CS-'.$datePrefix.'-'.strtoupper(Str::random(4));
-        }
+        $reference = Consultation::genererReference();
 
         // 3. Création de la consultation
         $consultation = Consultation::create([
@@ -258,6 +254,7 @@ class ConsultationController extends Controller
         });
 
         if (! empty($prescriptions)) {
+            $datePrefix = Carbon::now()->format('Ymd');
             $refOrd = 'ORD-'.$datePrefix.'-'.strtoupper(Str::random(4));
             while (Ordonnance::where('reference', $refOrd)->exists()) {
                 $refOrd = 'ORD-'.$datePrefix.'-'.strtoupper(Str::random(4));
@@ -388,6 +385,16 @@ class ConsultationController extends Controller
             }
         } elseif ($consultation->ordonnance) {
             $consultation->ordonnance->delete();
+        }
+
+        // Depuis la file d'attente : « Terminer » renvoie le médecin à sa file pour le patient suivant,
+        // « Enregistrer sans terminer » le laisse sur la consultation en cours.
+        if (auth()->user()?->medecin) {
+            if ($consultation->statut === 'en_cours') {
+                return redirect()->route('consultations.edit', $consultation)->with('alert', 'Consultation enregistrée. Elle reste en cours.');
+            }
+
+            return redirect()->route('medecin.file-attente')->with('alert', 'Consultation terminée pour '.$consultation->patient?->prenom.' '.$consultation->patient?->nom.'.');
         }
 
         return redirect()->route('consultations.show', $consultation)->with('alert', 'Consultation mise à jour avec succès.');
