@@ -1,34 +1,33 @@
 <?php
 
-use App\Http\Controllers\AbonnementController;
-use App\Http\Controllers\ActeController;
-use App\Http\Controllers\AssuranceController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CaisseController;
-use App\Http\Controllers\CarteAssuranceController;
-use App\Http\Controllers\CategorieDepenseController;
-use App\Http\Controllers\ConsultationController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepenseController;
-// Importation des 15 nouveaux contrôleurs
-use App\Http\Controllers\DetteController;
-use App\Http\Controllers\JournalActiviteController;
-use App\Http\Controllers\MedecinController;
-use App\Http\Controllers\ModePaiementController;
-use App\Http\Controllers\MouvementCaisseController;
-use App\Http\Controllers\PaiementController;
-use App\Http\Controllers\ParametreController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\PrestationController;
-use App\Http\Controllers\RapportController;
-use App\Http\Controllers\RecetteController;
-use App\Http\Controllers\ReglePartageController;
-use App\Http\Controllers\RemunerationController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\TicketController;
-use App\Http\Controllers\TicketDetailController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Administration\AbonnementController;
+use App\Http\Controllers\Administration\JournalActiviteController;
+use App\Http\Controllers\Administration\ParametreController;
+use App\Http\Controllers\Administration\RoleController;
+use App\Http\Controllers\Administration\UserController;
+use App\Http\Controllers\Assurances\AssuranceController;
+use App\Http\Controllers\Assurances\CarteAssuranceController;
+use App\Http\Controllers\Assurances\ReglePartageController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Caisse\CaisseController;
+use App\Http\Controllers\Caisse\DetteController;
+use App\Http\Controllers\Caisse\ModePaiementController;
+use App\Http\Controllers\Caisse\MouvementCaisseController;
+use App\Http\Controllers\Caisse\PaiementController;
+use App\Http\Controllers\Comptabilite\CategorieDepenseController;
+use App\Http\Controllers\Comptabilite\DepenseController;
+use App\Http\Controllers\Comptabilite\RecetteController;
+use App\Http\Controllers\Facturation\PrestationController;
+use App\Http\Controllers\Facturation\ServiceController;
+use App\Http\Controllers\Facturation\TicketController;
+use App\Http\Controllers\Facturation\TicketDetailController;
+use App\Http\Controllers\Medical\ActeController;
+use App\Http\Controllers\Medical\ConsultationController;
+use App\Http\Controllers\Patients\PatientController;
+use App\Http\Controllers\Personnel\MedecinController;
+use App\Http\Controllers\Personnel\RemunerationController;
+use App\Http\Controllers\Pilotage\DashboardController;
+use App\Http\Controllers\Pilotage\RapportController;
 use Illuminate\Support\Facades\Route;
 
 // Routes d'authentification publiques (Connexion et Inscription)
@@ -384,7 +383,7 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
 
     // Page d'information en cas d'accès clinique suspendu
     Route::get('/abonnement/suspendu', function () {
-        return view('abonnement.suspendu');
+        return view('administration.abonnement.suspendu');
     })->name('abonnement.suspendu');
 
 });
