@@ -102,103 +102,115 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table id="ticketsTable" class="table table-hover align-middle mb-0">
+                <style>
+                    .table-registre thead th {
+                        background: #f6f9f8;
+                        color: #5b7169;
+                        font-size: .7rem;
+                        font-weight: 700;
+                        letter-spacing: .06em;
+                        text-transform: uppercase;
+                        white-space: nowrap;
+                        padding-top: .85rem;
+                        padding-bottom: .85rem;
+                        border-bottom: 1px solid #e4ede9;
+                    }
+                    .table-registre tbody td { padding-top: .9rem; padding-bottom: .9rem; border-color: #eef3f1; }
+                    .table-registre tbody tr:hover { background: #f8fbfa; }
+                    .table-registre tfoot td { background: #f6f9f8; border-top: 2px solid #e4ede9; padding-top: .85rem; padding-bottom: .85rem; }
+                    .table-registre .dropdown-item { font-size: .875rem; padding: .5rem .9rem; }
+                    .table-registre .devise { font-size: .72em; font-weight: 600; opacity: .7; margin-left: .2em; }
+                </style>
+                @php
+                    // Devise réglée dans les paramètres de la clinique (FCFA par défaut)
+                    $devise = auth()->user()?->clinique?->devise ?: 'FCFA';
+                @endphp
+                <table id="ticketsTable" class="table table-hover align-middle mb-0 table-registre">
                     <thead>
                         <tr>
-                            <th class="ps-3" style="width: 110px;">Référence</th>
-                            <th>Patient Bénéficiaire</th>
-                            <th>Date Émission</th>
-                            <th class="text-end">Total Brut</th>
-                            <th class="text-end">Part Tiers</th>
-                            <th class="text-end">Net Patient</th>
-                            <th class="text-end">Reste Dû</th>
+                            <th class="ps-4">Ticket</th>
+                            <th>Patient</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Part assurance</th>
+                            <th class="text-end">Net patient</th>
+                            <th class="text-end">Reste dû</th>
                             <th class="text-center">Statut</th>
-                            <th class="text-end pe-3">Actions</th>
+                            <th class="text-end pe-4 no-export">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($tickets as $ticket)
+                            @php
+                                $rowService = $ticket->service ?? ($ticket->details->first()?->prestation?->service);
+                                $rowMedecin = $ticket->medecin ?? ($ticket->details->first()?->prestation?->medecin);
+                                $dateTicket = $ticket->date_ticket ? \Carbon\Carbon::parse($ticket->date_ticket) : null;
+                                $assuranceCourte = $ticket->assurance ? \Illuminate\Support\Str::before($ticket->assurance->nom, ' (') : null;
+                            @endphp
                             <tr>
-                                <td class="ps-3">
-                                    <span class="font-mono text-muted small">#{{ $ticket->reference }}</span>
-                                </td>
-                                <td>
-                                    <div class="fw-bold text-dark">
-                                        {{ $ticket->patient ? $ticket->patient->nom . ' ' . $ticket->patient->prenom : 'Patient Anonyme' }}
+                                <td class="ps-4 text-nowrap">
+                                    <a href="{{ route('tickets.show', $ticket) }}" class="font-mono fw-semibold text-teal text-decoration-none small">{{ $ticket->reference }}</a>
+                                    <div class="small text-muted font-mono">
+                                        {{ $dateTicket?->format('d/m/Y') ?? '—' }}
+                                        <span class="opacity-75">{{ $dateTicket?->format('H:i') }}</span>
                                     </div>
-                                    @php
-                                        $rowService = $ticket->service ?? ($ticket->details->first()?->prestation?->service);
-                                        $rowMedecin = $ticket->medecin ?? ($ticket->details->first()?->prestation?->medecin);
-                                    @endphp
-                                    @if($rowService || $rowMedecin)
-                                        <small class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.76rem;">
-                                            <span>{{ $rowService->nom ?? 'Consultation' }}</span>
-                                            @if($rowMedecin)
-                                                <span>·</span>
-                                                <span class="text-dark fw-semibold">Dr {{ $rowMedecin->nom }}</span>
-                                            @endif
-                                        </small>
-                                    @else
-                                        <small class="text-muted font-mono" style="font-size: 0.74rem;">Mat: {{ $ticket->patient->matricule ?? 'N/A' }}</small>
-                                    @endif
                                 </td>
-                                <td>
-                                    <span class="font-mono small text-muted">
-                                        {{ $ticket->date_ticket ? \Carbon\Carbon::parse($ticket->date_ticket)->format('d/m/Y H:i') : '—' }}
-                                    </span>
+                                <td style="min-width: 190px;">
+                                    <div class="fw-bold text-dark text-nowrap">
+                                        @if($ticket->patient)
+                                            {{ mb_strtoupper($ticket->patient->nom) }} <span class="fw-semibold">{{ $ticket->patient->prenom }}</span>
+                                        @else
+                                            Patient anonyme
+                                        @endif
+                                    </div>
+                                    <div class="small text-muted text-truncate" style="max-width: 260px;">
+                                        {{ $rowService->nom ?? 'Consultation' }}@if($rowMedecin) · Dr {{ $rowMedecin->nom }}@endif
+                                    </div>
                                 </td>
-                                <td class="text-end font-mono text-muted">{{ number_format($ticket->montant_total, 0, ',', ' ') }} F</td>
-                                <td class="text-end font-mono" style="color: #0f6b5f;">
+                                <td class="text-end font-mono text-nowrap text-muted">{{ number_format($ticket->montant_total, 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td class="text-end text-nowrap">
                                     @if($ticket->montant_assurance > 0)
-                                        <div>-{{ number_format($ticket->montant_assurance, 0, ',', ' ') }} F</div>
-                                        <small class="badge badge-success-pill" style="font-size: 0.65rem;">{{ $ticket->assurance->nom ?? 'Assuré' }}</small>
+                                        <div class="font-mono" style="color: #0f6b5f;">−{{ number_format($ticket->montant_assurance, 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></div>
+                                        <div class="small text-muted" title="{{ $ticket->assurance->nom ?? '' }}">{{ $assuranceCourte ?? 'Assuré' }}</div>
                                     @else
-                                        <span class="text-muted small">—</span>
+                                        <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td class="text-end font-mono fw-bold text-dark">{{ number_format($ticket->montant_patient, 0, ',', ' ') }} F</td>
-                                <td class="text-end font-mono fw-bold {{ $ticket->reste_a_payer > 0 ? 'text-danger' : 'text-muted' }}">
-                                    {{ number_format($ticket->reste_a_payer, 0, ',', ' ') }} F
+                                <td class="text-end font-mono fw-bold text-dark text-nowrap">{{ number_format($ticket->montant_patient, 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td class="text-end font-mono fw-bold text-nowrap {{ $ticket->reste_a_payer > 0 ? 'text-danger' : 'text-muted opacity-50' }}">
+                                    {{ number_format($ticket->reste_a_payer, 0, ',', ' ') }}<span class="devise">{{ $devise }}</span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
                                     @switch($ticket->statut)
                                         @case('paye')
-                                            <span class="badge badge-success-pill d-inline-flex align-items-center gap-1">
-                                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #12a594; display: inline-block;"></span>
-                                                <span>Payé</span>
-                                            </span>
+                                            <span class="badge badge-success-pill">Payé</span>
                                             @break
                                         @case('partiel')
                                         @case('partiellement_paye')
-                                            <span class="badge badge-warning-pill d-inline-flex align-items-center gap-1">
-                                                <span>Partiel</span>
-                                            </span>
+                                            <span class="badge badge-warning-pill">Partiel</span>
                                             @break
                                         @case('impaye')
                                         @case('en_attente')
-                                            <span class="badge badge-danger-pill d-inline-flex align-items-center gap-1">
-                                                <span>En attente</span>
-                                            </span>
+                                            <span class="badge badge-danger-pill">En attente</span>
                                             @break
                                         @default
                                             <span class="badge bg-light text-muted border">{{ ucfirst($ticket->statut) }}</span>
                                     @endswitch
                                 </td>
-                                <td class="text-end pe-3">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('tickets.print', $ticket) }}" target="_blank" class="btn btn-outline-secondary" title="Imprimer Ticket 80mm">
-                                            <i data-lucide="printer" class="lucide-sm"></i>
-                                        </a>
-                                        <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" title="Voir Détails">
-                                            <i data-lucide="eye" class="lucide-sm"></i>
-                                            <span>Fiche</span>
-                                        </a>
-                                        <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-outline-secondary" title="Modifier">
-                                            <i data-lucide="edit-3" class="lucide-sm"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTicketModal{{ $ticket->id }}" title="Supprimer">
-                                            <i data-lucide="trash-2" class="lucide-sm"></i>
-                                        </button>
+                                <td class="text-end pe-4 text-nowrap">
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-light border fw-semibold">Fiche</a>
+                                        <div class="dropdown">
+                                            <button type="button" class="btn btn-sm btn-light border px-2" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" aria-label="Autres actions pour le ticket {{ $ticket->reference }}">
+                                                <i data-lucide="more-horizontal" class="lucide-sm"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="min-width: 210px;">
+                                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('tickets.print', $ticket) }}" target="_blank"><i data-lucide="printer" class="lucide-sm"></i> Imprimer le ticket 80 mm</a></li>
+                                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('tickets.facture', $ticket) }}" target="_blank"><i data-lucide="file-text" class="lucide-sm"></i> Facture A4</a></li>
+                                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('tickets.edit', $ticket) }}"><i data-lucide="edit-3" class="lucide-sm"></i> Modifier</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 text-danger" data-bs-toggle="modal" data-bs-target="#deleteTicketModal{{ $ticket->id }}"><i data-lucide="trash-2" class="lucide-sm"></i> Supprimer</button></li>
+                                            </ul>
+                                        </div>
                                     </div>
 
                                     {{-- Modale de confirmation de suppression --}}
@@ -210,10 +222,10 @@
                                                         <i data-lucide="alert-triangle" class="lucide-sm"></i>
                                                         <span>Confirmation de suppression</span>
                                                     </h6>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                                                 </div>
-                                                <div class="modal-body text-start py-4">
-                                                    Êtes-vous certain de vouloir supprimer définitivement le ticket <strong>#{{ $ticket->reference }}</strong> ?
+                                                <div class="modal-body text-start py-4" style="white-space: normal;">
+                                                    Êtes-vous certain de vouloir supprimer définitivement le ticket <strong>{{ $ticket->reference }}</strong> ?
                                                 </div>
                                                 <div class="modal-footer bg-light py-2">
                                                     <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Annuler</button>
@@ -230,13 +242,25 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5 text-muted">
+                                <td colspan="8" class="text-center py-5 text-muted">
                                     <i data-lucide="receipt" class="lucide-lg d-block mx-auto mb-2 text-muted opacity-50"></i>
                                     Aucun ticket émis correspondant à ces critères.
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
+                    @if($tickets->isNotEmpty())
+                        <tfoot>
+                            <tr class="no-export">
+                                <td class="ps-4 fw-bold" colspan="2">Total · {{ $tickets->count() }} ticket(s)</td>
+                                <td class="text-end font-mono fw-bold text-nowrap">{{ number_format($tickets->sum('montant_total'), 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td class="text-end font-mono fw-bold text-nowrap" style="color: #0f6b5f;">−{{ number_format($tickets->sum('montant_assurance'), 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td class="text-end font-mono fw-bold text-nowrap">{{ number_format($tickets->sum('montant_patient'), 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td class="text-end font-mono fw-bold text-nowrap {{ $tickets->sum('reste_a_payer') > 0 ? 'text-danger' : 'text-muted' }}">{{ number_format($tickets->sum('reste_a_payer'), 0, ',', ' ') }}<span class="devise">{{ $devise }}</span></td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
