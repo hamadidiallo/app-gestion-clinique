@@ -161,7 +161,7 @@
                                 </td>
                                 <td>
                                     @if($prestation->patient)
-                                        <a href="{{ route('patient.show', $prestation->patient) }}" class="fw-bold text-dark text-decoration-none">
+                                        <a href="{{ route('patients.show', $prestation->patient) }}" class="fw-bold text-dark text-decoration-none">
                                             {{ $prestation->patient->prenom }} {{ $prestation->patient->nom }}
                                         </a>
                                         <div class="small text-muted font-mono">
