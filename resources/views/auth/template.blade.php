@@ -371,6 +371,54 @@
     .choice-card:hover {
       border-color: #10B981;
     }
+    /* Les cartes de choix sont de vrais boutons (accessibles au clavier) */
+    button.choice-card {
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      padding: 18px;
+    }
+    .choice-card:focus-visible { outline: 3px solid rgba(4, 120, 87, 0.45); outline-offset: 2px; }
+    .choice-card-texte { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .choice-card-titre { font-size: 15.5px; font-weight: 700; color: #0F1F1A; }
+    .choice-card-desc { font-size: 13px; color: #5B7169; font-weight: 500; line-height: 1.45; }
+
+    /* Vérification : clinique reconnue et rôle attribué */
+    .carte-invitation {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1.5px dashed #A7D7C5;
+      border-radius: 12px 12px 0 0;
+      background: #F0FDF9;
+    }
+    .carte-invitation-avatar {
+      width: 40px; height: 40px; flex: 0 0 auto;
+      border-radius: 10px;
+      background: #047857; color: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
+    }
+    .carte-invitation-nom { font-size: 15px; font-weight: 700; color: #0F1F1A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .carte-invitation-ville { font-size: 12.5px; color: #5B7169; }
+    .carte-invitation-pill { font-size: 11.5px; font-weight: 700; color: #065F46; background: #D1FAE5; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+    .carte-role {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 10px 14px;
+      border: 1.5px dashed #A7D7C5;
+      border-top: 0;
+      border-radius: 0 0 12px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      color: #3F554D;
+    }
+    .carte-role strong { color: #047857; font-size: 13.5px; }
     .choice-card.selected {
       border: 1.5px solid #10B981;
       background: #F0FDF9;
@@ -692,7 +740,7 @@
   {{-- PANNEAU GAUCHE : PROCESSUS D'AUTHENTIFICATION INTERACTIF   --}}
   {{-- ======================================================== --}}
   <div class="form-panel">
-    <div class="form-inner {{ $activeScreen === 'M0b' ? 'form-inner-large' : '' }}">
+    <div class="form-inner {{ in_array($activeScreen, ['M0b', 'M0d'], true) ? 'form-inner-large' : '' }}">
 
       {{-- LOGO BRANDING MEDIGEST --}}
       <div class="brand-bar">
@@ -724,54 +772,42 @@
       {{-- ÉCRAN M0 : BIENVENUE · CHOIX DU TYPE DE COMPTE          --}}
       {{-- ====================================================== --}}
       <div id="screen_M0" class="auth-screen" style="{{ $activeScreen === 'M0' ? '' : 'display: none;' }}">
+        <p class="rubrique-ticket"><span>Démarrage</span>Nouveau compte</p>
         <h1 class="screen-heading">Bienvenue sur MediGest</h1>
         <p class="screen-subheading">Comment souhaitez-vous démarrer ?</p>
 
-        {{-- Option 1 : Créer un établissement / une clinique --}}
-        <div class="choice-card selected" id="choice_create" onclick="selectStartMode('create')">
-          <div class="choice-card-icon" style="background: #DCFCE7;">
-            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 20V9l5-3 5 3M14 20V6l6 3v11M3 20h18"></path>
-            </svg>
-          </div>
-          <div style="flex: 1;">
-            <div style="font-size: 14.5px; font-weight: 700; color: #0F1F1A;">Créer un établissement</div>
-            <div style="font-size: 11.5px; color: #5B7169; font-weight: 500; margin-top: 2px;">Créer une clinique ou un cabinet médical</div>
-          </div>
-          <div class="choice-radio-circle">
-            <div class="choice-radio-dot"></div>
-          </div>
-        </div>
+        <div role="radiogroup" aria-label="Mode de démarrage">
+          {{-- Option 1 : Créer un établissement --}}
+          <button type="button" class="choice-card selected" id="choice_create" role="radio" aria-checked="true" onclick="selectStartMode('create')">
+            <span class="choice-card-icon" style="background: #D1FAE5; color: #047857;" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l5-3 5 3M14 20V6l6 3v11M3 20h18"></path></svg>
+            </span>
+            <span class="choice-card-texte">
+              <span class="choice-card-titre">Créer un établissement</span>
+              <span class="choice-card-desc">Vous dirigez une clinique ou un cabinet et vous l'installez sur MediGest.</span>
+            </span>
+            <span class="choice-radio-circle" aria-hidden="true"><span class="choice-radio-dot"></span></span>
+          </button>
 
-        {{-- Option 2 : Rejoindre une clinique --}}
-        <div class="choice-card" id="choice_join" onclick="selectStartMode('join')">
-          <div class="choice-card-icon" style="background: #DBEAFE;">
-            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#5B7169" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="8" r="3.4"></circle>
-              <path d="M5 20c0-4 3-6 7-6s7 2 7 6"></path>
-            </svg>
-          </div>
-          <div style="flex: 1;">
-            <div style="font-size: 14.5px; font-weight: 700; color: #0F1F1A;">Rejoindre une clinique</div>
-            <div style="font-size: 11.5px; color: #5B7169; font-weight: 500; margin-top: 2px;">Vous êtes soignant, invité par un code</div>
-          </div>
-          <div class="choice-radio-circle">
-            <div class="choice-radio-dot"></div>
-          </div>
-        </div>
-
-        {{-- Bouton Continuer > --}}
-        <div style="margin-top: 8px;">
-          <button type="button" class="btn-primary-gradient" onclick="goToSelectedStartMode()">
-            <span>Continuer</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+          {{-- Option 2 : Rejoindre une clinique --}}
+          <button type="button" class="choice-card" id="choice_join" role="radio" aria-checked="false" onclick="selectStartMode('join')">
+            <span class="choice-card-icon" style="background: #E8EEF6; color: #3F554D;" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20c0-4 3-6 7-6s7 2 7 6"></path></svg>
+            </span>
+            <span class="choice-card-texte">
+              <span class="choice-card-titre">Rejoindre une clinique</span>
+              <span class="choice-card-desc">Votre clinique utilise déjà MediGest et vous a remis un code d'invitation.</span>
+            </span>
+            <span class="choice-radio-circle" aria-hidden="true"><span class="choice-radio-dot"></span></span>
           </button>
         </div>
 
-        {{-- Lien vers Connexion --}}
-        <div style="font-size: 12.5px; color: #5B7169; font-weight: 500; margin-top: 22px; text-align: center;">
-          Vous avez déjà un compte ? <a href="javascript:void(0)" onclick="navigateToScreen('M1')" style="color: #047857; font-weight: 700;">Se connecter</a>
-        </div>
+        <button type="button" class="btn-primary-gradient" style="margin-top: 8px;" onclick="goToSelectedStartMode()">
+          <span>Continuer</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        </button>
+
+        <p class="lien-connexion">Vous avez déjà un compte ? <button type="button" onclick="navigateToScreen('M1')">Se connecter</button></p>
       </div>
 
 
@@ -877,146 +913,117 @@
       {{-- ====================================================== --}}
       <div id="screen_M0c" class="auth-screen" style="{{ $activeScreen === 'M0c' ? '' : 'display: none;' }}">
         <button type="button" class="btn-back-link" onclick="navigateToScreen('M0')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"></path></svg>
-          <span>Retour au choix de démarrage</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+          <span>Retour</span>
         </button>
 
-        {{-- Stepper 1/3 --}}
-        <div class="stepper-row">
-          <div class="step-bar active"></div>
-          <div class="step-bar"></div>
-          <div class="step-bar"></div>
-          <span class="step-counter">1/3</span>
-        </div>
-
-        <h2 class="screen-heading" style="font-size: 27px;">Rejoindre une clinique</h2>
+        <p class="rubrique-ticket"><span>01</span>Code de la clinique</p>
+        <h2 class="screen-heading">Rejoindre une clinique</h2>
         <p class="screen-subheading">Saisissez le code d'invitation remis par votre administrateur.</p>
 
-        {{-- Formulaire étape code (6 cases exactes conformes à la maquette M0c) --}}
-        <div class="form-group" style="margin-bottom: 16px;">
-          <div style="font-size: 12.5px; font-weight: 600; color: #3F554D; margin-bottom: 9px;">Code de la clinique <span style="color: #ef4444;">*</span></div>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="code_box_0" class="form-label">Code de la clinique <span class="required-mark">*</span></label>
           <div class="code-boxes-grid">
-            <input type="text" class="code-char-box" id="code_box_0" maxlength="1" oninput="onBoxInput(0, this)" onkeydown="onBoxKeydown(0, event)" onpaste="onBoxPaste(event)" autocomplete="off" autofocus />
-            <input type="text" class="code-char-box" id="code_box_1" maxlength="1" oninput="onBoxInput(1, this)" onkeydown="onBoxKeydown(1, event)" onpaste="onBoxPaste(event)" autocomplete="off" />
-            <input type="text" class="code-char-box" id="code_box_2" maxlength="1" oninput="onBoxInput(2, this)" onkeydown="onBoxKeydown(2, event)" onpaste="onBoxPaste(event)" autocomplete="off" />
-            <input type="text" class="code-char-box" id="code_box_3" maxlength="1" oninput="onBoxInput(3, this)" onkeydown="onBoxKeydown(3, event)" onpaste="onBoxPaste(event)" autocomplete="off" />
-            <input type="text" class="code-char-box" id="code_box_4" maxlength="1" oninput="onBoxInput(4, this)" onkeydown="onBoxKeydown(4, event)" onpaste="onBoxPaste(event)" autocomplete="off" />
-            <input type="text" class="code-char-box" id="code_box_5" maxlength="1" oninput="onBoxInput(5, this)" onkeydown="onBoxKeydown(5, event)" onpaste="onBoxPaste(event)" autocomplete="off" />
+            <input type="text" class="code-char-box" id="code_box_0" maxlength="1" oninput="onBoxInput(0, this)" onkeydown="onBoxKeydown(0, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 1 du code" autofocus />
+            <input type="text" class="code-char-box" id="code_box_1" maxlength="1" oninput="onBoxInput(1, this)" onkeydown="onBoxKeydown(1, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 2 du code" />
+            <input type="text" class="code-char-box" id="code_box_2" maxlength="1" oninput="onBoxInput(2, this)" onkeydown="onBoxKeydown(2, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 3 du code" />
+            <input type="text" class="code-char-box" id="code_box_3" maxlength="1" oninput="onBoxInput(3, this)" onkeydown="onBoxKeydown(3, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 4 du code" />
+            <input type="text" class="code-char-box" id="code_box_4" maxlength="1" oninput="onBoxInput(4, this)" onkeydown="onBoxKeydown(4, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 5 du code" />
+            <input type="text" class="code-char-box" id="code_box_5" maxlength="1" oninput="onBoxInput(5, this)" onkeydown="onBoxKeydown(5, event)" onpaste="onBoxPaste(event)" autocomplete="off" autocapitalize="characters" aria-label="Caractère 6 du code" />
           </div>
-        </div>
-
-        {{-- Notice bleue officielle --}}
-        <div class="info-notice-blue">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto;">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M12 11v5M12 8h.01"></path>
-          </svg>
-          <span>Le code figure dans l'e-mail ou le SMS d'invitation envoyé par la clinique.</span>
+          <div class="form-hint">Le code figure dans le message d'invitation envoyé par la clinique (SMS, WhatsApp ou e-mail).</div>
         </div>
 
         {{-- Résultat de vérification en direct --}}
-        <div id="codeStatusMsg" style="font-size: 12px; font-weight: 600; margin-bottom: 14px; min-height: 18px; text-align: center;"></div>
+        <div id="codeStatusMsg" role="status" aria-live="polite" style="font-size: 13px; font-weight: 600; margin-bottom: 14px; min-height: 20px; text-align: center;"></div>
 
-        {{-- Bouton Vérifier le code > --}}
         <button type="button" class="btn-primary-gradient" id="btnVerifyCode" onclick="handleVerifyCode()">
           <span>Vérifier le code</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
         </button>
+
+        <p class="lien-connexion">Vous avez déjà un compte ? <button type="button" onclick="navigateToScreen('M1')">Se connecter</button></p>
       </div>
 
 
       {{-- ====================================================== --}}
       {{-- ÉCRAN M0d : REJOINDRE · VÉRIFICATION & PROFIL (2/3)      --}}
       {{-- ====================================================== --}}
-      <div id="screen_M0d" class="auth-screen" style="{{ $activeScreen === 'M0d' ? '' : 'display: none;' }}">
+      <div id="screen_M0d" class="auth-screen form-compact" style="{{ $activeScreen === 'M0d' ? '' : 'display: none;' }}">
         <button type="button" class="btn-back-link" onclick="navigateToScreen('M0c')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"></path></svg>
-          <span>Modifier le code d'invitation</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+          <span>Modifier le code</span>
         </button>
 
-        {{-- Stepper 2/3 --}}
-        <div class="stepper-row">
-          <div class="step-bar active"></div>
-          <div class="step-bar active"></div>
-          <div class="step-bar"></div>
-          <span class="step-counter">2/3</span>
-        </div>
+        <p class="rubrique-ticket"><span>02</span>Votre compte</p>
+        <h2 class="screen-heading">Vérifions votre identité</h2>
+        <p class="screen-subheading">Confirmez vos coordonnées pour activer votre compte dans la clinique.</p>
 
-        <h2 class="screen-heading" style="font-size: 27px;">Vérifions votre identité</h2>
-        <p class="screen-subheading">Confirmez vos coordonnées pour activer votre compte collaborateur.</p>
-
-        {{-- Carte profil clinique validée --}}
-        <div style="display: flex; align-items: center; gap: 12px; background: #F7FAF9; border: 1px solid #E7EFEB; border-radius: 12px; padding: 13px 14px; margin-bottom: 18px;">
-          <div id="confirmed_clinic_avatar" style="width: 40px; height: 40px; border-radius: 11px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: #2563EB;">
-            CL
-          </div>
+        {{-- Clinique reconnue et rôle attribué par elle (non modifiable) --}}
+        <div class="carte-invitation">
+          <div id="confirmed_clinic_avatar" class="carte-invitation-avatar">CL</div>
           <div style="flex: 1; min-width: 0;">
-            <div id="confirmed_clinic_name" style="font-size: 13px; font-weight: 700; color: #0F1F1A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Clinique reconnue</div>
-            <div id="confirmed_clinic_city" style="font-size: 11px; color: #94A3B8; font-weight: 600;">Établissement vérifié</div>
+            <div id="confirmed_clinic_name" class="carte-invitation-nom">Clinique reconnue</div>
+            <div id="confirmed_clinic_city" class="carte-invitation-ville">Établissement vérifié</div>
           </div>
-          <span id="confirmed_clinic_code_pill" style="font-size: 10.5px; font-weight: 700; color: #175CD3; background: #EFF8FF; padding: 4px 10px; border-radius: 20px;">Code validé</span>
+          <span id="confirmed_clinic_code_pill" class="carte-invitation-pill">Code validé</span>
+        </div>
+        <div class="carte-role">
+          <span>Rôle attribué par la clinique</span>
+          <strong id="confirmed_role_name">Collaborateur</strong>
         </div>
 
         <form method="POST" action="{{ route('register') }}" id="formJoinClinic">
           @csrf
           <input type="hidden" name="action_type" value="rejoindre">
           <input type="hidden" name="code_invitation" id="code_invitation_final" value="{{ old('code_invitation') }}">
+          <input type="hidden" name="role_id" id="assigned_role_id" value="{{ old('role_id', '1') }}">
 
-          {{-- Profil attribué par la clinique (Sécurisé & Non modifiable par l'utilisateur) --}}
-          <div class="form-group">
-            <label class="form-label">Rôle attribué par l'établissement</label>
-            <div style="display: flex; align-items: center; justify-content: space-between; background: #F0FDF9; border: 1.5px solid #10B981; border-radius: 11px; padding: 11px 13px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; border-radius: 8px; background: #DCFCE7; display: flex; align-items: center; justify-content: center; color: #047857;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                </div>
-                <div>
-                  <div id="confirmed_role_name" style="font-size: 13.5px; font-weight: 700; color: #0F1F1A;">Collaborateur</div>
-                  <div style="font-size: 11px; color: #5B7169;">Rôle médical vérifié par la clinique</div>
-                </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="join_prenom" class="form-label">Prénom <span class="required-mark">*</span></label>
+              <input type="text" name="prenom" id="join_prenom" value="{{ old('prenom') }}" placeholder="Aminata" autocomplete="given-name" class="form-input @error('prenom') is-invalid @enderror" required />
+              @error('prenom')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group">
+              <label for="join_nom" class="form-label">Nom <span class="required-mark">*</span></label>
+              <input type="text" name="nom" id="join_nom" value="{{ old('nom') }}" placeholder="Traoré" autocomplete="family-name" class="form-input @error('nom') is-invalid @enderror" required />
+              @error('nom')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="join_telephone" class="form-label">Téléphone</label>
+              <input type="tel" name="telephone" id="join_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" autocomplete="tel-national" class="form-input @error('telephone') is-invalid @enderror" />
+              @error('telephone')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group">
+              <label for="join_email" class="form-label">E-mail</label>
+              <input type="email" name="email" id="join_email" value="{{ old('email') }}" placeholder="dr.traore@clinique.ml" autocomplete="email" class="form-input @error('email') is-invalid @enderror" />
+              @error('email')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="join_user_password" class="form-label">Mot de passe <span class="required-mark">*</span></label>
+              <div class="password-wrapper">
+                <input type="password" name="password" id="join_user_password" placeholder="6 caractères minimum" autocomplete="new-password" class="form-input @error('password') is-invalid @enderror" required />
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('join_user_password')" aria-label="Afficher ou masquer le mot de passe">
+                  <svg id="eye_icon_join_user_password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
               </div>
-              <span style="font-size: 10.5px; font-weight: 700; color: #047857; background: #DCFCE7; padding: 3px 10px; border-radius: 20px;">Sécurisé</span>
+              @error('password')<div class="form-error">{{ $message }}</div>@enderror
             </div>
-            <input type="hidden" name="role_id" id="assigned_role_id" value="{{ old('role_id', '1') }}">
-          </div>
-
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1; min-width: 0;" class="form-group">
-              <label class="form-label">Prénom <span style="color: #ef4444;">*</span></label>
-              <input type="text" name="prenom" id="join_prenom" value="{{ old('prenom') }}" placeholder="Aminata" class="form-input @error('prenom') is-invalid @enderror" required />
-            </div>
-            <div style="flex: 1; min-width: 0;" class="form-group">
-              <label class="form-label">Nom <span style="color: #ef4444;">*</span></label>
-              <input type="text" name="nom" id="join_nom" value="{{ old('nom') }}" placeholder="Traoré" class="form-input @error('nom') is-invalid @enderror" required />
+            <div class="form-group form-hint-cellule">
+              <p class="form-hint" style="margin: 0;">Le téléphone ou l'e-mail, au choix, vous servira à vous connecter.</p>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Numéro de téléphone</label>
-            <input type="text" name="telephone" id="join_telephone" value="{{ old('telephone') }}" placeholder="76 00 00 00" inputmode="tel" class="form-input @error('telephone') is-invalid @enderror" />
-            @error('telephone')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Adresse e-mail professionnelle</label>
-            <input type="email" name="email" id="join_email" value="{{ old('email') }}" placeholder="dr.traore@clinique.ml" class="form-input @error('email') is-invalid @enderror" />
-            @error('email')<div style="font-size: 11.5px; color: #ef4444; font-weight: 600; margin-top: 5px;">{{ $message }}</div>@enderror
-            <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 5px;">Téléphone ou e-mail : renseignez au moins l'un des deux, il servira à vous connecter.</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Mot de passe de connexion <span style="color: #ef4444;">*</span></label>
-            <div class="password-wrapper">
-              <input type="password" name="password" id="join_user_password" placeholder="6 caractères minimum" class="form-input @error('password') is-invalid @enderror" required />
-              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('join_user_password')" aria-label="Afficher/masquer">
-                <svg id="eye_icon_join_user_password" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary-gradient" style="margin-top: 6px;">
+          <button type="submit" class="btn-primary-gradient">
             <span>Activer mon compte</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
           </button>
         </form>
       </div>
@@ -1121,26 +1128,25 @@
       {{-- 2. SHOWCASE POUR BIENVENUE (M0) : DEUX FAÇONS DE DÉMARRER --}}
       <div id="showcase_M0" class="showcase-screen-content" style="{{ $activeScreen === 'M0' ? '' : 'display: none;' }}">
         <div class="showcase-title">Une plateforme, deux façons de démarrer.</div>
-        <div class="showcase-desc">Créez l'espace de votre établissement, ou rejoignez celui de votre équipe en un code.</div>
+        <div class="showcase-desc">Le gérant ou directeur crée la clinique et invite l'équipe. Chaque membre rejoint ensuite avec le code de la clinique.</div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 13px;">
-            <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(16, 185, 129, 0.16); display: flex; align-items: center; justify-content: center;">
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l5-3 5 3M14 20V6l6 3v11"></path></svg>
+        <div class="apercu-legende">Comment ça se passe</div>
+        <div aria-hidden="true">
+          <div class="apercu-imprimante"></div>
+          <div class="apercu-ticket">
+            <div class="apercu-centre">
+              <div class="apercu-nom">Mise en route</div>
+              <div>MediGest · {{ now()->format('d/m/Y') }}</div>
             </div>
-            <div>
-              <div style="font-size: 13px; font-weight: 700; color: #ffffff;">Gérant / directeur</div>
-              <div style="font-size: 11px; color: #7E9B90; font-weight: 600;">Crée l'établissement &amp; invite l'équipe</div>
-            </div>
-          </div>
-          <div style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 13px;">
-            <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(37, 99, 235, 0.2); display: flex; align-items: center; justify-content: center;">
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20c0-4 3-6 7-6s7 2 7 6"></path></svg>
-            </div>
-            <div>
-              <div style="font-size: 13px; font-weight: 700; color: #ffffff;">Médecin · infirmier · caissier</div>
-              <div style="font-size: 11px; color: #7E9B90; font-weight: 600;">Rejoint avec le code de la clinique</div>
-            </div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>1. Gérant / directeur</span><span>crée</span></div>
+            <div class="apercu-pied" style="text-align: left; margin: 2px 0 8px;">la clinique et invite l'équipe</div>
+            <div class="apercu-ligne"><span>2. Équipe</span><span>rejoint</span></div>
+            <div class="apercu-pied" style="text-align: left; margin: 2px 0 8px;">avec le code de la clinique</div>
+            <div class="apercu-ligne"><span>3. Chacun</span><span>se connecte</span></div>
+            <div class="apercu-pied" style="text-align: left; margin: 2px 0 0;">par téléphone ou e-mail</div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne apercu-total"><span>PRÊT À ENCAISSER</span><span>✓</span></div>
           </div>
         </div>
       </div>
@@ -1174,41 +1180,45 @@
       {{-- 4. SHOWCASE POUR CODE D'INVITATION (M0c) : ÉQUIPE & RÔLES --}}
       <div id="showcase_M0c" class="showcase-screen-content" style="{{ $activeScreen === 'M0c' ? '' : 'display: none;' }}">
         <div class="showcase-title">Rejoignez votre équipe en un instant.</div>
-        <div class="showcase-desc">Le code relie votre compte à la bonne clinique et applique automatiquement votre rôle.</div>
+        <div class="showcase-desc">Le code relie votre compte à la bonne clinique et applique automatiquement le rôle choisi par votre administrateur.</div>
 
-        <div class="card-white-showcase">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
-            <div style="width: 46px; height: 46px; border-radius: 13px; background: linear-gradient(150deg, #10B981, #047857); display: flex; align-items: center; justify-content: center;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v10M7 12h10"></path></svg>
+        <div class="apercu-legende">Exemple d'invitation</div>
+        <div aria-hidden="true">
+          <div class="apercu-imprimante"></div>
+          <div class="apercu-ticket">
+            <div class="apercu-centre">
+              <div class="apercu-nom">Invitation</div>
+              <div>Votre clinique · MediGest</div>
             </div>
-            <div>
-              <div style="font-size: 15px; font-weight: 700; color: #0F1F1A; font-family: 'Space Grotesk', sans-serif;">Établissement d'accueil</div>
-              <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">Identifié par votre code d'invitation</div>
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <span style="font-size: 10.5px; font-weight: 700; color: #175CD3; background: #EFF8FF; padding: 5px 11px; border-radius: 20px;">Médecin</span>
-            <span style="font-size: 10.5px; font-weight: 700; color: #0E7490; background: #ECFEFF; padding: 5px 11px; border-radius: 20px;">Réceptionniste</span>
-            <span style="font-size: 10.5px; font-weight: 700; color: #B45309; background: #FFFAEB; padding: 5px 11px; border-radius: 20px;">Caissier</span>
-            <span style="font-size: 10.5px; font-weight: 700; color: #7C3AED; background: #F4F3FF; padding: 5px 11px; border-radius: 20px;">Comptable</span>
+            <hr class="apercu-sep">
+            <div class="apercu-centre" style="font-size: 22px; font-weight: 600; letter-spacing: 0.35em; margin: 6px 0;">K7M2QA</div>
+            <hr class="apercu-sep">
+            <div class="apercu-pied" style="margin-top: 0;">Rôles possibles</div>
+            <div class="apercu-centre" style="margin-top: 6px;">Médecin · Réceptionniste · Caissier · Comptable</div>
           </div>
         </div>
       </div>
 
       {{-- 5. SHOWCASE POUR VÉRIFICATION (M0d) : SÉCURITÉ DES DONNÉES --}}
       <div id="showcase_M0d" class="showcase-screen-content" style="{{ $activeScreen === 'M0d' ? '' : 'display: none;' }}">
-        <div class="showcase-title">Une vérification, pour la sécurité des données de santé.</div>
-        <div class="showcase-desc">Nous confirmons votre identité via le contact que la clinique a enregistré sur votre fiche.</div>
+        <div class="showcase-title">Une vérification, pour protéger les données de santé.</div>
+        <div class="showcase-desc">Votre compte n'est activé qu'avec un code valide : vous ne voyez que la clinique qui vous a invité, et seulement ce que votre rôle autorise.</div>
 
-        <div class="card-white-showcase" style="text-align: center; padding: 26px 20px;">
-          <div style="width: 60px; height: 60px; border-radius: 50%; background: #DCFCE7; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6Z"></path>
-              <path d="m9 12 2 2 4-4"></path>
-            </svg>
+        <div class="apercu-legende">Accès vérifié</div>
+        <div aria-hidden="true">
+          <div class="apercu-imprimante"></div>
+          <div class="apercu-ticket">
+            <div class="apercu-centre">
+              <div class="apercu-nom">Accès vérifié</div>
+              <div>{{ now()->format('d/m/Y H:i') }}</div>
+            </div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne"><span>Code d'invitation</span><span>valide</span></div>
+            <div class="apercu-ligne"><span>Clinique</span><span>reconnue</span></div>
+            <div class="apercu-ligne"><span>Rôle</span><span>attribué</span></div>
+            <hr class="apercu-sep">
+            <div class="apercu-ligne apercu-total"><span>COMPTE</span><span>À ACTIVER</span></div>
           </div>
-          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #0F1F1A;">Accès vérifié</div>
-          <div style="font-size: 12px; color: #5B7169; font-weight: 500; line-height: 1.6; margin-top: 6px;">Votre compte n'est activé qu'une fois le contact enregistré par la clinique confirmé.</div>
         </div>
       </div>
 
@@ -1232,7 +1242,7 @@
 
     // Le formulaire de création, en deux colonnes, a besoin de plus de largeur
     const formInner = document.querySelector('.form-inner');
-    if (formInner) formInner.classList.toggle('form-inner-large', screenId === 'M0b');
+    if (formInner) formInner.classList.toggle('form-inner-large', ['M0b', 'M0d'].includes(screenId));
 
     // Mettre à jour l'URL sans rechargement pour confort UX
     if (window.history && window.history.replaceState) {
@@ -1257,6 +1267,8 @@
       cardJoin.classList.add('selected');
       cardCreate.classList.remove('selected');
     }
+    cardCreate.setAttribute('aria-checked', String(mode === 'create'));
+    cardJoin.setAttribute('aria-checked', String(mode !== 'create'));
   }
 
   function goToSelectedStartMode() {

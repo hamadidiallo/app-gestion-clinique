@@ -41,7 +41,7 @@ test('la page inscription affiche les options de rejoindre et de creer une clini
 
     $response->assertStatus(200);
     $response->assertSee('Rejoindre une clinique');
-    $response->assertSee('Créer une clinique');
+    $response->assertSee('Créer un établissement');
     $response->assertSee('code_invitation');
     $response->assertSee('nom_clinique');
 });
