@@ -54,7 +54,8 @@ function creerTicketDuJour(Clinique $clinique, array $attributs = []): Ticket
         'user_id' => User::where('clinique_id', $clinique->id)->value('id'),
         'patient_id' => $patient->id,
         'reference' => 'TCK-FILE-'.$numero,
-        'date_ticket' => now()->subMinutes(20),
+        // Heure actuelle et non « il y a 20 min » : juste après minuit, le ticket tomberait la veille
+        'date_ticket' => now(),
         'montant_total' => 5000,
         'montant_assurance' => 0,
         'montant_patient' => 5000,
