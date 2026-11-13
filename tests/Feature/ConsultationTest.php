@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Consultation;
-use App\Models\Medecin;
-use App\Models\Ordonnance;
-use App\Models\OrdonnanceLigne;
-use App\Models\Patient;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Medical\Consultation;
+use App\Models\Medical\Ordonnance;
+use App\Models\Medical\OrdonnanceLigne;
+use App\Models\Patients\Patient;
+use App\Models\Personnel\Medecin;
 
 function getOrCreateTestUser(): User
 {

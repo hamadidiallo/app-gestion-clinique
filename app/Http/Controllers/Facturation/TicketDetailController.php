@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Facturation;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Facturation\TicketDetailRequest;
-use App\Models\Prestation;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
 
 class TicketDetailController extends Controller
 {

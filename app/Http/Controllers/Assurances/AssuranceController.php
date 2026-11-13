@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Assurances;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Assurances\AssuranceRequest;
-use App\Models\Assurance;
+use App\Models\Assurances\Assurance;
 use App\Traits\HasPeriodFilter;
 
 class AssuranceController extends Controller

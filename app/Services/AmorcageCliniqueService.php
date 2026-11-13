@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Acte;
-use App\Models\Assurance;
-use App\Models\CategorieDepense;
-use App\Models\Clinique;
+use App\Models\Administration\Clinique;
+use App\Models\Assurances\Assurance;
+use App\Models\Comptabilite\CategorieDepense;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
 use App\Models\Scopes\BelongsToCliniqueScope;
-use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 
 /**

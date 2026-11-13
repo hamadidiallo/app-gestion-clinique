@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\Caisse;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Caisse\Caisse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

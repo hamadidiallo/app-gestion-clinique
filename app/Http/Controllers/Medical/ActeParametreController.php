@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Medical;
 
 use App\Http\Controllers\Controller;
-use App\Models\Acte;
-use App\Models\ActeParametre;
+use App\Models\Medical\Acte;
+use App\Models\Medical\ActeParametre;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

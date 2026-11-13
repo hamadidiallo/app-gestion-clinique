@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 // Importations des classes nécessaires pour l'authentification
-use App\Models\Clinique;
-use App\Models\Invitation;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Clinique;
+use App\Models\Administration\Invitation;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
 use App\Services\AmorcageCliniqueService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

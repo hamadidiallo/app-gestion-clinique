@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Caisse;
-use App\Models\Depense;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\Caisse;
+use App\Models\Comptabilite\Depense;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Caisse\DetteRequest;
-use App\Models\Dette;
-use App\Models\Patient;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\Dette;
+use App\Models\Facturation\Ticket;
+use App\Models\Patients\Patient;
 use App\Traits\HasPeriodFilter;
 
 class DetteController extends Controller

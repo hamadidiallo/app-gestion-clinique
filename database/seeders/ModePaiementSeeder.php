@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\ModePaiement;
+use App\Models\Caisse\ModePaiement;
 use Illuminate\Database\Seeder;
 
 class ModePaiementSeeder extends Seeder

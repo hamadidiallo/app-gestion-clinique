@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Medical;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medical\ActeRequest;
-use App\Models\Acte;
-use App\Models\Service;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

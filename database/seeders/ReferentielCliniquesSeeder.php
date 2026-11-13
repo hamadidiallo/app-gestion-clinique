@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Clinique;
+use App\Models\Administration\Clinique;
 use App\Services\AmorcageCliniqueService;
 use Illuminate\Database\Seeder;
 

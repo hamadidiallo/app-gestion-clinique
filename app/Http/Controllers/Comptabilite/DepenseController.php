@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Comptabilite;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comptabilite\DepenseRequest;
-use App\Models\CategorieDepense;
-use App\Models\Depense;
-use App\Models\ModePaiement;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\ModePaiement;
+use App\Models\Comptabilite\CategorieDepense;
+use App\Models\Comptabilite\Depense;
 use App\Services\DepenseService;
 use App\Traits\HasPeriodFilter;
 

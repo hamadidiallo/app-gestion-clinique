@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\CarteAssurance;
+use App\Models\Assurances\CarteAssurance;
 use Carbon\Carbon;
 
 class CalculFacturationService

@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Clinique;
-use App\Models\Invitation;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Clinique;
+use App\Models\Administration\Invitation;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 

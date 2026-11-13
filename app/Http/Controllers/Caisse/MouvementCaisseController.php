@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Caisse\MouvementCaisseRequest;
-use App\Models\Caisse;
-use App\Models\MouvementCaisse;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\MouvementCaisse;
 use App\Traits\HasPeriodFilter;
 
 class MouvementCaisseController extends Controller

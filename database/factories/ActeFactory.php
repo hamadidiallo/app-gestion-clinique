@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Acte;
-use App\Models\Service;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Caisse\PaiementRequest;
-use App\Models\Assurance;
-use App\Models\Caisse;
-use App\Models\ModePaiement;
-use App\Models\Paiement;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Assurances\Assurance;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\ModePaiement;
+use App\Models\Caisse\Paiement;
+use App\Models\Facturation\Ticket;
 use App\Services\PaiementService;
 use App\Traits\HasPeriodFilter;
 

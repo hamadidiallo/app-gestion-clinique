@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Assurances;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Assurances\CarteAssuranceRequest;
-use App\Models\Assurance;
-use App\Models\CarteAssurance;
-use App\Models\Patient;
+use App\Models\Assurances\Assurance;
+use App\Models\Assurances\CarteAssurance;
+use App\Models\Patients\Patient;
 use App\Traits\HasPeriodFilter;
 
 class CarteAssuranceController extends Controller

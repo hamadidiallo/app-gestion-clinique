@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Medical;
 
 use App\Http\Controllers\Controller;
-use App\Models\Consultation;
-use App\Models\Medecin;
-use App\Models\Ticket;
+use App\Models\Facturation\Ticket;
+use App\Models\Medical\Consultation;
+use App\Models\Personnel\Medecin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Comptabilite;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comptabilite\CategorieDepenseRequest;
-use App\Models\CategorieDepense;
+use App\Models\Comptabilite\CategorieDepense;
 
 class CategorieDepenseController extends Controller
 {

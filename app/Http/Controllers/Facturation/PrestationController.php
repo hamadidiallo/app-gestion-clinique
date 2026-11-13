@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Facturation;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Facturation\PrestationRequest;
-use App\Models\Acte;
-use App\Models\Medecin;
-use App\Models\Patient;
-use App\Models\Prestation;
-use App\Models\Service;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
+use App\Models\Patients\Patient;
+use App\Models\Personnel\Medecin;
 use App\Services\PrestationService;
 use App\Services\TicketService;
 use App\Traits\HasPeriodFilter;

@@ -1,22 +1,22 @@
 <?php
 
-use App\Models\Acte;
-use App\Models\Assurance;
-use App\Models\Caisse;
-use App\Models\Dette;
-use App\Models\Medecin;
-use App\Models\ModePaiement;
-use App\Models\MouvementCaisse;
-use App\Models\Paiement;
-use App\Models\Patient;
-use App\Models\Prestation;
-use App\Models\Recette;
-use App\Models\ReglePartage;
-use App\Models\Role;
-use App\Models\Service;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Assurances\Assurance;
+use App\Models\Assurances\ReglePartage;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\Dette;
+use App\Models\Caisse\ModePaiement;
+use App\Models\Caisse\MouvementCaisse;
+use App\Models\Caisse\Paiement;
+use App\Models\Comptabilite\Recette;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Service;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
+use App\Models\Medical\Acte;
+use App\Models\Patients\Patient;
+use App\Models\Personnel\Medecin;
 
 function getTestAdminUser(): User
 {

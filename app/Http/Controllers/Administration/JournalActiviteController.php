@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
-use App\Models\JournalActivite;
+use App\Models\Administration\JournalActivite;
 use App\Traits\HasPeriodFilter;
 
 class JournalActiviteController extends Controller

@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Acte;
-use App\Models\Medecin;
-use App\Models\Patient;
-use App\Models\Prestation;
-use App\Models\Role;
-use App\Models\Service;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
+use App\Models\Patients\Patient;
+use App\Models\Personnel\Medecin;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

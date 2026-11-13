@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\JournalActivite;
-use App\Models\User;
+use App\Models\Administration\JournalActivite;
+use App\Models\Administration\User;
 use Illuminate\Support\Facades\Request;
 
 class JournalActiviteService

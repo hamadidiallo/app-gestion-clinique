@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Medecin;
-use App\Models\Prestation;
-use App\Models\ReglePartage;
-use App\Models\Remuneration;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Assurances\ReglePartage;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Ticket;
+use App\Models\Personnel\Medecin;
+use App\Models\Personnel\Remuneration;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

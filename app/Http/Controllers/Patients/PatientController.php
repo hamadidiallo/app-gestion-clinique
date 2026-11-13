@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Patients;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Patients\PatientRequest;
-use App\Models\Assurance;
-use App\Models\CarteAssurance;
-use App\Models\DossierMedical;
-use App\Models\Patient;
+use App\Models\Assurances\Assurance;
+use App\Models\Assurances\CarteAssurance;
+use App\Models\Patients\DossierMedical;
+use App\Models\Patients\Patient;
 use App\Traits\HasPeriodFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

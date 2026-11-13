@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Comptabilite;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comptabilite\RecetteRequest;
-use App\Models\ModePaiement;
-use App\Models\Paiement;
-use App\Models\Recette;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\ModePaiement;
+use App\Models\Caisse\Paiement;
+use App\Models\Comptabilite\Recette;
+use App\Models\Facturation\Ticket;
 use App\Traits\HasPeriodFilter;
 
 class RecetteController extends Controller

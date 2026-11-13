@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Caisse;
-use App\Models\MouvementCaisse;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\MouvementCaisse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

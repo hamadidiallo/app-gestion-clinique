@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\Acte;
-use App\Models\ModePaiement;
-use App\Models\Patient;
-use App\Models\Recette;
-use App\Models\Role;
-use App\Models\Service;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Caisse\ModePaiement;
+use App\Models\Comptabilite\Recette;
+use App\Models\Facturation\Service;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
+use App\Models\Medical\Acte;
+use App\Models\Patients\Patient;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

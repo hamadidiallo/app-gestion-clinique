@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Caisse\CaisseRequest;
-use App\Models\Caisse;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\Caisse;
 use App\Services\GestionCaisseService;
 use App\Traits\HasPeriodFilter;
 use Illuminate\Http\Request;

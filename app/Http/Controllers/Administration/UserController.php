@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\UserRequest;
-use App\Models\Invitation;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Invitation;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller

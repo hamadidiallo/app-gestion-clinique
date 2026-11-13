@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Personnel;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Personnel\MedecinRequest;
-use App\Models\Medecin;
-use App\Models\Service;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Facturation\Service;
+use App\Models\Personnel\Medecin;
 use App\Traits\HasPeriodFilter;
 use Illuminate\Support\Collection;
 

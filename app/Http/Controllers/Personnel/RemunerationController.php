@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Personnel;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Personnel\RemunerationRequest;
-use App\Models\Medecin;
-use App\Models\Prestation;
-use App\Models\Remuneration;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Facturation\Prestation;
+use App\Models\Personnel\Medecin;
+use App\Models\Personnel\Remuneration;
 use App\Services\RemunerationService;
 use App\Traits\HasPeriodFilter;
 use Carbon\Carbon;

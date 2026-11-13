@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\Clinique;
-use App\Models\Consultation;
-use App\Models\DossierMedical;
-use App\Models\Ordonnance;
-use App\Models\Patient;
-use App\Models\Role;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
-use App\Models\User;
+use App\Models\Administration\Clinique;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
+use App\Models\Medical\Consultation;
+use App\Models\Medical\Ordonnance;
+use App\Models\Patients\DossierMedical;
+use App\Models\Patients\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

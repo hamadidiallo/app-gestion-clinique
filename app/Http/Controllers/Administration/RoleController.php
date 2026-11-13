@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\RoleRequest;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
 
 class RoleController extends Controller
 {

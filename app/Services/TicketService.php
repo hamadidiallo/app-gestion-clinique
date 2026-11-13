@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\CarteAssurance;
-use App\Models\Prestation;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Assurances\CarteAssurance;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

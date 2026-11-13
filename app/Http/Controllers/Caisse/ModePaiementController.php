@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Caisse\ModePaiementRequest;
-use App\Models\ModePaiement;
+use App\Models\Caisse\ModePaiement;
 use App\Traits\HasPeriodFilter;
 
 class ModePaiementController extends Controller

@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Models\Clinique;
+use App\Models\Administration\Clinique;
 use App\Models\Scopes\BelongsToCliniqueScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

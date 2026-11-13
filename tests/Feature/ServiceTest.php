@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Service;
+use App\Models\Facturation\Service;
 
 beforeEach(function () {
     // Session explicite : l'administrateur est rattache a une clinique reelle,

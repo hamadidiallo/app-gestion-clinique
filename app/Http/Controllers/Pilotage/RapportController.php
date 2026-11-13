@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Pilotage;
 
 use App\Http\Controllers\Controller;
 // Importation des modèles nécessaires pour les rapports analytiques
-use App\Models\Assurance;
-use App\Models\Medecin;
-use App\Models\Prestation;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
+use App\Models\Assurances\Assurance;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
+use App\Models\Personnel\Medecin;
 use App\Services\NumberToWordsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

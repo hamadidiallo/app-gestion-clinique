@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Caisse;
-use App\Models\Dette;
-use App\Models\Paiement;
-use App\Models\Recette;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Administration\User;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\Dette;
+use App\Models\Caisse\Paiement;
+use App\Models\Comptabilite\Recette;
+use App\Models\Facturation\Ticket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

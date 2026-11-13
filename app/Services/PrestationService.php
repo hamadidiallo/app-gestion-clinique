@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Acte;
-use App\Models\CarteAssurance;
-use App\Models\Medecin;
-use App\Models\Patient;
-use App\Models\Prestation;
-use App\Models\ReglePartage;
-use App\Models\Service;
+use App\Models\Assurances\CarteAssurance;
+use App\Models\Assurances\ReglePartage;
+use App\Models\Facturation\Prestation;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
+use App\Models\Patients\Patient;
+use App\Models\Personnel\Medecin;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

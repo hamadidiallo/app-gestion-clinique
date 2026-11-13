@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Assurances;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Assurances\ReglePartageRequest;
-use App\Models\ReglePartage;
-use App\Models\Service;
+use App\Models\Assurances\ReglePartage;
+use App\Models\Facturation\Service;
 
 class ReglePartageController extends Controller
 {

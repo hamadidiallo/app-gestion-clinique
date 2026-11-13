@@ -714,8 +714,8 @@
                 @php
                     $isCaissier = auth()->check() && auth()->user()->hasRole('Caissier');
                     $topbarCaisse = $isCaissier
-                        ? \App\Models\Caisse::where('user_id', auth()->id())->where('statut', 'ouverte')->latest('date_ouverture')->first()
-                        : \App\Models\Caisse::where('statut', 'ouverte')->latest('date_ouverture')->first();
+                        ? \App\Models\Caisse\Caisse::where('user_id', auth()->id())->where('statut', 'ouverte')->latest('date_ouverture')->first()
+                        : \App\Models\Caisse\Caisse::where('statut', 'ouverte')->latest('date_ouverture')->first();
                 @endphp
                 <div class="d-flex align-items-center gap-3">
                     @if($topbarCaisse)

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Clinique;
+use App\Models\Administration\Clinique;
 use App\Services\AmorcageCliniqueService;
 use Illuminate\Console\Command;
 

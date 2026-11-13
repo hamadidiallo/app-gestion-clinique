@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Acte;
-use App\Models\Assurance;
-use App\Models\CategorieDepense;
-use App\Models\Clinique;
-use App\Models\Role;
-use App\Models\Service;
-use App\Models\User;
+use App\Models\Administration\Clinique;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Assurances\Assurance;
+use App\Models\Comptabilite\CategorieDepense;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
 use App\Services\AmorcageCliniqueService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

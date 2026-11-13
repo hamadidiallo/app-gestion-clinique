@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Pilotage;
 
 use App\Http\Controllers\Controller;
-use App\Models\Caisse;
-use App\Models\Depense;
-use App\Models\Dette;
-use App\Models\Recette;
-use App\Models\Remuneration;
-use App\Models\Service;
-use App\Models\Ticket;
+use App\Models\Caisse\Caisse;
+use App\Models\Caisse\Dette;
+use App\Models\Comptabilite\Depense;
+use App\Models\Comptabilite\Recette;
+use App\Models\Facturation\Service;
+use App\Models\Facturation\Ticket;
+use App\Models\Personnel\Remuneration;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 

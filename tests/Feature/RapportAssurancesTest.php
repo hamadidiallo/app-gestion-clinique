@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Assurance;
-use App\Models\Patient;
-use App\Models\Role;
-use App\Models\Ticket;
-use App\Models\TicketDetail;
-use App\Models\User;
+use App\Models\Administration\Role;
+use App\Models\Administration\User;
+use App\Models\Assurances\Assurance;
+use App\Models\Facturation\Ticket;
+use App\Models\Facturation\TicketDetail;
+use App\Models\Patients\Patient;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

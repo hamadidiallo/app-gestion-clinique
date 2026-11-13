@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\Acte;
-use App\Models\ActeParametre;
-use App\Models\Clinique;
+use App\Models\Administration\Clinique;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
+use App\Models\Medical\ActeParametre;
 use App\Models\Scopes\BelongsToCliniqueScope;
-use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 
 /**

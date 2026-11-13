@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Acte;
-use App\Models\ActeParametre;
-use App\Models\Patient;
-use App\Models\Role;
-use App\Models\Service;
+use App\Models\Administration\Role;
+use App\Models\Facturation\Service;
+use App\Models\Medical\Acte;
+use App\Models\Medical\ActeParametre;
+use App\Models\Patients\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 
