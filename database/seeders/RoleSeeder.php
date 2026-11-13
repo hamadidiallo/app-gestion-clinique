@@ -33,6 +33,10 @@ class RoleSeeder extends Seeder
                 'nom' => 'Comptable',
                 'description' => 'Gestion des dépenses, recettes, dettes et rémunérations',
             ],
+            [
+                'nom' => 'Laborantin',
+                'description' => 'Réalisation des examens de laboratoire payés, saisie et validation des résultats',
+            ],
         ];
 
         foreach ($roles as $role) {

@@ -132,6 +132,17 @@
                                 @enderror
                             </div>
 
+                            {{-- Date de naissance (facultative) --}}
+                            <div class="col-md-6">
+                                <label for="date_naissance" class="form-label fw-bold text-dark small mb-1">Date de naissance</label>
+                                <input type="date" name="date_naissance" id="date_naissance" value="{{ old('date_naissance', $patient->date_naissance?->format('Y-m-d')) }}" max="{{ now()->format('Y-m-d') }}" class="form-control @error('date_naissance') is-invalid @enderror">
+                                @error('date_naissance')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="form-text">Facultative. Elle permet d'appliquer les valeurs normales « enfant » aux examens de laboratoire.</div>
+                                @enderror
+                            </div>
+
                             {{-- Téléphone --}}
                             <div class="col-md-6">
                                 <label for="telephone" class="form-label fw-bold text-dark small mb-1">

@@ -22,8 +22,10 @@ use App\Http\Controllers\Facturation\ServiceController;
 use App\Http\Controllers\Facturation\TicketController;
 use App\Http\Controllers\Facturation\TicketDetailController;
 use App\Http\Controllers\Medical\ActeController;
+use App\Http\Controllers\Medical\ActeParametreController;
 use App\Http\Controllers\Medical\ConsultationController;
 use App\Http\Controllers\Medical\FileAttenteController;
+use App\Http\Controllers\Medical\ImportExamensController;
 use App\Http\Controllers\Patients\PatientController;
 use App\Http\Controllers\Personnel\MedecinController;
 use App\Http\Controllers\Personnel\RemunerationController;
@@ -307,6 +309,22 @@ Route::middleware(['auth', 'clinique.active'])->group(function () {
                 Route::get('/consultations/{consultation}/ordonnance/print', 'printOrdonnance')->name('consultations.print-ordonnance');
             });
         });
+    });
+
+    // =========================================================================
+    // PARAMÈTRES DES EXAMENS DE LABORATOIRE (unités, valeurs normales)
+    // =========================================================================
+    Route::middleware(['role:Administrateur'])->controller(ImportExamensController::class)->group(function () {
+        Route::get('/examens/import', 'index')->name('actes.import');
+        Route::post('/examens/import/catalogue', 'catalogue')->name('actes.import.catalogue');
+        Route::post('/examens/import/fichier', 'fichier')->name('actes.import.fichier');
+        Route::get('/examens/import/modele', 'modele')->name('actes.import.modele');
+    });
+
+    Route::middleware(['role:Administrateur'])->controller(ActeParametreController::class)->group(function () {
+        Route::post('/actes/{acte}/parametres', 'store')->name('actes.parametres.store');
+        Route::put('/actes/{acte}/parametres/{parametre}', 'update')->name('actes.parametres.update');
+        Route::delete('/actes/{acte}/parametres/{parametre}', 'destroy')->name('actes.parametres.destroy');
     });
 
     // =========================================================================

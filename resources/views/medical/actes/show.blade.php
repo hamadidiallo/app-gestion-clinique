@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="container-fluid p-0">
+    @if (session('alert'))
+        <div class="alert alert-success border-0 shadow-sm" role="status">{{ session('alert') }}</div>
+    @endif
     {{-- En-tête --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
@@ -191,6 +194,10 @@
                     <span>Dernière mise à jour le {{ $acte->updated_at ? $acte->updated_at->format('d/m/Y à H:i') : '—' }}</span>
                 </div>
             </div>
+
+            @if ($acte->estExamenBiologie())
+                @include('medical.actes._parametres')
+            @endif
         </div>
 
         <div class="col-lg-4">

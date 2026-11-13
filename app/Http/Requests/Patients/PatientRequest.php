@@ -32,6 +32,7 @@ class PatientRequest extends FormRequest
 
             // Le sexe est obligatoire et doit être soit 'M' soit 'F'
             'sexe' => 'required|in:M,F',
+            'date_naissance' => 'nullable|date|before_or_equal:today|after:1900-01-01',
 
             // Le numéro de téléphone est facultatif (peut être vide), mais s'il est renseigné, il doit être une chaîne de 20 caractères max
             'telephone' => 'nullable|string|max:20',

@@ -23,6 +23,7 @@ class Patient extends Model
         'prenom',
         'nom',
         'sexe',
+        'date_naissance',
         'telephone',
         'statut',
         'assurance_id',
@@ -50,7 +51,27 @@ class Patient extends Model
      */
     protected $casts = [
         'taux_couverture' => 'decimal:2',
+        'date_naissance' => 'date',
     ];
+
+    /** Âge en dessous duquel les valeurs normales « enfant » s'appliquent. */
+    public const AGE_LIMITE_ENFANT = 15;
+
+    /**
+     * Âge en années, ou null si la date de naissance n'est pas connue.
+     */
+    public function getAgeAttribute(): ?int
+    {
+        return $this->date_naissance ? (int) $this->date_naissance->diffInYears(now()) : null;
+    }
+
+    /**
+     * Vrai seulement si la date de naissance est connue et indique moins de 15 ans.
+     */
+    public function estEnfant(): bool
+    {
+        return $this->age !== null && $this->age < self::AGE_LIMITE_ENFANT;
+    }
 
     /**
      * Accesseur pour le nom complet du patient (Nom Prénom).

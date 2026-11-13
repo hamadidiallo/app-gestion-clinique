@@ -18,6 +18,12 @@
                 <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i>
                 <span>Créer un Acte</span>
             </a>
+            @if (auth()->user()?->hasRole('Administrateur'))
+                <a href="{{ route('actes.import') }}" class="btn btn-outline-teal fw-semibold d-flex align-items-center gap-2">
+                    <i data-lucide="flask-conical" style="width: 1rem; height: 1rem;"></i>
+                    <span>Importer des examens</span>
+                </a>
+            @endif
             <a href="{{ route('services.index') }}" class="btn btn-outline-teal fw-semibold d-flex align-items-center gap-2">
                 <i data-lucide="building-2" style="width: 1rem; height: 1rem;"></i>
                 <span>Voir les Services</span>

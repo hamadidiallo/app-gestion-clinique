@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Acte extends Model
 {
@@ -39,6 +40,22 @@ class Acte extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * Paramètres mesurés par cet examen (laboratoire), dans l'ordre d'affichage.
+     */
+    public function parametres(): HasMany
+    {
+        return $this->hasMany(ActeParametre::class)->orderBy('ordre')->orderBy('id');
+    }
+
+    /**
+     * Vrai pour un examen de laboratoire (catégorie « Laboratoire & Biologie »).
+     */
+    public function estExamenBiologie(): bool
+    {
+        return $this->categorie === 'biologie';
     }
 
     public function scopeActif(Builder $query): Builder
